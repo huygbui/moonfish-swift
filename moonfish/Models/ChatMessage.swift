@@ -9,7 +9,7 @@ import Foundation
 
 enum Role: String, Codable {
     case assistant
-    case human
+    case user
 }
 
 struct ChatMessage: Identifiable, Codable {
@@ -28,7 +28,7 @@ struct ChatMessage: Identifiable, Codable {
     }
     
     static func human(_ content : String) -> ChatMessage {
-        ChatMessage(role: .human, content: content)
+        ChatMessage(role: .user, content: content)
     }
 }
 

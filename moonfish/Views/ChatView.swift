@@ -47,7 +47,7 @@ struct ChatView: View {
     private func sendMessage() {
         guard !inputMessage.isEmpty else { return }
         
-        let userMessage = ChatMessage( role: .human, content: inputMessage )
+        let userMessage = ChatMessage( role: .user, content: inputMessage )
         messages.append(userMessage)
         
         let currentInput = inputMessage
@@ -59,7 +59,6 @@ struct ChatView: View {
             messages.append(assistantMessage)
         }
     }
-    
 }
 
 #Preview {

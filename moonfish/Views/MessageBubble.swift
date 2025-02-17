@@ -12,14 +12,14 @@ struct MessageBubble: View {
     
     var body: some View {
         HStack {
-            if message.role == .human {
+            if message.role == .user {
                 Spacer()
             }
             
             Text(message.content)
                 .padding()
-                .background(Color.blue)
-                .foregroundStyle(.white)
+                .background(message.role == .user ? .blue : Color(.systemGray5))
+                .foregroundStyle(message.role == .user ? .white : .primary)
                 .cornerRadius(16)
                 .padding(.horizontal)
             
