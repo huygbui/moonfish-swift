@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct ChatView: View {
-    @State private var messages: [ChatMessage] = []
+    @State private var messages: [Message] = []
     @State private var inputMessage: String = ""
+    @State private var isLoading = false
+    
+    private let geminiClient = GeminiClient()
     
     var body: some View {
         VStack {
@@ -19,9 +22,14 @@ struct ChatView: View {
                         ForEach(messages) { message in
                             MessageBubble(message: message)
                         }
-                        .id("messageEnd")
+                        if isLoading {
+                            ProgressView()
+                                .padding()
+                        }
                     }
+                    .id("messageEnd")
                 }
+                .frame(maxWidth:.infinity, maxHeight: .infinity)
                 .onChange(of: messages.count) {
                    withAnimation {
                         proxy.scrollTo("messageEnd")
@@ -30,33 +38,42 @@ struct ChatView: View {
             }
             HStack {
                 TextField("Type message...", text: $inputMessage)
+                    .keyboardType(.default)
                     .textFieldStyle(.roundedBorder)
+                    .disabled(isLoading)
                 Button {
-                    sendMessage()
+                    Task {
+                        await sendMessage()
+                    }
                 } label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.title)
                         .foregroundStyle(.blue)
                 }
-                .disabled(inputMessage.isEmpty)
+                .disabled(inputMessage.isEmpty || isLoading)
             }
             .padding()
         }
     }
-    
-    private func sendMessage() {
+   
+    @MainActor
+    private func sendMessage() async {
         guard !inputMessage.isEmpty else { return }
         
-        let userMessage = ChatMessage( role: .user, content: inputMessage )
+        let userMessage = Message( role: .user, content: inputMessage )
         messages.append(userMessage)
         
-        let currentInput = inputMessage
         inputMessage = ""
+        isLoading = true
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            let response = "You said: \(currentInput)"
-            let assistantMessage = ChatMessage( role: .assistant, content: response )
+        do {
+            let response = try await geminiClient.generate(messages: messages)
+            let assistantMessage =  Message(role: .assistant, content: response)
+            
             messages.append(assistantMessage)
+            isLoading = false
+        } catch {
+            isLoading = false
         }
     }
 }

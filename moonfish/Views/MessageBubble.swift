@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MessageBubble: View {
-    let message : ChatMessage
+    let message : Message
     
     var body: some View {
         HStack {
