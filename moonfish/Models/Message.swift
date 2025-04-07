@@ -8,7 +8,7 @@
 import Foundation
 
 enum Role: String, Codable {
-    case assistant
+    case model
     case user
 }
 
@@ -23,10 +23,10 @@ struct Message: Identifiable, Codable {
         self.content = content
     }
     
-    static func assistant(_ content : String) -> Message {
-        Message(role: .assistant, content: content)
+    static func model(_ content : String) -> Message {
+        Message(role: .model, content: content)
     }
-    
+   
     static func human(_ content : String) -> Message {
         Message(role: .user, content: content)
     }

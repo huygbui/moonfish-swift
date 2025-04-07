@@ -68,9 +68,9 @@ struct ChatView: View {
         
         do {
             let response = try await geminiClient.generate(messages: messages)
-            let assistantMessage =  Message(role: .assistant, content: response)
+            let modelMessage =  Message(role: .model, content: response)
             
-            messages.append(assistantMessage)
+            messages.append(modelMessage)
             isLoading = false
         } catch {
             isLoading = false

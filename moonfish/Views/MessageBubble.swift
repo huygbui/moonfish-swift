@@ -23,7 +23,7 @@ struct MessageBubble: View {
                 .cornerRadius(16)
                 .padding(.horizontal)
             
-            if message.role == .assistant {
+            if message.role == .model {
                 Spacer()
             }
         }
@@ -33,7 +33,7 @@ struct MessageBubble: View {
 #Preview {
     VStack {
         MessageBubble(message: .human("Hello there!"))
-        MessageBubble(message: .assistant("Hi!"))
+        MessageBubble(message: .model("Hi!"))
     }
 }
 
