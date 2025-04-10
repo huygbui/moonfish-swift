@@ -32,7 +32,7 @@ struct MessageBubble: View {
 
 #Preview {
     VStack {
-        MessageBubble(message: .human("Hello there!"))
+        MessageBubble(message: .user("Hello there!"))
         MessageBubble(message: .model("Hi!"))
     }
 }

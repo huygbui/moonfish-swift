@@ -12,37 +12,18 @@ enum Role: String, Codable {
     case user
 }
 
-struct Message: Identifiable, Codable {
+struct Message: Identifiable {
     let id : UUID
     let role : Role
     let content : String
    
-    init(id: UUID = UUID(), role: Role, content: String) {
-        self.id = id
-        self.role = role
-        self.content = content
-    }
     
     static func model(_ content : String) -> Message {
-        Message(role: .model, content: content)
+        Message(id: UUID(), role: .model, content: content)
     }
    
-    static func human(_ content : String) -> Message {
-        Message(role: .user, content: content)
+    static func user(_ content : String) -> Message {
+        Message(id: UUID(), role: .user, content: content)
     }
 }
-
-extension Message {
-    func toGeminiMessage() -> GeminiMessage {
-        return GeminiMessage(role: role, parts: [Part(text:content)])
-    }
-}
-
-struct GeminiMessage: Codable {
-    let role : Role
-    let parts : [Part]
-}
-
-
-
 

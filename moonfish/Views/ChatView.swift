@@ -11,8 +11,14 @@ struct ChatView: View {
     @State private var messages: [Message] = []
     @State private var inputMessage: String = ""
     @State private var isLoading = false
-    
-    private let geminiClient = GeminiClient()
+
+    private let chatClient: ChatClient
+    private let chatId: Int
+
+    init(chatClient: ChatClient, chatId: Int) {
+        self.chatClient = chatClient
+        self.chatId = chatId
+    }
     
     var body: some View {
         VStack {
@@ -60,24 +66,27 @@ struct ChatView: View {
     private func sendMessage() async {
         guard !inputMessage.isEmpty else { return }
         
-        let userMessage = Message( role: .user, content: inputMessage )
-        messages.append(userMessage)
+        var userMsgContent = inputMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        messages.append(.user(userMsgContent))
         
         inputMessage = ""
         isLoading = true
         
         do {
-            let response = try await geminiClient.generate(messages: messages)
-            let modelMessage =  Message(role: .model, content: response)
-            
-            messages.append(modelMessage)
-            isLoading = false
+            var response = try await chatClient.generate(content: userMsgContent, chatId: chatId)
+            var modelMsgContent = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            messages.append(.model(modelMsgContent))
         } catch {
-            isLoading = false
         }
+        
+        isLoading = false
     }
 }
 
 #Preview {
-    ChatView()
+    let chatClient = ChatClient(
+        baseURL: URL(string: "http://localhost:8000")!,
+        bearerToken:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ0Mzg1NzMxLCJ0eXBlIjoiYWNjZXNzIn0.a6H36Rc3anjASyiteXoSx2hoXafP9USMXuWeNeklB5c"
+    )
+    ChatView(chatClient: chatClient, chatId: 1)
 }
