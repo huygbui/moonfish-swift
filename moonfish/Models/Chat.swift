@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Chat: Hashable, Codable {
+struct Chat: Identifiable, Hashable, Codable {
     var id: Int
     var title: String
     var status: String
