@@ -9,12 +9,14 @@ import SwiftUI
 
 @main
 struct moonfishApp: App {
-    private let chatClient = ChatClient(
+    let chatClient = ChatClient(
         baseURL: URL(string: "http://localhost:8000")!,
-        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ0Mjg0NzM1LCJ0eXBlIjoiYWNjZXNzIn0._sGaDmtQhlUfCtWBBcav_iC4As_Qpfo2S3wQhODb-WM"
+        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ0NDc0MDM1LCJ0eXBlIjoiYWNjZXNzIn0.s06BLT-jvrGxt-YDKQW0Iztp-wH08n60AgTxBLpl2PY"
     )
     
     var body: some Scene {
-        WindowGroup { }
+        WindowGroup {
+            ChatListView(chatClient: chatClient)
+        }
     }
 }

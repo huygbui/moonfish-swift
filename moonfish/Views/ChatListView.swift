@@ -8,26 +8,32 @@
 import SwiftUI
 
 struct ChatListView: View {
+    let chatClient: ChatClient
     @State private var isLoading: Bool = false
     @State private var chats: [Chat] = []
-    
+    @State private var errorMessage: String? = nil
+
     var body: some View {
         NavigationSplitView {
-            List(chats) { chat in
-               ChatRowView(chat: chat)
-            }
-            .refreshable {
-                await loadChats()
-            }
-            .navigationTitle(Text("Chats"))
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: {
-                        Task {
-                            await createChat()
+            if isLoading {
+                ProgressView("Loading chats..")
+            } else {
+                List(chats) { chat in
+                    ChatRowView(chat: chat)
+                }
+                .refreshable {
+                    await loadChats()
+                }
+                .navigationTitle(Text("Chats"))
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button(action: {
+                            Task {
+                                await createChat()
+                            }
+                        }) {
+                            Image(systemName: "plus")
                         }
-                    }) {
-                        Image(systemName: "plus")
                     }
                 }
             }
@@ -37,20 +43,24 @@ struct ChatListView: View {
         .task {
             await loadChats()
         }
+        .alert(
+            "Error",
+            isPresented: .init(
+                get: { errorMessage != nil },
+                set: { if !$0 { errorMessage = nil } }
+            ),
+            actions: { Button("OK", role: .cancel) { } },
+            message: { Text(errorMessage ?? "") }
+        )
     }
    
     @MainActor
     private func loadChats() async {
         isLoading = true
         do {
-            // This is a placeholder - we need to implement this method in ChatClient
-            // chats = try await chatClient.getChats()
-            // For now, let's use dummy data
-            chats = [
-                Chat(id: 1, title: "First Podcast", status: "Done", createdAt: "2025-04-09 17:05:10"),
-                Chat(id: 2, title: "Tech News", status: "Done", createdAt: "2025-04-10 10:15:20")
-            ]
+            chats = try await chatClient.getChats()
         } catch {
+            errorMessage = "Failed to load chats: \(error.localizedDescription)"
         }
         isLoading = false
     }
@@ -79,5 +89,9 @@ struct ChatListView: View {
 
 
 #Preview {
-    ChatListView()
+    let chatClient = ChatClient(
+        baseURL: URL(string: "http://localhost:8000")!,
+        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ0NDc0MDM1LCJ0eXBlIjoiYWNjZXNzIn0.s06BLT-jvrGxt-YDKQW0Iztp-wH08n60AgTxBLpl2PY"
+    )
+    ChatListView(chatClient: chatClient)
 }

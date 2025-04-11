@@ -13,7 +13,7 @@ struct ChatRowView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(chat.title)
+                Text(chat.title ?? "New Chat")
                 Text(chat.createdAt)
             }
             Spacer()
