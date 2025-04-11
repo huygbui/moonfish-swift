@@ -66,15 +66,15 @@ struct ChatView: View {
     private func sendMessage() async {
         guard !inputMessage.isEmpty else { return }
         
-        var userMsgContent = inputMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        let userMsgContent = inputMessage.trimmingCharacters(in: .whitespacesAndNewlines)
         messages.append(.user(userMsgContent))
         
         inputMessage = ""
         isLoading = true
         
         do {
-            var response = try await chatClient.generate(content: userMsgContent, chatId: chatId)
-            var modelMsgContent = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            let response = try await chatClient.generate(content: userMsgContent, chatId: chatId)
+            let modelMsgContent = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
             messages.append(.model(modelMsgContent))
         } catch {
         }
