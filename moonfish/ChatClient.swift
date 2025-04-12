@@ -8,9 +8,7 @@
 import Foundation
 
 enum ChatError: Error {
-    case invalidURL
     case invalidResponse
-    case decodingError(Error)
 }
 
 struct ChatRequest: Codable {
@@ -69,11 +67,7 @@ struct ChatClient {
             throw ChatError.invalidResponse
         }
         
-        do {
-            return try JSONDecoder().decode(ChatResponse.self, from: data)
-        } catch {
-            throw ChatError.decodingError(error)
-        }
+        return try JSONDecoder().decode(ChatResponse.self, from: data)
     }
     
     func getChats() async throws -> [Chat] {
@@ -89,11 +83,23 @@ struct ChatClient {
             throw ChatError.invalidResponse
         }
         
-        do {
-            return try JSONDecoder().decode([Chat].self, from: data)
-        } catch {
-            throw ChatError.decodingError(error)
+        return try JSONDecoder().decode([Chat].self, from: data)
+    }
+    
+    func deleteChat(chatId: Int) async throws {
+        let url = baseURL
+            .appending(components: "chat", "\(chatId)")
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        
+        let (_, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            throw ChatError.invalidResponse
         }
     }
+    
 }
 

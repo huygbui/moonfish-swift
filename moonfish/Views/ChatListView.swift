@@ -7,22 +7,31 @@
 
 import SwiftUI
 
+
 struct ChatListView: View {
     let chatClient: ChatClient
     @State private var isLoading: Bool = false
+    @State private var errorMessage: String = ""
     @State private var chats: [Chat] = []
-    @State private var errorMessage: String? = nil
-
+    
     var body: some View {
         NavigationSplitView {
             if isLoading {
                 ProgressView("Loading chats..")
             } else {
                 List(chats) { chat in
-                    ChatRowView(chat: chat)
-                }
-                .refreshable {
-                    await loadChats()
+                    NavigationLink(destination: ChatView(chatClient: chatClient, chatId: chat.id)) {
+                        ChatRowView(chat: chat)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            Task {
+                                await deleteChat(chatId: chat.id)
+                            }
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
                 }
                 .navigationTitle(Text("Chats"))
                 .toolbar {
@@ -43,31 +52,37 @@ struct ChatListView: View {
         .task {
             await loadChats()
         }
-        .alert(
-            "Error",
-            isPresented: .init(
-                get: { errorMessage != nil },
-                set: { if !$0 { errorMessage = nil } }
-            ),
-            actions: { Button("OK", role: .cancel) { } },
-            message: { Text(errorMessage ?? "") }
-        )
     }
    
     @MainActor
     private func loadChats() async {
         isLoading = true
+        defer { isLoading = false }
         do {
             chats = try await chatClient.getChats()
         } catch {
             errorMessage = "Failed to load chats: \(error.localizedDescription)"
+            print(errorMessage)
         }
-        isLoading = false
+    }
+    
+    @MainActor
+    private func deleteChat(chatId: Int) async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            try await chatClient.deleteChat(chatId: chatId)
+            chats.removeAll(where: { $0.id == chatId })
+        } catch {
+            errorMessage = "Failed to delete chats: \(error.localizedDescription)"
+            print(errorMessage)
+        }
     }
     
     @MainActor
     private func createChat() async {
         isLoading = true
+        defer { isLoading = false }
         do {
             // This is a placeholder - we need to implement this method in ChatClient
             // let newChat = try await chatClient.createChat(content: "What would you like to talk about?")
@@ -80,8 +95,9 @@ struct ChatListView: View {
             )
             chats.insert(newChat, at: 0)
         } catch {
+            errorMessage = "Failed to create chats: \(error.localizedDescription)"
+            print(errorMessage)
         }
-        isLoading = false
     }
 }
 
