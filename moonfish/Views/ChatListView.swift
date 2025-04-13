@@ -16,41 +16,33 @@ struct ChatListView: View {
     
     var body: some View {
         NavigationSplitView {
-            if isLoading {
-                ProgressView("Loading chats..")
-            } else {
-                List(chats) { chat in
-                    NavigationLink(destination: ChatView(chatClient: chatClient, chatId: chat.id)) {
-                        ChatRowView(chat: chat)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            Task {
-                                await deleteChat(chatId: chat.id)
-                            }
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
+            List(chats) { chat in
+                NavigationLink(destination: ChatView(chatClient: chatClient, chat: chat)) {
+                    ChatRowView(chat: chat)
                 }
-                .navigationTitle(Text("Chats"))
-                .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        Button(action: {
-                            Task {
-                                await createChat()
-                            }
-                        }) {
-                            Image(systemName: "plus")
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button(role: .destructive) {
+                        Task {
+                            await deleteChat(chatId: chat.id)
                         }
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
+            .navigationTitle(Text("Chats"))
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    NavigationLink(destination: ChatView(chatClient: chatClient)) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .task {
+                await loadChats()
+            }
         } detail: {
             Text("Select a chat")
-        }
-        .task {
-            await loadChats()
         }
     }
    
@@ -59,7 +51,7 @@ struct ChatListView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            chats = try await chatClient.getChats()
+            chats = try await chatClient.fetchChats()
         } catch {
             errorMessage = "Failed to load chats: \(error.localizedDescription)"
             print(errorMessage)
@@ -78,27 +70,6 @@ struct ChatListView: View {
             print(errorMessage)
         }
     }
-    
-    @MainActor
-    private func createChat() async {
-        isLoading = true
-        defer { isLoading = false }
-        do {
-            // This is a placeholder - we need to implement this method in ChatClient
-            // let newChat = try await chatClient.createChat(content: "What would you like to talk about?")
-            // For now, let's use dummy data
-            let newChat = Chat(
-                id: chats.count + 1,
-                title: "New Podcast \(chats.count + 1)",
-                status: "Pending",
-                createdAt: "2025-04-11 \(String(format: "%02d", Int.random(in: 0...23))):\(String(format: "%02d", Int.random(in: 0...59))):00"
-            )
-            chats.insert(newChat, at: 0)
-        } catch {
-            errorMessage = "Failed to create chats: \(error.localizedDescription)"
-            print(errorMessage)
-        }
-    }
 }
 
 
@@ -107,7 +78,7 @@ struct ChatListView: View {
 #Preview {
     let chatClient = ChatClient(
         baseURL: URL(string: "http://localhost:8000")!,
-        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ0NDc0MDM1LCJ0eXBlIjoiYWNjZXNzIn0.s06BLT-jvrGxt-YDKQW0Iztp-wH08n60AgTxBLpl2PY"
+        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2MjQ5NTYwLCJ0eXBlIjoiYWNjZXNzIn0.4QyvQ_M-OMdjPsuExhPFYAEUWWcaEJlo3PB-zl4_Dzs"
     )
     ChatListView(chatClient: chatClient)
 }

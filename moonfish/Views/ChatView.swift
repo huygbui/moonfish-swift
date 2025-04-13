@@ -13,11 +13,11 @@ struct ChatView: View {
     @State private var isLoading = false
 
     private let chatClient: ChatClient
-    private let chatId: Int
+    private let chat: Chat?
 
-    init(chatClient: ChatClient, chatId: Int) {
+    init(chatClient: ChatClient, chat: Chat? = nil) {
         self.chatClient = chatClient
-        self.chatId = chatId
+        self.chat = chat
     }
     
     var body: some View {
@@ -73,7 +73,7 @@ struct ChatView: View {
         isLoading = true
         
         do {
-            let response = try await chatClient.generate(content: userMsgContent, chatId: chatId)
+            let response = try await chatClient.generate(content: userMsgContent, chatId: chat?.id)
             let modelMsgContent = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
             messages.append(.model(modelMsgContent))
         } catch {
@@ -88,5 +88,11 @@ struct ChatView: View {
         baseURL: URL(string: "http://localhost:8000")!,
         bearerToken:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ0Mzg1NzMxLCJ0eXBlIjoiYWNjZXNzIn0.a6H36Rc3anjASyiteXoSx2hoXafP9USMXuWeNeklB5c"
     )
-    ChatView(chatClient: chatClient, chatId: 1)
+    let chat = Chat(
+        id: 1,
+        title: "Test Chat",
+        status: "active",
+        createdAt: "2023-01-01T00:00:00Z"
+    )
+    ChatView(chatClient: chatClient, chat: chat)
 }

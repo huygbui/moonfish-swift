@@ -70,7 +70,7 @@ struct ChatClient {
         return try JSONDecoder().decode(ChatResponse.self, from: data)
     }
     
-    func getChats() async throws -> [Chat] {
+    func fetchChats() async throws -> [Chat] {
         let url = baseURL
             .appending(component: "chat")
         
