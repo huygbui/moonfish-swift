@@ -13,9 +13,9 @@ struct ChatView: View {
     @State private var isLoading = false
 
     private let chatClient: ChatClient
-    private let chat: Chat?
+    private let chat: API.Chat?
 
-    init(chatClient: ChatClient, chat: Chat? = nil) {
+    init(chatClient: ChatClient, chat: API.Chat? = nil) {
         self.chatClient = chatClient
         self.chat = chat
     }
@@ -88,7 +88,7 @@ struct ChatView: View {
         baseURL: URL(string: "http://localhost:8000")!,
         bearerToken:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ0Mzg1NzMxLCJ0eXBlIjoiYWNjZXNzIn0.a6H36Rc3anjASyiteXoSx2hoXafP9USMXuWeNeklB5c"
     )
-    let chat = Chat(
+    let chat = API.Chat(
         id: 1,
         title: "Test Chat",
         status: "active",

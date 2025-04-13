@@ -25,19 +25,22 @@ struct ChatResponse: Codable {
     }
 }
 
-struct Chat: Identifiable, Hashable, Codable {
-    var id: Int
-    var title: String?
-    var status: String
-    var createdAt: String
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case title
-        case status
-        case createdAt = "created_at"
+enum API {
+    struct Chat: Identifiable, Hashable, Codable {
+        var id: Int
+        var title: String?
+        var status: String
+        var createdAt: String
+        
+        enum CodingKeys: String, CodingKey {
+            case id
+            case title
+            case status
+            case createdAt = "created_at"
+        }
     }
 }
+
 
 struct ChatClient {
     private let baseURL : URL
@@ -70,7 +73,7 @@ struct ChatClient {
         return try JSONDecoder().decode(ChatResponse.self, from: data)
     }
     
-    func fetchChats() async throws -> [Chat] {
+    func fetchChats() async throws -> [API.Chat] {
         let url = baseURL
             .appending(component: "chat")
         
@@ -83,7 +86,7 @@ struct ChatClient {
             throw ChatError.invalidResponse
         }
         
-        return try JSONDecoder().decode([Chat].self, from: data)
+        return try JSONDecoder().decode([API.Chat].self, from: data)
     }
     
     func deleteChat(chatId: Int) async throws {
