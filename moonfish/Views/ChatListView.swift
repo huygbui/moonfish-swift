@@ -12,7 +12,7 @@ struct ChatListView: View {
     let chatClient: ChatClient
     @State private var isLoading: Bool = false
     @State private var errorMessage: String = ""
-    @State private var chats: [API.Chat] = []
+    @State private var chats: [Remote.Chat] = []
     
     var body: some View {
         NavigationSplitView {

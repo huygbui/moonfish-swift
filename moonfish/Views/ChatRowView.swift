@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ChatRowView: View {
-    var chat: API.Chat
+    var chat: Remote.Chat
     
     var body: some View {
         HStack {
@@ -23,7 +23,7 @@ struct ChatRowView: View {
 
 #Preview {
     ChatRowView(
-        chat: API.Chat(
+        chat: Remote.Chat(
             id: 1,
             title: "Moonfish",
             status: "Done",

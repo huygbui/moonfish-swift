@@ -4,7 +4,6 @@
 //
 //  Created by Huy Bui on 17/2/25.
 //
-
 import Foundation
 
 enum ChatError: Error {
@@ -24,23 +23,6 @@ struct ChatResponse: Codable {
         case content
     }
 }
-
-enum API {
-    struct Chat: Identifiable, Hashable, Codable {
-        var id: Int
-        var title: String?
-        var status: String
-        var createdAt: String
-        
-        enum CodingKeys: String, CodingKey {
-            case id
-            case title
-            case status
-            case createdAt = "created_at"
-        }
-    }
-}
-
 
 struct ChatClient {
     private let baseURL : URL
@@ -73,7 +55,7 @@ struct ChatClient {
         return try JSONDecoder().decode(ChatResponse.self, from: data)
     }
     
-    func fetchChats() async throws -> [API.Chat] {
+    func fetchChats() async throws -> [Remote.Chat] {
         let url = baseURL
             .appending(component: "chat")
         
@@ -86,7 +68,7 @@ struct ChatClient {
             throw ChatError.invalidResponse
         }
         
-        return try JSONDecoder().decode([API.Chat].self, from: data)
+        return try JSONDecoder().decode([Remote.Chat].self, from: data)
     }
     
     func deleteChat(chatId: Int) async throws {
