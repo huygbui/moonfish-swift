@@ -13,9 +13,9 @@ struct ChatView: View {
     @State private var isLoading = false
 
     private let chatClient: ChatClient
-    private let chat: Remote.Chat?
+    private let chat: Chat?
 
-    init(chatClient: ChatClient, chat: Remote.Chat? = nil) {
+    init(chatClient: ChatClient, chat: Chat? = nil) {
         self.chatClient = chatClient
         self.chat = chat
     }
@@ -67,15 +67,15 @@ struct ChatView: View {
         guard !inputMessage.isEmpty else { return }
         
         let userMsgContent = inputMessage.trimmingCharacters(in: .whitespacesAndNewlines)
-        messages.append(.user(userMsgContent))
+        messages.append(.init(role: .user, content: inputMessage))
         
         inputMessage = ""
         isLoading = true
         
         do {
-            let response = try await chatClient.generate(content: userMsgContent, chatId: chat?.id)
+            let response = try await chatClient.generate(content: userMsgContent, chatId: chat?.remoteId)
             let modelMsgContent = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
-            messages.append(.model(modelMsgContent))
+            messages.append(.init(role: .model, content: modelMsgContent))
         } catch {
         }
         
@@ -88,11 +88,12 @@ struct ChatView: View {
         baseURL: URL(string: "http://localhost:8000")!,
         bearerToken:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ0Mzg1NzMxLCJ0eXBlIjoiYWNjZXNzIn0.a6H36Rc3anjASyiteXoSx2hoXafP9USMXuWeNeklB5c"
     )
-    let chat = Remote.Chat(
+    let remoteChat = Remote.Chat(
         id: 1,
         title: "Test Chat",
         status: "active",
-        createdAt: "2023-01-01T00:00:00Z"
+        createdAt: "2023-01-01 00:00:00"
     )
+    let chat = Chat(from: remoteChat)
     ChatView(chatClient: chatClient, chat: chat)
 }

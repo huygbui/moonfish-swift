@@ -6,27 +6,31 @@
 //
 
 import SwiftUI
-
+import SwiftData
 
 struct ChatListView: View {
     let chatClient: ChatClient
     @State private var isLoading: Bool = false
     @State private var errorMessage: String = ""
-    @State private var chats: [Remote.Chat] = []
+    
+    @Query(sort: \Chat.createdAt, order: .reverse) private var chats: [Chat]
+    @Environment(\.modelContext) private var context
     
     var body: some View {
         NavigationSplitView {
-            List(chats) { chat in
-                NavigationLink(destination: ChatView(chatClient: chatClient, chat: chat)) {
-                    ChatRowView(chat: chat)
-                }
-                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button(role: .destructive) {
-                        Task {
-                            await deleteChat(chatId: chat.id)
+            List {
+                ForEach(chats) { chat in
+                    NavigationLink(destination: ChatView(chatClient: chatClient, chat: chat)) {
+                        ChatRowView(chat: chat)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            Task {
+                                await deleteChat(chatId: chat.remoteId)
+                            }
+                        } label: {
+                            Label("Delete", systemImage: "trash")
                         }
-                    } label: {
-                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
@@ -51,7 +55,22 @@ struct ChatListView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            chats = try await chatClient.fetchChats()
+            let remoteChats = try await chatClient.fetchChats()
+            
+            for remoteChat in remoteChats {
+                // Check if this chat already exists locally
+                let predicate = #Predicate<Chat> { $0.remoteId == remoteChat.id }
+                let descriptor = FetchDescriptor<Chat>(predicate: predicate)
+                
+                if let existing = try? context.fetch(descriptor).first {
+                   // Ignore for now
+                } else {
+                    if let newChat = Chat.init(from: remoteChat) {
+                        context.insert(newChat)
+                    }
+                }
+            }
+            
         } catch {
             errorMessage = "Failed to load chats: \(error.localizedDescription)"
             print(errorMessage)
@@ -64,7 +83,7 @@ struct ChatListView: View {
         defer { isLoading = false }
         do {
             try await chatClient.deleteChat(chatId: chatId)
-            chats.removeAll(where: { $0.id == chatId })
+//            chats.removeAll(where: { $0.id == chatId })
         } catch {
             errorMessage = "Failed to delete chats: \(error.localizedDescription)"
             print(errorMessage)

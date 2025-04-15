@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct moonfishApp: App {
@@ -17,6 +18,7 @@ struct moonfishApp: App {
     var body: some Scene {
         WindowGroup {
             ChatListView(chatClient: chatClient)
+                .modelContainer(for: Chat.self)
         }
     }
 }
