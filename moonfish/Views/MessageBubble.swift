@@ -32,8 +32,8 @@ struct MessageBubble: View {
 
 #Preview {
     VStack {
-        MessageBubble(message: .init(role: .user, content: "Hello there!"))
-        MessageBubble(message: .init(role: .model, content: "Hi! How can I help you?"))
+        MessageBubble(message: .init(id: 1, role: .user, content: "Hello there!"))
+        MessageBubble(message: .init(id: 2, role: .model, content: "Hi! How can I help you?"))
     }
 }
 

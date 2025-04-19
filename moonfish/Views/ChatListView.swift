@@ -13,37 +13,35 @@ struct ChatListView: View {
     @State private var isLoading: Bool = false
     @State private var errorMessage: String = ""
     
-    @Query(sort: \Chat.createdAt, order: .reverse) private var chats: [Chat]
+    @Query private var chats: [Chat]
     @Environment(\.modelContext) private var context
     
     var body: some View {
         NavigationSplitView {
-            List {
-                ForEach(chats) { chat in
-                    NavigationLink(destination: ChatView(chatClient: chatClient, chat: chat)) {
-                        ChatRowView(chat: chat)
-                    }
-                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                        Button(role: .destructive) {
-                            Task {
-                                await deleteChat(chatId: chat.remoteId)
-                            }
-                        } label: {
-                            Label("Delete", systemImage: "trash")
+            List(chats) { chat in
+                NavigationLink(destination: ChatView(chat: chat)) {
+                    ChatRowView(chat: chat)
+                }
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button(role: .destructive) {
+                        Task {
+                            await deleteChat(chat)
                         }
+                    } label: {
+                        Label("Delete", systemImage: "trash")
                     }
                 }
             }
             .navigationTitle(Text("Chats"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    NavigationLink(destination: ChatView(chatClient: chatClient)) {
-                        Image(systemName: "plus")
-                    }
+//                    NavigationLink(destination: ChatView(chat: nil)) {
+//                        Image(systemName: "plus")
+//                    }
                 }
             }
-            .task {
-                await loadChats()
+            .refreshable {
+                await RemoteChatCollection.refresh(context: context)
             }
         } detail: {
             Text("Select a chat")
@@ -51,39 +49,13 @@ struct ChatListView: View {
     }
    
     @MainActor
-    private func loadChats() async {
+    private func deleteChat(_ chat: Chat) async {
         isLoading = true
         defer { isLoading = false }
         do {
-            let remoteChats = try await chatClient.fetchChats()
-            
-            for remoteChat in remoteChats {
-                // Check if this chat already exists locally
-                let predicate = #Predicate<Chat> { $0.remoteId == remoteChat.id }
-                let descriptor = FetchDescriptor<Chat>(predicate: predicate)
-                
-                if let existing = try? context.fetch(descriptor).first {
-                   // Ignore for now
-                } else {
-                    if let newChat = Chat.init(from: remoteChat) {
-                        context.insert(newChat)
-                    }
-                }
-            }
-            
-        } catch {
-            errorMessage = "Failed to load chats: \(error.localizedDescription)"
-            print(errorMessage)
-        }
-    }
-    
-    @MainActor
-    private func deleteChat(chatId: Int) async {
-        isLoading = true
-        defer { isLoading = false }
-        do {
-            try await chatClient.deleteChat(chatId: chatId)
-//            chats.removeAll(where: { $0.id == chatId })
+            try await chatClient.deleteChat(chatId: chat.id)
+            context.delete(chat)
+            try? context.save()
         } catch {
             errorMessage = "Failed to delete chats: \(error.localizedDescription)"
             print(errorMessage)
@@ -95,7 +67,7 @@ struct ChatListView: View {
 #Preview {
     let chatClient = ChatClient(
         baseURL: URL(string: "http://localhost:8000")!,
-        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2MjQ5NTYwLCJ0eXBlIjoiYWNjZXNzIn0.4QyvQ_M-OMdjPsuExhPFYAEUWWcaEJlo3PB-zl4_Dzs"
+        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1NTYyOTU3LCJ0eXBlIjoiYWNjZXNzIn0.Nz3x3aFiCrdHLSPLtNJVn0yxTLS-lsSVFqzq142AuWY"
     )
     ChatListView(chatClient: chatClient)
 }

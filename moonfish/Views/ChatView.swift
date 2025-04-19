@@ -6,26 +6,21 @@
 //
 
 import SwiftUI
-
+import SwiftData
 struct ChatView: View {
-    @State private var messages: [Message] = []
-    @State private var inputMessage: String = ""
+    var chat: Chat
+    
+    @State private var inputMessage = ""
     @State private var isLoading = false
-
-    private let chatClient: ChatClient
-    private let chat: Chat?
-
-    init(chatClient: ChatClient, chat: Chat? = nil) {
-        self.chatClient = chatClient
-        self.chat = chat
-    }
+   
+    @Environment(\.modelContext) private var context
     
     var body: some View {
         VStack {
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack {
-                        ForEach(messages) { message in
+                        ForEach(chat.messages) { message in
                             MessageBubble(message: message)
                         }
                         if isLoading {
@@ -36,7 +31,7 @@ struct ChatView: View {
                     .id("messageEnd")
                 }
                 .frame(maxWidth:.infinity, maxHeight: .infinity)
-                .onChange(of: messages.count) {
+                .onChange(of: chat.messages.count) {
                    withAnimation {
                         proxy.scrollTo("messageEnd")
                     }
@@ -60,40 +55,42 @@ struct ChatView: View {
             }
             .padding()
         }
+        .task {
+            print("Fetching messages...")
+            await RemoteMessageCollection.refresh(chat: chat, context: context)
+        }
     }
    
     @MainActor
     private func sendMessage() async {
         guard !inputMessage.isEmpty else { return }
         
-        let userMsgContent = inputMessage.trimmingCharacters(in: .whitespacesAndNewlines)
-        messages.append(.init(role: .user, content: inputMessage))
-        
-        inputMessage = ""
         isLoading = true
+        defer { isLoading = false }
+       
+        inputMessage = ""
         
         do {
-            let response = try await chatClient.generate(content: userMsgContent, chatId: chat?.remoteId)
-            let modelMsgContent = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
-            messages.append(.init(role: .model, content: modelMsgContent))
+            try await RemoteMessageCollection.send(messageContent: inputMessage, chat: chat, context: context)
         } catch {
+            print("\(error.localizedDescription)")
         }
-        
-        isLoading = false
     }
 }
 
 #Preview {
     let chatClient = ChatClient(
         baseURL: URL(string: "http://localhost:8000")!,
-        bearerToken:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ0Mzg1NzMxLCJ0eXBlIjoiYWNjZXNzIn0.a6H36Rc3anjASyiteXoSx2hoXafP9USMXuWeNeklB5c"
+        bearerToken:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1NTYyNzkzLCJ0eXBlIjoiYWNjZXNzIn0.2SuU6XEJZSXJ1e0IHcpOxNkzY1eEqz6xlXxWexRMegw"
     )
-    let remoteChat = Remote.Chat(
+    let remoteChat = RemoteChatCollection.RemoteChat(
         id: 1,
         title: "Test Chat",
         status: "active",
         createdAt: "2023-01-01 00:00:00"
     )
     let chat = Chat(from: remoteChat)
-    ChatView(chatClient: chatClient, chat: chat)
+    if let chat {
+        ChatView(chat: chat)
+    }
 }

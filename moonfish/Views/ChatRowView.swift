@@ -13,8 +13,8 @@ struct ChatRowView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(chat.title ?? "Chat \(chat.remoteId)")
-                Text(chat.createdAt.formatted())
+                Text(chat.title ?? "Chat \(chat.id)")
+                Text(chat.createdAt?.formatted() ?? "")
             }
             Spacer()
         }
@@ -22,7 +22,7 @@ struct ChatRowView: View {
 }
 
 #Preview {
-    let remoteChat = Remote.Chat(
+    let remoteChat = RemoteChatCollection.RemoteChat(
         id: 1,
         title: "Moonfish",
         status: "Done",

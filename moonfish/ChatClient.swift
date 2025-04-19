@@ -14,16 +14,6 @@ struct ChatRequest: Codable {
     let content: String
 }
 
-struct ChatResponse: Codable {
-    let chatId: Int
-    let content: String
-    
-    enum CodingKeys: String, CodingKey {
-        case chatId = "chat_id"
-        case content
-    }
-}
-
 struct ChatClient {
     private let baseURL : URL
     private let bearerToken : String
@@ -55,9 +45,8 @@ struct ChatClient {
         return try JSONDecoder().decode(ChatResponse.self, from: data)
     }
     
-    func fetchChats() async throws -> [Remote.Chat] {
-        let url = baseURL
-            .appending(component: "chat")
+    func fetchChats() async throws -> RemoteChatCollection {
+        let url = baseURL.appending(component: "chat")
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -68,12 +57,11 @@ struct ChatClient {
             throw ChatError.invalidResponse
         }
         
-        return try JSONDecoder().decode([Remote.Chat].self, from: data)
+        return try JSONDecoder().decode(RemoteChatCollection.self, from: data)
     }
     
     func deleteChat(chatId: Int) async throws {
-        let url = baseURL
-            .appending(components: "chat", "\(chatId)")
+        let url = baseURL.appending(components: "chat", "\(chatId)")
         
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
