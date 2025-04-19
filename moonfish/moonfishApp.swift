@@ -12,7 +12,7 @@ import SwiftData
 struct moonfishApp: App {
     let chatClient = ChatClient(
         baseURL: URL(string: "http://localhost:8000")!,
-        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1NTYyNzkzLCJ0eXBlIjoiYWNjZXNzIn0.2SuU6XEJZSXJ1e0IHcpOxNkzY1eEqz6xlXxWexRMegw"
+        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1OTA1NTU0LCJ0eXBlIjoiYWNjZXNzIn0.AUPYTGYgEUMLq8sukaMpX2L8vDYmUwR9hfVoHKHgk7k"
     )
     
     var body: some Scene {

@@ -88,17 +88,27 @@ struct RemoteMessage: Decodable {
     var content: String
 }
 
+enum ChatError: Error {
+    case invalidResponse
+}
+
+struct ChatRequest: Codable {
+    let content: String
+}
+
 struct ChatResponse: Decodable {
-    var chatId: Int
     var id: Int
     var role: Role
     var content: String
+    var previousId: Int
+    var chatId: Int
     
     enum CodingKeys: String, CodingKey {
-        case chatId = "chat_id"
         case id
         case role
         case content
+        case previousId = "previous_id"
+        case chatId = "chat_id"
     }
 }
 
@@ -106,7 +116,7 @@ extension RemoteMessageCollection {
     @MainActor
     static func fetch(for chatId: Int) async throws -> RemoteMessageCollection {
         let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1NTYyNzkzLCJ0eXBlIjoiYWNjZXNzIn0.2SuU6XEJZSXJ1e0IHcpOxNkzY1eEqz6xlXxWexRMegw"
+        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1OTQzNjAzLCJ0eXBlIjoiYWNjZXNzIn0.CvY6ZnH2qNNi0x5v-XbYR3KZMb4bmIxgoxIiL_pp3gY"
         
         let url = baseURL.appending(components: "chat", "\(chatId)")
         
@@ -143,14 +153,16 @@ extension RemoteMessageCollection {
     }
     
     @MainActor
-    static func send(messageContent: String, chat: Chat?, context: ModelContext) async throws {
+    static func send(_ content: String, chat: Chat, context: ModelContext) async throws {
         let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1NTYyNzkzLCJ0eXBlIjoiYWNjZXNzIn0.2SuU6XEJZSXJ1e0IHcpOxNkzY1eEqz6xlXxWexRMegw"
+        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1OTQzNjAzLCJ0eXBlIjoiYWNjZXNzIn0.CvY6ZnH2qNNi0x5v-XbYR3KZMb4bmIxgoxIiL_pp3gY"
         
         let url = baseURL
             .appending(component: "chat")
-            .appending(component: chat?.id.description ?? "")
-        let requestBody = ChatRequest(content: messageContent)
+            .appending(component: chat.id.description)
+        let requestBody = ChatRequest(
+            content: content
+        )
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -160,27 +172,26 @@ extension RemoteMessageCollection {
         
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw ChatError.invalidResponse
+            throw RemoteSyncError.invalidResponse
         }
-        let chatResponse = try JSONDecoder().decode(ChatResponse.self, from: data)
         
-        let currentChat = chat ?? Chat(id: chatResponse.chatId)
-        let currentMessage = Message(
+        guard let chatResponse = try? JSONDecoder().decode(ChatResponse.self, from: data) else {
+            throw RemoteSyncError.decodingError
+        }
+        
+        let userMessage = Message(
+            id: chatResponse.previousId,
+            role: .user,
+            content: content
+        )
+        
+        let modelMessage = Message(
             id: chatResponse.id,
             role: chatResponse.role,
-            content: chatResponse.content,
-            chat: currentChat
+            content: chatResponse.content
         )
-        let newMessage = Message(
-            id: chatResponse.id,
-            role: chatResponse.role,
-            content: chatResponse.content,
-            chat: currentChat
-        )
-        context.insert(currentChat)
-        context.insert(currentMessage)
-        context.insert(newMessage)
-        try? context.save()
+        chat.messages.append(userMessage)
+        chat.messages.append(modelMessage)
     }
 }
 

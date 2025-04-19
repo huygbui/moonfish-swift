@@ -10,18 +10,29 @@ import SwiftData
 struct ChatView: View {
     var chat: Chat
     
-    @State private var inputMessage = ""
+    @State private var inputText = ""
+    @State private var userMessageContent = ""
     @State private var isLoading = false
    
     @Environment(\.modelContext) private var context
     
     var body: some View {
         VStack {
+            let messages = chat.messages.sorted { $0.id < $1.id }
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack {
-                        ForEach(chat.messages) { message in
-                            MessageBubble(message: message)
+                        ForEach(messages) { message in
+                            MessageBubble(
+                                role: message.role,
+                                content: message.content.trimmingCharacters(in: .whitespacesAndNewlines)
+                            )
+                        }
+                        if !userMessageContent.isEmpty {
+                            MessageBubble(
+                                role: .user,
+                                content: userMessageContent.trimmingCharacters(in: .whitespacesAndNewlines)
+                            )
                         }
                         if isLoading {
                             ProgressView()
@@ -31,14 +42,14 @@ struct ChatView: View {
                     .id("messageEnd")
                 }
                 .frame(maxWidth:.infinity, maxHeight: .infinity)
-                .onChange(of: chat.messages.count) {
+                .onChange(of: messages.count) {
                    withAnimation {
                         proxy.scrollTo("messageEnd")
                     }
                 }
             }
             HStack {
-                TextField("Type message...", text: $inputMessage)
+                TextField("Type message...", text: $inputText)
                     .keyboardType(.default)
                     .textFieldStyle(.roundedBorder)
                     .disabled(isLoading)
@@ -51,38 +62,36 @@ struct ChatView: View {
                         .font(.title)
                         .foregroundStyle(.blue)
                 }
-                .disabled(inputMessage.isEmpty || isLoading)
+                .disabled(inputText.isEmpty || isLoading)
             }
             .padding()
         }
         .task {
-            print("Fetching messages...")
             await RemoteMessageCollection.refresh(chat: chat, context: context)
         }
     }
    
     @MainActor
     private func sendMessage() async {
-        guard !inputMessage.isEmpty else { return }
+        guard !inputText.isEmpty else { return }
         
+        userMessageContent = inputText
+
+        inputText = ""
         isLoading = true
         defer { isLoading = false }
-       
-        inputMessage = ""
         
         do {
-            try await RemoteMessageCollection.send(messageContent: inputMessage, chat: chat, context: context)
+            try await RemoteMessageCollection.send(userMessageContent, chat: chat, context: context)
+            userMessageContent = ""
         } catch {
             print("\(error.localizedDescription)")
+            chat.messages.removeLast()
         }
     }
 }
 
 #Preview {
-    let chatClient = ChatClient(
-        baseURL: URL(string: "http://localhost:8000")!,
-        bearerToken:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1NTYyNzkzLCJ0eXBlIjoiYWNjZXNzIn0.2SuU6XEJZSXJ1e0IHcpOxNkzY1eEqz6xlXxWexRMegw"
-    )
     let remoteChat = RemoteChatCollection.RemoteChat(
         id: 1,
         title: "Test Chat",

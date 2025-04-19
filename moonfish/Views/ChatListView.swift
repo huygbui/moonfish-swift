@@ -40,7 +40,7 @@ struct ChatListView: View {
 //                    }
                 }
             }
-            .refreshable {
+            .task {
                 await RemoteChatCollection.refresh(context: context)
             }
         } detail: {
@@ -67,7 +67,7 @@ struct ChatListView: View {
 #Preview {
     let chatClient = ChatClient(
         baseURL: URL(string: "http://localhost:8000")!,
-        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1NTYyOTU3LCJ0eXBlIjoiYWNjZXNzIn0.Nz3x3aFiCrdHLSPLtNJVn0yxTLS-lsSVFqzq142AuWY"
+        bearerToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1OTA1NTU0LCJ0eXBlIjoiYWNjZXNzIn0.AUPYTGYgEUMLq8sukaMpX2L8vDYmUwR9hfVoHKHgk7k"
     )
     ChatListView(chatClient: chatClient)
 }
