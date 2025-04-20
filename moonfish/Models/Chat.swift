@@ -100,14 +100,12 @@ struct ChatResponse: Decodable {
     var id: Int
     var role: Role
     var content: String
-    var previousId: Int
     var chatId: Int
     
     enum CodingKeys: String, CodingKey {
         case id
         case role
         case content
-        case previousId = "previous_id"
         case chatId = "chat_id"
     }
 }
@@ -153,7 +151,7 @@ extension RemoteMessageCollection {
     }
     
     @MainActor
-    static func send(_ content: String, chat: Chat?, context: ModelContext) async throws -> ChatResponse {
+    static func send(_ content: String, chat: Chat?) async throws -> ChatResponse {
         let baseURL = URL(string: "http://localhost:8000")!
         let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1OTQzNjAzLCJ0eXBlIjoiYWNjZXNzIn0.CvY6ZnH2qNNi0x5v-XbYR3KZMb4bmIxgoxIiL_pp3gY"
         
@@ -226,12 +224,12 @@ enum Role: String, Codable {
 
 @Model
 final class Message {
-    @Attribute(.unique) var id: Int
+    @Attribute(.unique) var id: Int?
     var role: Role
     var content: String
     var chat: Chat?
     
-    init(id: Int, role: Role, content: String, chat: Chat? = nil) {
+    init(id: Int? = nil, role: Role, content: String, chat: Chat? = nil) {
         self.id = id
         self.role = role
         self.content = content

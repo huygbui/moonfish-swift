@@ -28,12 +28,6 @@ struct ChatView: View {
                                 content: message.content.trimmingCharacters(in: .whitespacesAndNewlines)
                             )
                         }
-                        if !userMessageContent.isEmpty {
-                            MessageBubble(
-                                role: .user,
-                                content: userMessageContent.trimmingCharacters(in: .whitespacesAndNewlines)
-                            )
-                        }
                         if isLoading {
                             ProgressView()
                                 .padding()
@@ -67,15 +61,9 @@ struct ChatView: View {
             .padding()
         }
         .task {
-            print("Entering chat")
-            if let chat {
-                print("Chat id is \(chat.id)")
-                await RemoteMessageCollection.refresh(chat: chat, context: context)
-            }
-            
-            if let existingMessages = chat?.messages {
-                messages = existingMessages.sorted(by: { $0.id < $1.id })
-            }
+            guard let chat else { return }
+            await RemoteMessageCollection.refresh(chat: chat, context: context)
+            messages = chat.messages.sorted(by: { $0.id < $1.id })
         }
     }
    
@@ -83,20 +71,19 @@ struct ChatView: View {
     private func sendMessage() async {
         guard !inputText.isEmpty else { return }
         
-        userMessageContent = inputText
+        let userMessageContent = inputText
+        let userMessage = Message(
+            role: .user,
+            content: userMessageContent
+        )
+        messages.append(userMessage)
 
         inputText = ""
         isLoading = true
         defer { isLoading = false }
         
         do {
-            let chatResponse = try await RemoteMessageCollection.send(userMessageContent, chat: chat, context: context)
-            
-            let userMessage = Message(
-                id: chatResponse.previousId,
-                role: .user,
-                content: userMessageContent
-            )
+            let chatResponse = try await RemoteMessageCollection.send(userMessageContent, chat: chat)
             
             let modelMessage = Message(
                 id: chatResponse.id,
@@ -104,10 +91,7 @@ struct ChatView: View {
                 content: chatResponse.content
             )
             
-            messages.append(userMessage)
             messages.append(modelMessage)
-            
-            userMessageContent = ""
         } catch {
             print("\(error.localizedDescription)")
             messages.removeLast()
