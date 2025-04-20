@@ -153,16 +153,17 @@ extension RemoteMessageCollection {
     }
     
     @MainActor
-    static func send(_ content: String, chat: Chat, context: ModelContext) async throws {
+    static func send(_ content: String, chat: Chat?, context: ModelContext) async throws -> ChatResponse {
         let baseURL = URL(string: "http://localhost:8000")!
         let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1OTQzNjAzLCJ0eXBlIjoiYWNjZXNzIn0.CvY6ZnH2qNNi0x5v-XbYR3KZMb4bmIxgoxIiL_pp3gY"
         
         let url = baseURL
             .appending(component: "chat")
-            .appending(component: chat.id.description)
+            .appending(component: chat?.id.description ?? "")
         let requestBody = ChatRequest(
             content: content
         )
+        print("Making a request to the url \(url)")
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -179,19 +180,7 @@ extension RemoteMessageCollection {
             throw RemoteSyncError.decodingError
         }
         
-        let userMessage = Message(
-            id: chatResponse.previousId,
-            role: .user,
-            content: content
-        )
-        
-        let modelMessage = Message(
-            id: chatResponse.id,
-            role: chatResponse.role,
-            content: chatResponse.content
-        )
-        chat.messages.append(userMessage)
-        chat.messages.append(modelMessage)
+        return chatResponse
     }
 }
 

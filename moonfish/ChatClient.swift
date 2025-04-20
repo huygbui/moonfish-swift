@@ -34,9 +34,10 @@ struct ChatClient {
         return try JSONDecoder().decode(RemoteChatCollection.self, from: data)
     }
     
-    func deleteChat(chatId: Int) async throws {
-        let url = baseURL.appending(components: "chat", "\(chatId)")
+    func deleteChat(chatId: Int?) async throws {
+        guard let chatId else { return }
         
+        let url = baseURL.appending(components: "chat", "\(chatId)")
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

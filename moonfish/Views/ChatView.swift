@@ -8,17 +8,17 @@
 import SwiftUI
 import SwiftData
 struct ChatView: View {
-    var chat: Chat
+    var chat: Chat?
     
     @State private var inputText = ""
     @State private var userMessageContent = ""
     @State private var isLoading = false
-   
-    @Environment(\.modelContext) private var context
+    @State private var messages = [Message]()
     
+    @Environment(\.modelContext) private var context
+   
     var body: some View {
         VStack {
-            let messages = chat.messages.sorted { $0.id < $1.id }
             ScrollViewReader { proxy in
                 ScrollView {
                     LazyVStack {
@@ -67,7 +67,15 @@ struct ChatView: View {
             .padding()
         }
         .task {
-            await RemoteMessageCollection.refresh(chat: chat, context: context)
+            print("Entering chat")
+            if let chat {
+                print("Chat id is \(chat.id)")
+                await RemoteMessageCollection.refresh(chat: chat, context: context)
+            }
+            
+            if let existingMessages = chat?.messages {
+                messages = existingMessages.sorted(by: { $0.id < $1.id })
+            }
         }
     }
    
@@ -82,11 +90,27 @@ struct ChatView: View {
         defer { isLoading = false }
         
         do {
-            try await RemoteMessageCollection.send(userMessageContent, chat: chat, context: context)
+            let chatResponse = try await RemoteMessageCollection.send(userMessageContent, chat: chat, context: context)
+            
+            let userMessage = Message(
+                id: chatResponse.previousId,
+                role: .user,
+                content: userMessageContent
+            )
+            
+            let modelMessage = Message(
+                id: chatResponse.id,
+                role: chatResponse.role,
+                content: chatResponse.content
+            )
+            
+            messages.append(userMessage)
+            messages.append(modelMessage)
+            
             userMessageContent = ""
         } catch {
             print("\(error.localizedDescription)")
-            chat.messages.removeLast()
+            messages.removeLast()
         }
     }
 }
