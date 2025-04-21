@@ -35,7 +35,7 @@ struct ChatListView: View {
             .navigationTitle(Text("Chats"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    NavigationLink(destination: ChatView(chat: nil)) {
+                    NavigationLink(destination: TemporaryChatView()) {
                         Image(systemName: "plus")
                     }
                 }

@@ -1,23 +1,18 @@
 //
-//  ChatView.swift
+//  TemporaryChatView.swift
 //  moonfish
 //
-//  Created by Huy Bui on 16/2/25.
+//  Created by Huy Bui on 21/4/25.
 //
 
 import SwiftUI
-import SwiftData
 
-struct ChatView: View {
-    var chat: Chat
-    
+struct TemporaryChatView: View {
     @State private var inputText = ""
     @State private var userMessageContent = ""
     @State private var isLoading = false
     @State private var messages = [Message]()
     
-    @Environment(\.modelContext) private var context
-   
     var body: some View {
         VStack {
             ScrollViewReader { proxy in
@@ -61,10 +56,6 @@ struct ChatView: View {
             }
             .padding()
         }
-        .task {
-            await RemoteMessageCollection.refresh(chat: chat, context: context)
-            messages = chat.messages.sorted(by: { $0.id < $1.id })
-        }
     }
    
     @MainActor
@@ -83,7 +74,7 @@ struct ChatView: View {
         defer { isLoading = false }
         
         do {
-            let chatResponse = try await RemoteMessageCollection.send(userMessageContent, chat: chat)
+            let chatResponse = try await RemoteMessageCollection.send(userMessageContent, chat: nil)
             
             let modelMessage = Message(
                 id: chatResponse.id,
@@ -100,14 +91,5 @@ struct ChatView: View {
 }
 
 #Preview {
-    let remoteChat = RemoteChatCollection.RemoteChat(
-        id: 1,
-        title: "Test Chat",
-        status: "active",
-        createdAt: "2023-01-01 00:00:00"
-    )
-    let chat = Chat(from: remoteChat)
-    if let chat {
-        ChatView(chat: chat)
-    }
+    TemporaryChatView()
 }
