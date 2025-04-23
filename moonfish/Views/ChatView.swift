@@ -24,10 +24,7 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack {
                         ForEach(messages) { message in
-                            MessageBubble(
-                                role: message.role,
-                                content: message.content.trimmingCharacters(in: .whitespacesAndNewlines)
-                            )
+                            MessageBubble(from: message)
                         }
                         if isLoading {
                             ProgressView()
@@ -104,7 +101,8 @@ struct ChatView: View {
         id: 1,
         title: "Test Chat",
         status: "active",
-        createdAt: "2023-01-01 00:00:00"
+        createdAt: "2023-01-01T00:00:00",
+        updatedAt: "2023-01-01T00:00:00"
     )
     let chat = Chat(from: remoteChat)
     if let chat {

@@ -19,10 +19,7 @@ struct TemporaryChatView: View {
                 ScrollView {
                     LazyVStack {
                         ForEach(messages) { message in
-                            MessageBubble(
-                                role: message.role,
-                                content: message.content.trimmingCharacters(in: .whitespacesAndNewlines)
-                            )
+                            MessageBubble(from: message)
                         }
                         if isLoading {
                             ProgressView()

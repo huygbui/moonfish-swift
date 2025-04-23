@@ -17,7 +17,7 @@ struct moonfishApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ChatListView(chatClient: chatClient)
+            ChatListView()
                 .modelContainer(for: Chat.self)
         }
     }

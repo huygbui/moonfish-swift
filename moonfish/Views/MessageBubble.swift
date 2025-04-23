@@ -8,23 +8,26 @@
 import SwiftUI
 
 struct MessageBubble: View {
-    let role : Role
-    let content: String
+    let message: Message
+    
+    init(from message: Message) {
+        self.message = message
+    }
     
     var body: some View {
         HStack {
-            if role == .user {
+            if message.role == .user {
                 Spacer()
             }
             
-            Text(content)
+            Text(message.content)
                 .padding()
-                .background(role == .user ? .blue : Color(.systemGray5))
-                .foregroundStyle(role == .user ? .white : .primary)
+                .background(message.role == .user ? .blue : Color(.systemGray5))
+                .foregroundStyle(message.role == .user ? .white : .primary)
                 .cornerRadius(16)
                 .padding(.horizontal)
             
-            if role == .model {
+            if message.role == .model {
                 Spacer()
             }
         }
@@ -33,8 +36,8 @@ struct MessageBubble: View {
 
 #Preview {
     VStack {
-        MessageBubble(role: .user, content: "Hello there!")
-        MessageBubble(role: .model, content: "Hi! How can I help you?")
+        MessageBubble(from: Message(role: .user, content: "Hello there!"))
+        MessageBubble(from: Message(role: .model, content: "Hi! How can I help you?"))
     }
 }
 

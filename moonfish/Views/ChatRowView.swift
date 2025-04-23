@@ -14,7 +14,7 @@ struct ChatRowView: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(chat.title ?? "Chat \(chat.id)")
-                Text(chat.createdAt?.formatted() ?? "")
+                Text(chat.updatedAt?.formatted(.relative(presentation: .numeric)) ?? "")
             }
             Spacer()
         }
@@ -26,7 +26,8 @@ struct ChatRowView: View {
         id: 1,
         title: "Moonfish",
         status: "Done",
-        createdAt: "2025-04-09 17:05:10"
+        createdAt: "2025-04-09T17:05:10",
+        updatedAt: "2025-04-09T17:05:10"
     )
     let chat = Chat(from: remoteChat)!
     

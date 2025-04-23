@@ -9,28 +9,31 @@ import Foundation
 import SwiftData
 
 
-let sqlFormatStyle = Date.FormatStyle()
-        .year(.defaultDigits)
-        .month(.twoDigits)
-        .day(.twoDigits)
-        .hour(.twoDigits(amPM: .omitted))
-        .minute(.twoDigits)
+let sqlFormatStyle = Date.ISO8601FormatStyle()
+        .year()
+        .month()
+        .day()
+        .time(includingFractionalSeconds: false)
+        .dateSeparator(.dash)
+        .timeSeparator(.colon)
 
 
 struct RemoteChatCollection: Decodable {
-    let data: [RemoteChat]
+    let chats: [RemoteChat]
     
     struct RemoteChat: Decodable {
         var id: Int
         var title: String?
         var status: String
         var createdAt: String
-        
+        var updatedAt: String
+
         enum CodingKeys: String, CodingKey {
             case id
             case title
             case status
             case createdAt = "created_at"
+            case updatedAt = "updated_at"
         }
     }
 }
@@ -39,7 +42,7 @@ extension RemoteChatCollection {
     @MainActor
     static func fetch() async throws -> RemoteChatCollection {
         let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1NTYyNzkzLCJ0eXBlIjoiYWNjZXNzIn0.2SuU6XEJZSXJ1e0IHcpOxNkzY1eEqz6xlXxWexRMegw"
+        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2Mjc3MTE2LCJ0eXBlIjoiYWNjZXNzIn0.Ry2tVyFdFwTSU3S69piVsoCB4rCoJ24ZtFA3hMipUuw"
         
         let url = baseURL.appending(component: "chat")
         
@@ -66,12 +69,35 @@ extension RemoteChatCollection {
         do {
             let remoteChatCollection = try await fetch()
             
-            for remoteChat in remoteChatCollection.data {
+            for remoteChat in remoteChatCollection.chats {
                 if let chat = Chat(from: remoteChat) {
                     context.insert(chat)
                     try? context.save()
                 }
             }
+        } catch {
+            print("\(error.localizedDescription)")
+        }
+    }
+    
+    @MainActor
+    static func delete(_ chat: Chat, context: ModelContext) async {
+        let baseURL = URL(string: "http://localhost:8000")!
+        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2Mjc3MTE2LCJ0eXBlIjoiYWNjZXNzIn0.Ry2tVyFdFwTSU3S69piVsoCB4rCoJ24ZtFA3hMipUuw"
+        
+        let url = baseURL.appending(components: "chat", "\(chat.id)")
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                throw ChatError.invalidResponse
+            }
+            context.delete(chat)
+            try? context.save()
         } catch {
             print("\(error.localizedDescription)")
         }
@@ -114,7 +140,7 @@ extension RemoteMessageCollection {
     @MainActor
     static func fetch(for chatId: Int) async throws -> RemoteMessageCollection {
         let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1OTQzNjAzLCJ0eXBlIjoiYWNjZXNzIn0.CvY6ZnH2qNNi0x5v-XbYR3KZMb4bmIxgoxIiL_pp3gY"
+        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2Mjc3MTE2LCJ0eXBlIjoiYWNjZXNzIn0.Ry2tVyFdFwTSU3S69piVsoCB4rCoJ24ZtFA3hMipUuw"
         
         let url = baseURL.appending(components: "chat", "\(chatId)")
         
@@ -153,7 +179,7 @@ extension RemoteMessageCollection {
     @MainActor
     static func send(_ content: String, chat: Chat?) async throws -> ChatResponse {
         let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ1OTQzNjAzLCJ0eXBlIjoiYWNjZXNzIn0.CvY6ZnH2qNNi0x5v-XbYR3KZMb4bmIxgoxIiL_pp3gY"
+        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2Mjc3MTE2LCJ0eXBlIjoiYWNjZXNzIn0.Ry2tVyFdFwTSU3S69piVsoCB4rCoJ24ZtFA3hMipUuw"
         
         let url = baseURL
             .appending(component: "chat")
@@ -180,6 +206,7 @@ extension RemoteMessageCollection {
         
         return chatResponse
     }
+    
 }
 
 enum RemoteSyncError: Error {
@@ -193,17 +220,25 @@ final class Chat {
     var title: String?
     var status: String?
     var createdAt: Date?
+    var updatedAt: Date?
     @Relationship(deleteRule: .cascade, inverse: \Message.chat) var messages = [Message]()
     
-    init(id: Int, title: String? = nil, status: String? = nil, createdAt: Date? = nil) {
+    init(id: Int, title: String? = nil, status: String? = nil, createdAt: Date? = nil, updatedAt: Date? = nil) {
         self.id = id
         self.title = title
         self.status = status
         self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
     
     convenience init?(from remoteChat: RemoteChatCollection.RemoteChat) {
         guard let createdAt = try? Date(remoteChat.createdAt, strategy: sqlFormatStyle) else {
+            print("Failed to parse created date")
+            return nil
+        }
+        
+        guard let updatedAt = try? Date(remoteChat.updatedAt, strategy: sqlFormatStyle) else {
+            print("Failed to parse created date")
             return nil
         }
         
@@ -211,7 +246,8 @@ final class Chat {
             id: remoteChat.id,
             title: remoteChat.title,
             status: remoteChat.status,
-            createdAt: createdAt
+            createdAt: createdAt,
+            updatedAt: updatedAt
         )
     }
 }
