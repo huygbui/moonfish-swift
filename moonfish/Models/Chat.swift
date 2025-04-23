@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 
-let sqlFormatStyle = Date.ISO8601FormatStyle()
+let ISO8601 = Date.ISO8601FormatStyle()
         .year()
         .month()
         .day()
@@ -105,7 +105,13 @@ extension RemoteChatCollection {
 }
 
 struct RemoteMessageCollection: Decodable {
-    let data: [RemoteMessage]
+    let chatId: Int
+    let messages: [RemoteMessage]
+    
+    enum CodingKeys: String, CodingKey {
+        case chatId = "chat_id"
+        case messages
+    }
 }
 
 struct RemoteMessage: Decodable {
@@ -120,6 +126,7 @@ enum ChatError: Error {
 
 struct ChatRequest: Codable {
     let content: String
+    let chat_id: Int?
 }
 
 struct ChatResponse: Decodable {
@@ -166,7 +173,7 @@ extension RemoteMessageCollection {
     static func refresh(chat: Chat, context: ModelContext) async {
         do {
             let remoteMessageCollection = try await fetch(for: chat.id)
-            for remoteMessage in remoteMessageCollection.data {
+            for remoteMessage in remoteMessageCollection.messages {
                 let message = Message(from: remoteMessage, for: chat)
                 context.insert(message)
                 try? context.save()
@@ -181,13 +188,11 @@ extension RemoteMessageCollection {
         let baseURL = URL(string: "http://localhost:8000")!
         let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2Mjc3MTE2LCJ0eXBlIjoiYWNjZXNzIn0.Ry2tVyFdFwTSU3S69piVsoCB4rCoJ24ZtFA3hMipUuw"
         
-        let url = baseURL
-            .appending(component: "chat")
-            .appending(component: chat?.id.description ?? "")
+        let url = baseURL.appending(component: "chat")
         let requestBody = ChatRequest(
-            content: content
+            content: content,
+            chat_id: chat?.id
         )
-        print("Making a request to the url \(url)")
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -219,11 +224,11 @@ final class Chat {
     @Attribute(.unique) var id: Int
     var title: String?
     var status: String?
-    var createdAt: Date?
-    var updatedAt: Date?
+    var createdAt: Date
+    var updatedAt: Date
     @Relationship(deleteRule: .cascade, inverse: \Message.chat) var messages = [Message]()
     
-    init(id: Int, title: String? = nil, status: String? = nil, createdAt: Date? = nil, updatedAt: Date? = nil) {
+    init(id: Int, createdAt: Date, updatedAt: Date, title: String? = nil, status: String? = nil) {
         self.id = id
         self.title = title
         self.status = status
@@ -232,22 +237,18 @@ final class Chat {
     }
     
     convenience init?(from remoteChat: RemoteChatCollection.RemoteChat) {
-        guard let createdAt = try? Date(remoteChat.createdAt, strategy: sqlFormatStyle) else {
-            print("Failed to parse created date")
-            return nil
-        }
-        
-        guard let updatedAt = try? Date(remoteChat.updatedAt, strategy: sqlFormatStyle) else {
-            print("Failed to parse created date")
-            return nil
+        guard let createdAt = try? Date(remoteChat.createdAt, strategy: ISO8601),
+              let updatedAt = try? Date(remoteChat.updatedAt, strategy: ISO8601)
+        else {
+            fatalError("Invalid date")
         }
         
         self.init(
             id: remoteChat.id,
-            title: remoteChat.title,
-            status: remoteChat.status,
             createdAt: createdAt,
-            updatedAt: updatedAt
+            updatedAt: updatedAt,
+            title: remoteChat.title,
+            status: remoteChat.status
         )
     }
 }

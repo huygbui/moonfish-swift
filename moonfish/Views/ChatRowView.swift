@@ -14,7 +14,7 @@ struct ChatRowView: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(chat.title ?? "Chat \(chat.id)")
-                Text(chat.updatedAt?.formatted(.relative(presentation: .numeric)) ?? "")
+                Text(chat.updatedAt.formatted(.relative(presentation: .numeric)))
             }
             Spacer()
         }

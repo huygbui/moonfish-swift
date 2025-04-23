@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct ChatListView: View {
-    @Query private var chats: [Chat]
+    @Query(sort: \Chat.updatedAt, order: .reverse) private var chats: [Chat]
     @Environment(\.modelContext) private var context
     
     var body: some View {
