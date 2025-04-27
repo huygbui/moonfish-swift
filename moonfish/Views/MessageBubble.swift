@@ -32,7 +32,6 @@ struct MessageBubble: View {
                 .background(role == .user ? .blue : Color(.systemGray5))
                 .foregroundStyle(role == .user ? .white : .primary)
                 .cornerRadius(16)
-                .padding(.horizontal)
             
             if role == .model {
                 Spacer()

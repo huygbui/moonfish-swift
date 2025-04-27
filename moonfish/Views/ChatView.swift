@@ -14,7 +14,7 @@ struct ChatView: View {
     @State private var inputText = ""
     @State private var isLoading = false
     @State private var messages = [Message]()
-    @State private var streamingMessage: Message?
+    @State private var streamingMessage: Message? = nil
     
     @Environment(\.modelContext) private var context
    
@@ -22,18 +22,39 @@ struct ChatView: View {
         VStack {
             ScrollViewReader { proxy in
                 ScrollView {
-                    ForEach(messages) { message in
-                        MessageBubble(from: message)
-                            .id(message.id)
+                    VStack {
+                        ForEach(messages) { message in
+                            MessageBubble(from: message)
+                                .id(message.id)
+                        }
+                        if isLoading {
+                            if let streamingMessage, !streamingMessage.content.isEmpty {
+                                MessageBubble(from: streamingMessage)
+                                    .id(streamingMessage.id)
+                            } else {
+                                ThinkingDots()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .id("thinkingDotsId")
+                            }
+                        }
                     }
-                    if let streamingMessage {
-                        MessageBubble(from: streamingMessage)
-                    }
+                    .padding(.horizontal)
                 }
                 .onChange(of: messages.count) {
                     if let lastMessageId = messages.last?.id {
                         withAnimation {
-                            proxy.scrollTo(lastMessageId)
+                            proxy.scrollTo(lastMessageId, anchor: .bottom)
+                        }
+                    }
+                }
+                .onChange(of: isLoading) {
+                    if isLoading {
+                        withAnimation {
+                            if let streamingMessage {
+                                proxy.scrollTo(streamingMessage.id)
+                            } else {
+                                proxy.scrollTo("thinkingDotsId")
+                            }
                         }
                     }
                 }
@@ -121,15 +142,17 @@ struct ChatView: View {
                         let remoteMessage = try JSONDecoder().decode(RemoteMessage.self, from: content.data(using: .utf8)!)
                         streamingMessage = Message(id: remoteMessage.id, role: .model, content: "")
                     case .delta:
+                        let delta = try JSONDecoder().decode(RemoteMessageDelta.self, from: content.data(using: .utf8)!)
                         if let streamingMessage {
-                            let delta = try JSONDecoder().decode(RemoteMessageDelta.self, from: content.data(using: .utf8)!)
                             streamingMessage.content.append(delta.v)
+                            self.streamingMessage = streamingMessage
                         }
                     case .messageEnd:
                         if let streamingMessage {
                             messages.append(streamingMessage)
+                            self.streamingMessage = nil
                         }
-                        streamingMessage = nil
+                        isLoading = false
                     case nil:
                         break
                     }
@@ -140,6 +163,7 @@ struct ChatView: View {
         }
     }
 }
+
 
 #Preview {
     let remoteChat = RemoteChatCollection.RemoteChat(
