@@ -57,33 +57,33 @@ struct TemporaryChatView: View {
    
     @MainActor
     private func sendMessage() async {
-        guard !inputText.isEmpty else { return }
-        
-        let userMessageContent = inputText
-        let userMessage = Message(
-            role: .user,
-            content: userMessageContent
-        )
-        messages.append(userMessage)
-
-        inputText = ""
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            let chatResponse = try await RemoteMessageCollection.send(userMessageContent, chat: nil)
-            
-            let modelMessage = Message(
-                id: chatResponse.id,
-                role: chatResponse.role,
-                content: chatResponse.content
-            )
-            
-            messages.append(modelMessage)
-        } catch {
-            print("\(error.localizedDescription)")
-            messages.removeLast()
-        }
+//        guard !inputText.isEmpty else { return }
+//        
+//        let userMessageContent = inputText
+//        let userMessage = Message(
+//            role: .user,
+//            content: userMessageContent
+//        )
+//        messages.append(userMessage)
+//
+//        inputText = ""
+//        isLoading = true
+//        defer { isLoading = false }
+//        
+//        do {
+//            let chatResponse = try await RemoteMessageCollection.send(userMessageContent, chat: nil)
+//            
+//            let modelMessage = Message(
+//                id: chatResponse.id,
+//                role: chatResponse.role,
+//                content: chatResponse.content
+//            )
+//            
+//            messages.append(modelMessage)
+//        } catch {
+//            print("\(error.localizedDescription)")
+//            messages.removeLast()
+//        }
     }
 }
 

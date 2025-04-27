@@ -12,9 +12,9 @@ struct ChatView: View {
     var chat: Chat
     
     @State private var inputText = ""
-    @State private var userMessageContent = ""
     @State private var isLoading = false
     @State private var messages = [Message]()
+    @State private var streamingMessage: Message?
     
     @Environment(\.modelContext) private var context
    
@@ -22,21 +22,19 @@ struct ChatView: View {
         VStack {
             ScrollViewReader { proxy in
                 ScrollView {
-                    LazyVStack {
-                        ForEach(messages) { message in
-                            MessageBubble(from: message)
-                        }
-                        if isLoading {
-                            ProgressView()
-                                .padding()
-                        }
+                    ForEach(messages) { message in
+                        MessageBubble(from: message)
+                            .id(message.id)
                     }
-                    .id("messageEnd")
+                    if let streamingMessage {
+                        MessageBubble(from: streamingMessage)
+                    }
                 }
-                .frame(maxWidth:.infinity, maxHeight: .infinity)
                 .onChange(of: messages.count) {
-                   withAnimation {
-                        proxy.scrollTo("messageEnd")
+                    if let lastMessageId = messages.last?.id {
+                        withAnimation {
+                            proxy.scrollTo(lastMessageId)
+                        }
                     }
                 }
             }
@@ -62,36 +60,83 @@ struct ChatView: View {
             await RemoteMessageCollection.refresh(chat: chat, context: context)
             messages = chat.messages.sorted(by: { $0.id < $1.id })
         }
+        
     }
    
     @MainActor
     private func sendMessage() async {
         guard !inputText.isEmpty else { return }
         
-        let userMessageContent = inputText
-        let userMessage = Message(
-            role: .user,
-            content: userMessageContent
-        )
+        let userMessageContent = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let userMessage = Message(id: -1 * Int(Date().timeIntervalSince1970), role: .user, content: userMessageContent)
         messages.append(userMessage)
 
         inputText = ""
         isLoading = true
         defer { isLoading = false }
         
+        let baseURL = URL(string: "http://localhost:8000")!
+        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2NDU5ODE3LCJ0eXBlIjoiYWNjZXNzIn0.b6zUkDzW0ie7WztGEV7RM7cJsGOj53qPxyTYTfANqn0"
+        
+        let url = baseURL.appending(component: "chat")
+        let requestBody = ChatRequest(
+            content: userMessageContent,
+            chatId: chat.id
+        )
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("keep-alive", forHTTPHeaderField: "Connection")
+        request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
+        request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+        
+
         do {
-            let chatResponse = try await RemoteMessageCollection.send(userMessageContent, chat: chat)
+            request.httpBody = try JSONEncoder().encode(requestBody)
             
-            let modelMessage = Message(
-                id: chatResponse.id,
-                role: chatResponse.role,
-                content: chatResponse.content
-            )
+            let (bytes, response) = try await URLSession.shared.bytes(for: request)
             
-            messages.append(modelMessage)
+            guard let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200,
+                      httpResponse.mimeType == "text/event-stream"
+            else {
+                throw RemoteSyncError.invalidResponse
+            }
+           
+            var currentEvent: RemoteMessageEvent?
+
+            for try await line in bytes.lines {
+                if line.hasPrefix("event:") {
+                    let eventTypeRawValue = line.dropFirst("event:".count).trimmingCharacters(in: .whitespaces)
+                    currentEvent = RemoteMessageEvent(rawValue: eventTypeRawValue)
+                }
+                
+                else if line.hasPrefix("data:") {
+                    let content = line.dropFirst("data:".count).trimmingCharacters(in: .whitespaces)
+                    
+                    switch currentEvent {
+                    case .messageStart:
+                        let remoteMessage = try JSONDecoder().decode(RemoteMessage.self, from: content.data(using: .utf8)!)
+                        streamingMessage = Message(id: remoteMessage.id, role: .model, content: "")
+                    case .delta:
+                        if let streamingMessage {
+                            let delta = try JSONDecoder().decode(RemoteMessageDelta.self, from: content.data(using: .utf8)!)
+                            streamingMessage.content.append(delta.v)
+                        }
+                    case .messageEnd:
+                        if let streamingMessage {
+                            messages.append(streamingMessage)
+                        }
+                        streamingMessage = nil
+                    case nil:
+                        break
+                    }
+                }
+            }
         } catch {
-            print("\(error.localizedDescription)")
-            messages.removeLast()
+           print("error \(error.localizedDescription)")
         }
     }
 }

@@ -114,10 +114,31 @@ struct RemoteMessageCollection: Decodable {
     }
 }
 
+enum RemoteMessageEvent: String {
+    case messageStart = "message_start"
+    case delta = "delta"
+    case messageEnd = "message_end"
+}
+
 struct RemoteMessage: Decodable {
     var id: Int
     var role: Role
     var content: String
+}
+
+struct RemoteMessageStart: Decodable {
+    var id: Int
+    var role: Role
+    var content: String
+}
+
+struct RemoteMessageDelta: Decodable {
+    var v: String
+}
+
+struct RemoteMessageEnd: Decodable {
+    var status: String
+    
 }
 
 enum ChatError: Error {
@@ -126,7 +147,12 @@ enum ChatError: Error {
 
 struct ChatRequest: Codable {
     let content: String
-    let chat_id: Int?
+    let chatId: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case content
+        case chatId = "chat_id"
+    }
 }
 
 struct ChatResponse: Decodable {
@@ -191,7 +217,7 @@ extension RemoteMessageCollection {
         let url = baseURL.appending(component: "chat")
         let requestBody = ChatRequest(
             content: content,
-            chat_id: chat?.id
+            chatId: chat?.id
         )
         
         var request = URLRequest(url: url)
@@ -261,12 +287,12 @@ enum Role: String, Codable {
 
 @Model
 final class Message {
-    @Attribute(.unique) var id: Int?
+    @Attribute(.unique) var id: Int
     var role: Role
     var content: String
     var chat: Chat?
     
-    init(id: Int? = nil, role: Role, content: String, chat: Chat? = nil) {
+    init(id: Int, role: Role, content: String, chat: Chat? = nil) {
         self.id = id
         self.role = role
         self.content = content
