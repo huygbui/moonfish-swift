@@ -97,7 +97,11 @@ struct ChatView: View {
         defer { isLoading = false }
         
         let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2NDU5ODE3LCJ0eXBlIjoiYWNjZXNzIn0.b6zUkDzW0ie7WztGEV7RM7cJsGOj53qPxyTYTfANqn0"
+        let bearerToken = """
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.\
+            eyJzdWIiOiIxIiwiZXhwIjoxNzQ2NDU5ODE3LCJ0eXBlIjoiYWNjZXNzIn0.\
+            b6zUkDzW0ie7WztGEV7RM7cJsGOj53qPxyTYTfANqn0
+            """
         
         let url = baseURL.appending(component: "chat")
         let requestBody = ChatRequest(
