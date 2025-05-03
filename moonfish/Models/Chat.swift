@@ -38,72 +38,6 @@ struct RemoteChatCollection: Decodable {
     }
 }
 
-extension RemoteChatCollection {
-    @MainActor
-    static func fetch() async throws -> RemoteChatCollection {
-        let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2Mjc3MTE2LCJ0eXBlIjoiYWNjZXNzIn0.Ry2tVyFdFwTSU3S69piVsoCB4rCoJ24ZtFA3hMipUuw"
-        
-        let url = baseURL.appending(component: "chat")
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        
-        guard let (data, response) = try? await URLSession.shared.data(for: request),
-              let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
-        else {
-            throw RemoteSyncError.invalidResponse
-        }
-        
-        do {
-            return try JSONDecoder().decode(RemoteChatCollection.self, from: data)
-        } catch {
-            throw RemoteSyncError.decodingError
-        }
-    }
-    
-    @MainActor
-    static func refresh(context: ModelContext) async {
-        do {
-            let remoteChatCollection = try await fetch()
-            
-            for remoteChat in remoteChatCollection.chats {
-                if let chat = Chat(from: remoteChat) {
-                    context.insert(chat)
-                    try? context.save()
-                }
-            }
-        } catch {
-            print("\(error.localizedDescription)")
-        }
-    }
-    
-    @MainActor
-    static func delete(_ chat: Chat, context: ModelContext) async {
-        let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2Mjc3MTE2LCJ0eXBlIjoiYWNjZXNzIn0.Ry2tVyFdFwTSU3S69piVsoCB4rCoJ24ZtFA3hMipUuw"
-        
-        let url = baseURL.appending(components: "chat", "\(chat.id)")
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        
-        do {
-            let (_, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                throw ChatError.invalidResponse
-            }
-            context.delete(chat)
-            try? context.save()
-        } catch {
-            print("\(error.localizedDescription)")
-        }
-    }
-}
-
 struct RemoteMessageCollection: Decodable {
     let chatId: Int
     let messages: [RemoteMessage]
@@ -114,19 +48,13 @@ struct RemoteMessageCollection: Decodable {
     }
 }
 
-enum RemoteMessageEvent: String {
-    case messageStart = "message_start"
-    case delta = "delta"
-    case messageEnd = "message_end"
+enum StreamingMessageEvent {
+    case start(RemoteMessage)
+    case delta(RemoteMessageDelta)
+    case end(RemoteMessageEnd)
 }
 
 struct RemoteMessage: Decodable {
-    var id: Int
-    var role: Role
-    var content: String
-}
-
-struct RemoteMessageStart: Decodable {
     var id: Int
     var role: Role
     var content: String
@@ -138,11 +66,6 @@ struct RemoteMessageDelta: Decodable {
 
 struct RemoteMessageEnd: Decodable {
     var status: String
-    
-}
-
-enum ChatError: Error {
-    case invalidResponse
 }
 
 struct ChatRequest: Codable {
@@ -155,94 +78,9 @@ struct ChatRequest: Codable {
     }
 }
 
-struct ChatResponse: Decodable {
-    var id: Int
-    var role: Role
-    var content: String
-    var chatId: Int
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case role
-        case content
-        case chatId = "chat_id"
-    }
-}
-
-extension RemoteMessageCollection {
-    @MainActor
-    static func fetch(for chatId: Int) async throws -> RemoteMessageCollection {
-        let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2Mjc3MTE2LCJ0eXBlIjoiYWNjZXNzIn0.Ry2tVyFdFwTSU3S69piVsoCB4rCoJ24ZtFA3hMipUuw"
-        
-        let url = baseURL.appending(components: "chat", "\(chatId)")
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        
-        guard let (data, response) = try? await URLSession.shared.data(for: request),
-              let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
-        else {
-            throw RemoteSyncError.invalidResponse
-        }
-        
-        do {
-            return try JSONDecoder().decode(RemoteMessageCollection.self, from: data)
-        } catch {
-            throw RemoteSyncError.decodingError
-        }
-    }
-    
-    @MainActor
-    static func refresh(chat: Chat, context: ModelContext) async {
-        do {
-            let remoteMessageCollection = try await fetch(for: chat.id)
-            for remoteMessage in remoteMessageCollection.messages {
-                let message = Message(from: remoteMessage, for: chat)
-                context.insert(message)
-                try? context.save()
-            }
-        } catch {
-            print("\(error.localizedDescription)")
-        }
-    }
-    
-    @MainActor
-    static func send(_ content: String, chat: Chat?) async throws -> ChatResponse {
-        let baseURL = URL(string: "http://localhost:8000")!
-        let bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzQ2Mjc3MTE2LCJ0eXBlIjoiYWNjZXNzIn0.Ry2tVyFdFwTSU3S69piVsoCB4rCoJ24ZtFA3hMipUuw"
-        
-        let url = baseURL.appending(component: "chat")
-        let requestBody = ChatRequest(
-            content: content,
-            chatId: chat?.id
-        )
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
-        request.httpBody = try JSONEncoder().encode(requestBody)
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-            throw RemoteSyncError.invalidResponse
-        }
-        
-        guard let chatResponse = try? JSONDecoder().decode(ChatResponse.self, from: data) else {
-            throw RemoteSyncError.decodingError
-        }
-        
-        return chatResponse
-    }
-    
-}
-
-enum RemoteSyncError: Error {
-    case invalidResponse
-    case decodingError
+enum Role: String, Codable {
+    case model
+    case user
 }
 
 @Model
@@ -277,12 +115,6 @@ final class Chat {
             status: remoteChat.status
         )
     }
-}
-
-
-enum Role: String, Codable {
-    case model
-    case user
 }
 
 @Model

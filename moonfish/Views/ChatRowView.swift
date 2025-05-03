@@ -29,7 +29,7 @@ struct ChatRowView: View {
         createdAt: "2025-04-09T17:05:10",
         updatedAt: "2025-04-09T17:05:10"
     )
-    let chat = Chat(from: remoteChat)!
-    
-    ChatRowView(chat: chat)
+    if let chat = Chat(from: remoteChat) {
+        ChatRowView(chat: chat)
+    }
 }

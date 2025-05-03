@@ -10,11 +10,13 @@ import SwiftData
 
 @main
 struct moonfishApp: App {
+    let client = BackendClient()
     
     var body: some Scene {
         WindowGroup {
             ChatListView()
                 .modelContainer(for: Chat.self)
+                .environment(\.backendClient, client)
         }
     }
     

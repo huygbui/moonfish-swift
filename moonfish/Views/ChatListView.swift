@@ -9,9 +9,11 @@ import SwiftUI
 import SwiftData
 
 struct ChatListView: View {
-    @Query(sort: \Chat.updatedAt, order: .reverse) private var chats: [Chat]
     @Environment(\.modelContext) private var context
-    
+    @Environment(\.backendClient) private var client
+
+    @Query(sort: \Chat.updatedAt, order: .reverse) private var chats: [Chat]
+
     var body: some View {
         NavigationSplitView {
             List(chats) { chat in
@@ -21,7 +23,7 @@ struct ChatListView: View {
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     Button(role: .destructive) {
                         Task {
-                            await RemoteChatCollection.delete(chat, context: context)
+                            await delete(chat)
                         }
                     } label: {
                         Label("Delete", systemImage: "trash")
@@ -37,10 +39,38 @@ struct ChatListView: View {
                 }
             }
             .task {
-                await RemoteChatCollection.refresh(context: context)
+                await refresh()
             }
         } detail: {
             Text("Select a chat")
+        }
+    }
+}
+
+@MainActor
+extension ChatListView {
+    func delete(_ chat: Chat) async {
+        do {
+            try await client.deleteChat(chatId: chat.id)
+            context.delete(chat)
+            try? context.save()
+        } catch {
+            print("\(error.localizedDescription)")
+        }
+    }
+    
+    func refresh() async {
+        do {
+            let remoteCollection = try await client.fetchChats()
+            
+            for remoteChat in remoteCollection.chats {
+                if let chat = Chat(from: remoteChat) {
+                    context.insert(chat)
+                    try? context.save()
+                }
+            }
+        } catch {
+            print("\(error.localizedDescription)")
         }
     }
 }
