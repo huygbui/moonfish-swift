@@ -7,9 +7,24 @@
 
 import SwiftUI
 
+enum Tabs: Equatable, Hashable {
+    case home
+    case library
+    case drafts
+    case create
+    case profile
+}
+
 struct TabBar: View {
+    @State private var selectedTab: Tabs = .home
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        TabView(selection: $selectedTab) {
+            Tab("Home", systemImage: "house", value: .home) {}
+            Tab("Library", systemImage: "waveform", value: .library) {}
+            Tab("Create", systemImage: "plus.circle", value: .create) {}
+            Tab("Drafts", systemImage: "tray", value: .drafts) {}
+            Tab("Profile", systemImage: "person", value: .profile) {}
+        }
     }
 }
 
