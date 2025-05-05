@@ -21,8 +21,12 @@ struct TabBar: View {
         TabView(selection: $selectedTab) {
             Tab("Home", systemImage: "house", value: .home) {}
             Tab("Library", systemImage: "waveform", value: .library) {}
-            Tab("Create", systemImage: "plus.circle", value: .create) {}
-            Tab("Drafts", systemImage: "tray", value: .drafts) {}
+            Tab("Create", systemImage: "plus.circle", value: .create) {
+               ChatView()
+            }
+            Tab("Drafts", systemImage: "tray", value: .drafts) {
+               ChatListView()
+            }
             Tab("Profile", systemImage: "person", value: .profile) {}
         }
     }
