@@ -48,16 +48,30 @@ struct RemoteMessageCollection: Decodable {
     }
 }
 
-enum StreamingMessageEvent {
-    case start(RemoteMessage)
-    case delta(RemoteMessageDelta)
-    case end(RemoteMessageEnd)
-}
-
 struct RemoteMessage: Decodable {
     var id: Int
     var role: Role
     var content: String
+}
+
+enum StreamingMessageEvent {
+    case start(RemoteMessageStart)
+    case delta(RemoteMessageDelta)
+    case end(RemoteMessageEnd)
+}
+
+struct RemoteMessageStart: Decodable {
+    var id: Int
+    var role: Role
+    var content: String
+    var chatId: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case role
+        case content
+        case chatId = "chat_id"
+    }
 }
 
 struct RemoteMessageDelta: Decodable {
@@ -140,4 +154,5 @@ final class Message {
         )
     }
 }
+
 

@@ -8,16 +8,28 @@
 import SwiftUI
 import SwiftData
 
+enum ChatState : Equatable {
+    case idle
+    case loading
+    case streaming(Message)
+}
+
 struct ChatView: View {
-    var chat: Chat
+    var chat: Chat?
     
     @Environment(\.modelContext) private var context
     @Environment(\.backendClient) private var client
     
+    @State private var currentChatId: Int?
     @State private var messages = [Message]()
+    @State private var chatState = ChatState.idle
     @State private var inputText = ""
-    @State private var isLoading = false
-    @State private var streamingMessage: Message? = nil
+    
+    
+    init(chat: Chat? = nil) {
+        self.chat = chat
+        _currentChatId = State(initialValue: chat?.id)
+    }
     
     var body: some View {
         VStack {
@@ -25,8 +37,9 @@ struct ChatView: View {
             inputArea
         }
         .task {
-            await refresh()
-            messages = chat.messages.sorted(by: { $0.id < $1.id })
+            if let currentChat = chat {
+                await loadMessageHistory(for: currentChat)
+            }
         }
     }
     
@@ -38,15 +51,23 @@ struct ChatView: View {
                         MessageBubble(from: message)
                             .id(message.id)
                     }
-                    if isLoading {
-                        if let streamingMessage, !streamingMessage.content.isEmpty {
-                            MessageBubble(from: streamingMessage)
-                                .id(streamingMessage.id)
-                        } else {
+                    
+                    switch chatState {
+                    case .loading:
+                        ThinkingDots()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .id("thinkingDotsId")
+                    case .streaming(let currentMessage):
+                        if currentMessage.content.isEmpty {
                             ThinkingDots()
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .id("thinkingDotsId")
+                        } else {
+                          MessageBubble(from: currentMessage)
+                            .id(currentMessage.id)  
                         }
+                    case .idle:
+                        EmptyView()
                     }
                 }
                 .padding(.horizontal)
@@ -58,13 +79,22 @@ struct ChatView: View {
                     }
                 }
             }
-            .onChange(of: isLoading) {
-                if isLoading {
+            .onChange(of: chatState) { oldState, newState in
+                switch newState {
+                case .loading:
                     withAnimation {
-                        if let streamingMessage {
-                            proxy.scrollTo(streamingMessage.id)
-                        } else {
-                            proxy.scrollTo("thinkingDotsId")
+                        proxy.scrollTo("thinkingDotsId")
+                    }
+                case .streaming(let currentMessage):
+                    if !currentMessage.content.isEmpty {
+                        withAnimation {
+                            proxy.scrollTo(currentMessage.id)
+                        }
+                    }
+                case .idle:
+                    if let lastMessageId = messages.last?.id {
+                        withAnimation {
+                            proxy.scrollTo(lastMessageId)
                         }
                     }
                 }
@@ -77,7 +107,7 @@ struct ChatView: View {
             TextField("Type message...", text: $inputText)
                 .keyboardType(.default)
                 .textFieldStyle(.roundedBorder)
-                .disabled(isLoading)
+                .disabled(chatState != .idle)
             Button {
                 Task {
                     await send()
@@ -87,7 +117,7 @@ struct ChatView: View {
                     .font(.title)
                     .foregroundStyle(.blue)
             }
-            .disabled(inputText.isEmpty || isLoading)
+            .disabled(inputText.isEmpty || chatState != .idle)
         }
         .padding()
     }
@@ -96,7 +126,7 @@ struct ChatView: View {
 
 @MainActor
 extension ChatView {
-    func refresh() async {
+    func refreshMessageHistory(for chat: Chat) async {
         do {
             let remoteCollection = try await client.fetchMessages(for: chat.id)
             for remoteMessage in remoteCollection.messages {
@@ -109,38 +139,47 @@ extension ChatView {
         }
     }
     
+    func loadMessageHistory(for chat: Chat) async {
+        await refreshMessageHistory(for: chat)
+        messages = chat.messages.sorted { $0.id < $1.id }
+    }
+    
     func send() async {
-        guard !inputText.isEmpty else { return }
+        guard !inputText.isEmpty, chatState == .idle else { return }
         
         let userMessageContent = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
-        let userMessage = Message(id: -1 * Int(Date().timeIntervalSince1970), role: .user, content: userMessageContent)
+        let userMessage = Message(id: Int(Date().timeIntervalSince1970) ,role: .user, content: userMessageContent)
         messages.append(userMessage)
         
         inputText = ""
-        isLoading = true
-        defer { isLoading = false }
+        chatState = .loading
         
         do {
-            let stream = try await client.sendMessage(userMessageContent, chatId: chat.id)
+            let stream = try await client.sendMessage(userMessageContent, chatId: currentChatId)
+            
             for try await event in stream {
                 switch event {
-                case .start(let remoteMessage):
-                    streamingMessage = Message(id: remoteMessage.id, role: .model, content: "")
+                case .start(let remoteMessageStart):
+                    if currentChatId == nil { currentChatId = remoteMessageStart.chatId }
+                    
+                    let newMessage = Message(id: remoteMessageStart.id, role: .model, content: "")
+                    chatState = .streaming(newMessage)
                 case .delta(let remoteMessageDelta):
-                    if let streamingMessage {
-                        streamingMessage.content.append(remoteMessageDelta.v)
-                        self.streamingMessage = streamingMessage
+                    if case .streaming(var currentMessage) = chatState {
+                        currentMessage.content.append(remoteMessageDelta.v)
+                        chatState = .streaming(currentMessage)
                     }
                 case .end:
-                    if let streamingMessage {
-                        messages.append(streamingMessage)
-                        self.streamingMessage = nil
+                    if case .streaming(let finalMessage) = chatState {
+                        messages.append(finalMessage)
                     }
-                    isLoading = false
+                    chatState = .idle
                 }
             }
+            chatState = .idle
         } catch {
             print(error.localizedDescription)
+            chatState = .idle
         }
     }
 }

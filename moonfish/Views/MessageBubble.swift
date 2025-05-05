@@ -17,8 +17,7 @@ struct MessageBubble: View {
     }
     
     init(from message: Message) {
-        self.role = message.role
-        self.content = message.content.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.init(role: message.role, content: message.content)
     }
     
     var body: some View {

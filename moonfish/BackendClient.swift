@@ -78,7 +78,7 @@ actor BackendClient {
         }
     }
     
-    func sendMessage(_ content: String, chatId: Int) async throws -> AsyncThrowingStream<StreamingMessageEvent, Error> {
+    func sendMessage(_ content: String, chatId: Int?) async throws -> AsyncThrowingStream<StreamingMessageEvent, Error> {
         let url = baseURL.appending(component: "chat")
         let requestBody = ChatRequest(content: content, chatId: chatId)
         
@@ -115,8 +115,8 @@ actor BackendClient {
                             
                             switch currentEvent {
                             case "message_start":
-                                let remoteMessage = try decoder.decode(RemoteMessage.self, from: content.data(using: .utf8)!)
-                                continuation.yield(.start(remoteMessage))
+                                let remoteMessageStart = try decoder.decode(RemoteMessageStart.self, from: content.data(using: .utf8)!)
+                                continuation.yield(.start(remoteMessageStart))
                             case "delta":
                                 let delta = try decoder.decode(RemoteMessageDelta.self, from: content.data(using: .utf8)!)
                                 continuation.yield(.delta(delta))
