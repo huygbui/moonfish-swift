@@ -153,7 +153,8 @@ extension ChatView {
         
         inputText = ""
         chatState = .loading
-        
+        defer { chatState = .idle }
+
         do {
             let stream = try await client.sendMessage(userMessageContent, chatId: currentChatId)
             
@@ -168,18 +169,24 @@ extension ChatView {
                     if case .streaming(var currentMessage) = chatState {
                         currentMessage.content.append(remoteMessageDelta.v)
                         chatState = .streaming(currentMessage)
+                    } else {
+                        print("Missing initial message start event")
+                        assertionFailure()
+                        return
                     }
                 case .end:
-                    if case .streaming(let finalMessage) = chatState {
+                    if case .streaming(let finalMessage) = chatState, !finalMessage.content.isEmpty {
                         messages.append(finalMessage)
+                        chatState = .idle
+                    } else {
+                        print("Final message must not be empty")
+                        assertionFailure()
+                        return
                     }
-                    chatState = .idle
                 }
             }
-            chatState = .idle
         } catch {
             print(error.localizedDescription)
-            chatState = .idle
         }
     }
 }
