@@ -16,8 +16,8 @@ actor BackendClient {
     private let baseURL = URL(string: "http://localhost:8000")!
     private let bearerToken = """
         eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.\
-        eyJzdWIiOiIxIiwiZXhwIjoxNzQ2NDU5ODE3LCJ0eXBlIjoiYWNjZXNzIn0.\
-        b6zUkDzW0ie7WztGEV7RM7cJsGOj53qPxyTYTfANqn0
+        eyJzdWIiOiIxIiwiZXhwIjoxNzQ3Mzk5NzczLCJ0eXBlIjoiYWNjZXNzIn0.\
+        WLRLVObrczhpidNw7shVoDDfwj3ECFE99txHIIG57gE
         """
     private let session = URLSession.shared
     private let decoder = JSONDecoder()
