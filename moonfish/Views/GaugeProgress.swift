@@ -14,13 +14,14 @@ struct GaugeProgress: View {
         ZStack {
             Circle()
                 .stroke(style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round))
-                .foregroundStyle(.gray.opacity(0.5))
+                .foregroundStyle(.tertiary)
             Circle()
                 .trim(from: 0, to: fractionCompleted)
                 .stroke(style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .foregroundStyle(.primary)
         }
+        .padding(strokeWidth/2)
     }
 }
 

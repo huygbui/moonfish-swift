@@ -26,8 +26,8 @@ struct PodcastConfiguration: Codable {
 final class PodcastTask {
     var topic: String
     var configuration: PodcastConfiguration // Holds the user's request/config
-    var status: Int
-    var currentAction: Int?
+    var status: TaskStatus.RawValue
+    var currentAction: TaskAction.RawValue?
     var currentProgressValue: Double?
     var audioURL: URL?
 

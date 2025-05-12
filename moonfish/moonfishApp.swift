@@ -13,11 +13,7 @@ struct moonfishApp: App {
     let client = BackendClient()
     
     var body: some Scene {
-        WindowGroup {
-            TabBarView()
-                .modelContainer(SampleData.shared.modelContainer)
-                .environment(\.backendClient, client)
-        }
+        WindowGroup { }
     }
     
     init() {
