@@ -2,30 +2,17 @@
 //  Tab.swift
 //  moonfish
 //
-//  Created by Huy Bui on 10/5/25.
+//  Created by Huy Bui on 15/5/25.
 //
 
-import SwiftUI
+import Foundation
 
-enum Tab: String, CaseIterable {
+enum Tab: String, Identifiable, CaseIterable {
+    case all = "All"
     case completed = "Completed"
-    case inProgress = "In Progress"
-    
-    var filter: Predicate<PodcastTask> {
-        let completedStatusValue = TaskStatus.completed.rawValue
-        let cancelledStatusValue = TaskStatus.cancelled.rawValue
-        
-        switch self {
-        case .completed:
-            return #Predicate<PodcastTask> {
-                $0.status == completedStatusValue
-            }
-        case .inProgress:
-            return #Predicate<PodcastTask> {
-                $0.status != completedStatusValue && $0.status != cancelledStatusValue
-            }
-        }
-    }
+    case onGoing = "On-Going"
+    case downloaded = "Downloaded"
+    case favorite = "Favorite"
+
+    var id: Self { self }
 }
-
-

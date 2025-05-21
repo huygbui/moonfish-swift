@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CreatePodcastTask: View {
+struct CreateNewPodcast: View {
     @Environment(\.dismiss) var dismiss
     @State private var topic: String = ""
     @State private var selectedLength: PodcastLength = .short
@@ -83,5 +83,5 @@ struct CreatePodcastTask: View {
 
 
 #Preview {
-    CreatePodcastTask()
+    CreateNewPodcast()
 }
