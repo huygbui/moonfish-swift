@@ -15,7 +15,7 @@ final class Podcast {
     var transcript: String
     var audioURL: URL
     var duration: Int
-    var createdDate: Date
+    var createdAt: Date
     var configuration: PodcastConfiguration
     
     init(
@@ -24,7 +24,7 @@ final class Podcast {
         transcript: String,
         audioURL: URL,
         duration: Int,
-        createdDate: Date,
+        createdAt: Date,
         configuration: PodcastConfiguration
     ) {
         self.title = title
@@ -32,7 +32,7 @@ final class Podcast {
         self.transcript = transcript
         self.audioURL = audioURL
         self.duration = duration
-        self.createdDate = createdDate
+        self.createdAt = createdAt
         self.configuration = configuration
     }
 }
@@ -40,28 +40,68 @@ final class Podcast {
 
 
 enum PodcastLength: String, Identifiable, CaseIterable, Codable {
-    case short = "Bite-sized"
-    case medium = "Standard"
-    case long = "Extended"
+    case short
+    case medium
+    case long
     var id: Self { self }
+    
+    var displayName: String {
+        switch self {
+        case .short:
+            return "Bite-sized"
+        case .medium:
+            return "Standard"
+        case .long:
+            return "Extended"
+        }
+    }
 }
 
 enum PodcastVoice: String, Identifiable, CaseIterable, Codable {
-    case male = "Male"
-    case female = "Female"
+    case male
+    case female
     var id: Self { self }
+    
+    var displayName: String {
+        switch self {
+        case .male:
+            return "Male"
+        case .female:
+            return "Female"
+        }
+    }
 }
 
 enum PodcastFormat: String, Identifiable, CaseIterable, Codable {
-    case narrative = "Narrative"
-    case conversational = "Conversational"
+    case narrative
+    case conversational
     var id: Self { self }
+    
+    var displayName: String {
+        switch self {
+        case .narrative:
+            return "Narrative"
+        case .conversational:
+            return "Conversational"
+        }
+    }
 }
 
 enum PodcastLevel: String, Identifiable, CaseIterable, Codable {
-    case beginner = "Beginner"
-    case intermediate = "Intermediate"
-    case expert = "Expert"
+    case beginner
+    case intermediate
+    case advanced
     var id: Self { self }
+    
+    var displayName: String {
+        switch self {
+        case .beginner:
+            return "Beginner"
+        case .intermediate:
+            return "Intermediate"
+        case .advanced:
+            return "Advanced"
+        }
+    }
 }
 

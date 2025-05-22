@@ -81,7 +81,7 @@ struct FilterBar: View {
 
 struct MainContent: View {
     var audioPlayer: AudioPlayer
-    @Query(sort: \PodcastRequest.createdDate, order: .reverse) private var podcastRequests: [PodcastRequest]
+    @Query(sort: \PodcastRequest.createdAt, order: .reverse) private var podcastRequests: [PodcastRequest]
     @State var selectedTab: Tab = .all
     @State var scrollID: Int?
 
@@ -172,13 +172,13 @@ struct PodcastRequestCard: View {
                 
                 // Card subtitle
                 HStack {
-                    Text(podcastRequest.configuration.length.rawValue)
+                    Text(podcastRequest.configuration.length.displayName)
                     Image(systemName: "circle.fill")
                         .font(.system(size: 4))
-                    Text(podcastRequest.configuration.format.rawValue)
+                    Text(podcastRequest.configuration.format.displayName)
                     Image(systemName: "circle.fill")
                         .font(.system(size: 4))
-                    Text(podcastRequest.configuration.level.rawValue)
+                    Text(podcastRequest.configuration.level.displayName)
                 }
                 .font(.subheadline)
                 .foregroundStyle(.secondary)

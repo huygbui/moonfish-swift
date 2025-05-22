@@ -10,21 +10,23 @@ import SwiftData
 
 @Model
 final class PodcastRequest {
-    var id: UUID
+    var id: Int
     var status: RequestStatus.RawValue
     var progressValue: Double
     var configuration: PodcastConfiguration
-    var createdDate: Date
+    var createdAt: Date
+    var updatedAt: Date
     var title: String?
     var step: RequestStep.RawValue?
     var completedPodcast: Podcast?
     
     init(
-        id: UUID = UUID(),
+        id: Int,
         status: RequestStatus = .pending,
         progressValue: Double = 0,
         configuration: PodcastConfiguration,
-        createdDate: Date = Date(),
+        createdAt: Date,
+        updatedAt: Date,
         title: String? = "Untitled",
         step: RequestStep? = nil,
         completedPodcast: Podcast? = nil
@@ -33,7 +35,8 @@ final class PodcastRequest {
         self.status = status.rawValue
         self.progressValue = progressValue
         self.configuration = configuration
-        self.createdDate = createdDate
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
         self.title = title
         self.step = step?.rawValue
         self.completedPodcast = completedPodcast

@@ -16,6 +16,7 @@ struct moonfishApp: App {
         WindowGroup {
             Home()
                 .modelContainer(SampleData.shared.modelContainer)
+                .environment(\.backendClient, client)
         }
     }
     

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CreateNewPodcast: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.backendClient) private var client
     @Environment(\.dismiss) var dismiss
     @State private var topic: String = ""
     @State private var selectedLength: PodcastLength = .short
@@ -71,7 +72,9 @@ struct CreateNewPodcast: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                       submit()
+                        Task {
+                            await submit()
+                        }
                     } label: {
                         Image(systemName: "arrow.up.circle")
                     }
@@ -82,17 +85,31 @@ struct CreateNewPodcast: View {
 }
  
 extension CreateNewPodcast {
-    func submit() {
+    func submit() async {
         let configuration = PodcastConfiguration(
-            topic: self.topic,
+            topic: topic,
             length: selectedLength,
             level: selectedLevel,
             format: selectedFormat,
             voice: selectedVoice,
             instruction: instruction
         )
-        let request = PodcastRequest(configuration: configuration)
-        modelContext.insert(request)
+        
+        do {
+            let requestResponse = try await client.createPodcast(configuration: configuration)
+            let podcastRequest = PodcastRequest(
+                id: requestResponse.id,
+                configuration: configuration,
+                createdAt: requestResponse.createdAt,
+                updatedAt: requestResponse.updatedAt
+            )
+            
+            modelContext.insert(podcastRequest)
+            try modelContext.save()
+        } catch {
+            print(error.localizedDescription)
+        }
+        
         dismiss()
     }
 }
