@@ -19,11 +19,11 @@ struct Home: View {
                     NavBar()
                     MainContent(audioPlayer: audioPlayer)
                 }
-                
+
                 DynamicTabBar(isPresenting: $isPresenting, audioPlayer: audioPlayer)
             }
             .fullScreenCover(isPresented: $isPresenting) { CreateNewPodcast() }
-            .background(Color(UIColor.secondarySystemBackground))
+            .background(Color(.secondarySystemBackground).gradient)
         }
     }
 }
@@ -38,6 +38,7 @@ struct NavBar: View {
         }
         .padding(.horizontal)
         .font(.title)
+        .foregroundStyle(Color.secondary)
     }
 }
 
@@ -46,9 +47,8 @@ struct Hero: View {
         Text("What do you want to explore today?")
             .font(.largeTitle)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 24)
+            .padding(.top, 32)
             .padding(.bottom, 8)
-            .padding(.bottom, -8)
     }
 }
 
@@ -65,8 +65,8 @@ struct FilterBar: View {
                             .font(.subheadline)
                             .padding(.vertical, 8)
                             .padding(.horizontal)
-                            .background(selectedTab == tab ? Color.primary : .white, in: .capsule)
-                            .foregroundStyle(selectedTab == tab ? Color.white : .primary)
+                            .background(selectedTab == tab ? Color(.label) : Color(.systemBackground), in: .capsule)
+                            .foregroundStyle(selectedTab == tab ? Color(.systemBackground) : Color(.label))
                     }
                     .compositingGroup()
                     .shadow(radius: 2, x: 0, y:2)
@@ -81,7 +81,7 @@ struct FilterBar: View {
 
 struct MainContent: View {
     var audioPlayer: AudioPlayer
-    @Query(sort: \PodcastRequest.createdDate, order: .forward) private var podcastRequests: [PodcastRequest]
+    @Query(sort: \PodcastRequest.createdDate, order: .reverse) private var podcastRequests: [PodcastRequest]
     @State var selectedTab: Tab = .all
     @State var scrollID: Int?
 
@@ -113,7 +113,7 @@ struct MainContent: View {
                         var opacity: CGFloat = 1.0
                         
                         if yOffset < 0 {
-                            let fadeDistance: CGFloat = 48.0
+                            let fadeDistance: CGFloat = 56.0
                             let currentScroll = abs(yOffset)
                             let scrollProgress = min(1.0, currentScroll / fadeDistance)
                             opacity = 1.0 - pow(scrollProgress, 2.0)
@@ -167,7 +167,7 @@ struct PodcastRequestCard: View {
             VStack(alignment: .leading) {
                 // Card title
                 Text(podcastRequest.title ?? "Untitled")
-                    .font(.title3)
+                    .font(.body)
                     .lineLimit(1)
                 
                 // Card subtitle
@@ -213,7 +213,7 @@ struct PodcastRequestCard: View {
             }
         }
         .padding()
-        .background(Color.white, in: .rect(cornerRadius: 32))
+        .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 32))
         .compositingGroup()
         .shadow(radius: 4, x:0, y:4)
     }
@@ -224,7 +224,7 @@ struct DynamicTabBar: View {
     let audioPlayer: AudioPlayer
 
     var body: some View {
-        HStack {
+        HStack(spacing: 16) {
             // Audio Control
             HStack(spacing: 16) {
                 Button {
@@ -239,20 +239,20 @@ struct DynamicTabBar: View {
             .padding(32)
             .frame(height: 64)
             .background(Color.primary, in: .capsule)
-            .foregroundStyle(.white)
             
             // Create Podcast Button
             Button(action: { isPresenting = true }) {
-                Image(systemName: "sparkle")
+                Image(systemName: "plus")
                     .font(.title2)
                     .frame(width: 64, height: 64)
                     .background(Color.primary, in: .circle)
-                    .foregroundStyle(.white)
             }
         }
         .padding(32)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+        .foregroundStyle(Color(.systemBackground))
         .ignoresSafeArea()
+        .compositingGroup()
         .shadow(radius: 4, x:0, y:4)
     }
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CreateNewPodcast: View {
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) var dismiss
     @State private var topic: String = ""
     @State private var selectedLength: PodcastLength = .short
@@ -70,17 +71,31 @@ struct CreateNewPodcast: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        
+                       submit()
                     } label: {
                         Image(systemName: "arrow.up.circle")
                     }
                 }
             }
-//            .scrollContentBackground(.hidden)
         }
     }
 }
-
+ 
+extension CreateNewPodcast {
+    func submit() {
+        let configuration = PodcastConfiguration(
+            topic: self.topic,
+            length: selectedLength,
+            level: selectedLevel,
+            format: selectedFormat,
+            voice: selectedVoice,
+            instruction: instruction
+        )
+        let request = PodcastRequest(configuration: configuration)
+        modelContext.insert(request)
+        dismiss()
+    }
+}
 
 #Preview {
     CreateNewPodcast()

@@ -13,13 +13,6 @@ struct PodcastConfiguration: Codable {
     var level: PodcastLevel
     var format: PodcastFormat
     var voice: PodcastVoice
-
-    static let `default` = PodcastConfiguration(
-        topic: "",
-        length: .medium,
-        level: .beginner,
-        format: .narrative,
-        voice: .male
-    )
+    var instruction: String = ""
 }
 
