@@ -23,7 +23,7 @@ struct Home: View {
                 DynamicTabBar(isPresenting: $isPresenting, audioPlayer: audioPlayer)
             }
             .fullScreenCover(isPresented: $isPresenting) { CreateNewPodcast() }
-            .background(Color(.secondarySystemBackground).gradient)
+            .background(Color(.secondarySystemBackground))
         }
     }
 }
@@ -38,7 +38,7 @@ struct NavBar: View {
         }
         .padding(.horizontal)
         .font(.title)
-        .foregroundStyle(Color.secondary)
+        .foregroundStyle(Color.primary)
     }
 }
 
@@ -226,19 +226,19 @@ struct DynamicTabBar: View {
     var body: some View {
         HStack(spacing: 16) {
             // Audio Control
-            HStack(spacing: 16) {
-                Button {
-                    if let podcast = audioPlayer.currentPodcast { audioPlayer.toggle(podcast) }
-                } label: {
-                    Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
-                        .font(.title2)
-                }
-                Text(audioPlayer.currentPodcast?.title ?? "")
-                Spacer()
-            }
-            .padding(32)
-            .frame(height: 64)
-            .background(Color.primary, in: .capsule)
+//            HStack(spacing: 16) {
+//                Button {
+//                    if let podcast = audioPlayer.currentPodcast { audioPlayer.toggle(podcast) }
+//                } label: {
+//                    Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
+//                        .font(.title2)
+//                }
+//                Text(audioPlayer.currentPodcast?.title ?? "")
+//                Spacer()
+//            }
+//            .padding(32)
+//            .frame(height: 64)
+//            .background(Color.primary, in: .capsule)
             
             // Create Podcast Button
             Button(action: { isPresenting = true }) {

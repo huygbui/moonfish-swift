@@ -104,7 +104,7 @@ extension PodcastRequest {
                 configuration: gardeningConfig,
                 createdAt: Date(timeIntervalSinceNow: -86400), // 1 day ago
                 updatedAt: Date(timeIntervalSinceNow: -86400), // 1 day ago
-                title: "Gardening Podcast (Attempt 1)",
+                title: "Gardening Podcast",
                 step: .compose
             ),
             
