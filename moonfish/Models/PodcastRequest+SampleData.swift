@@ -6,8 +6,6 @@
 //
 // File: PodcastRequest+SampleData.swift
 
-// File: PodcastRequest+SampleData.swift
-
 import Foundation
 import SwiftData
 
@@ -41,29 +39,40 @@ extension PodcastRequest {
 
         // --- Sample PodcastRequest instances ---
         return [
-            // 1. Pending Request (using default title and createdDate)
+            // 1. Completed Request (previously pending)
             PodcastRequest(
                 id: 0,
+                status: .completed,
+                progressValue: 1.0,
                 configuration: gardeningConfig,
-                createdAt: Date(timeIntervalSinceNow: -86400 * 4), // 3 days ago
-                updatedAt: Date(timeIntervalSinceNow: -86400 * 2) // 3 days ago
-                // title defaults to "Untitled"
-                // createdDate defaults to Date()
+                createdAt: Date(timeIntervalSinceNow: -86400 * 6), // 6 days ago
+                updatedAt: Date(timeIntervalSinceNow: -86400 * 5), // 5 days ago
+                title: "Beginner's Guide to Gardening",
+                step: .voice,
+                completedPodcast: Podcast(
+                    title: "Beginner's Guide to Gardening",
+                    summary: "A simple guide to get you started with urban gardening, generated from a request.",
+                    transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
+                    audioURL: URL(string: "https://example.com/audio/gardening_beginner.mp3")!,
+                    duration: 620, // about 10 minutes
+                    createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600), // Created an hour after the request
+                    configuration: gardeningConfig
+                )
             ),
 
-            // 2. Active Request (specific title and older createdDate)
+            // 2. Active Request, well in progress
             PodcastRequest(
                 id: 1,
                 status: .active,
-                progressValue: 0.25,
+                progressValue: 0.75,
                 configuration: quantumConfig,
-                createdAt: Date(timeIntervalSinceNow: -86400 * 3), // 3 days ago
-                updatedAt: Date(timeIntervalSinceNow: -86400 * 3), // 3 days ago
+                createdAt: Date(timeIntervalSinceNow: -3600 * 5), // 5 hours ago
+                updatedAt: Date(timeIntervalSinceNow: -3600 * 1), // 1 hour ago
                 title: "Exploring Quantum Realms",
-                step: .research
+                step: .compose
             ),
             
-            // 3. Completed Request WITH a completed Podcast
+            // 3. Completed Request
             PodcastRequest(
                 id: 2,
                 status: .completed,
@@ -71,10 +80,10 @@ extension PodcastRequest {
                 configuration: quantumConfig,
                 createdAt: Date(timeIntervalSinceNow: -86400 * 5), // 5 days ago
                 updatedAt: Date(timeIntervalSinceNow: -86400 * 4), // 4 days ago
-                title: "Quantum Leap for Beginners", // Title for the request
+                title: "Quantum Leap for Beginners",
                 step: .voice,
                 completedPodcast: Podcast(
-                    title: "Quantum Leap for Beginners", // Title for the actual podcast
+                    title: "Quantum Leap for Beginners",
                     summary: "A bite-sized intro to quantum physics generated via this request.",
                     transcript: "Welcome! This podcast, born from a request, explores quantum wonders...",
                     audioURL: URL(string: "https://example.com/audio/quantum_from_request.mp3")!,
@@ -84,19 +93,28 @@ extension PodcastRequest {
                 )
             ),
 
-            // 4. Another Active Request (default title, recent createdDate)
+            // 4. Another Completed Request (previously active)
             PodcastRequest(
                 id: 3,
-                status: .active,
-                progressValue: 0.60,
+                status: .completed,
+                progressValue: 1.0,
                 configuration: aiEthicsConfig,
-                createdAt: Date(timeIntervalSinceNow: -3600 * 2), // 2 hours ago
-                updatedAt: Date(timeIntervalSinceNow: -3600 * 2), // 2 hours ago
-                // title defaults to "Untitled"
-                step: .compose
+                createdAt: Date(timeIntervalSinceNow: -86400 * 10), // 10 days ago
+                updatedAt: Date(timeIntervalSinceNow: -86400 * 9),  // 9 days ago
+                title: "Ethical AI in Modern Society",
+                step: .voice,
+                completedPodcast: Podcast(
+                    title: "Ethical AI in Modern Society",
+                    summary: "A deep dive into the ethical dilemmas and future of Artificial Intelligence.",
+                    transcript: "In an age of rapid technological advancement, we must ask: what are the ethics of AI? This podcast, generated from your request, explores this very question...",
+                    audioURL: URL(string: "https://example.com/audio/ai_ethics_deep_dive.mp3")!,
+                    duration: 1815, // about 30 minutes
+                    createdAt: Date(timeIntervalSinceNow: -86400 * 10 + 7200), // Created 2 hours after the request
+                    configuration: aiEthicsConfig
+                )
             ),
 
-            // 5. Cancelled Request (specific title)
+            // 5. Cancelled Request
             PodcastRequest(
                 id: 4,
                 status: .cancelled,
@@ -108,7 +126,7 @@ extension PodcastRequest {
                 step: .compose
             ),
             
-            // 6. Completed Request that results in a different Podcast
+            // 6. A third Completed Request
             PodcastRequest(
                 id: 5,
                 status: .completed,
@@ -129,9 +147,10 @@ extension PodcastRequest {
                 )
             ),
 
-            // 7. Another Pending Request (specific title, very recent)
+            // 7. Pending Request (very recent)
             PodcastRequest(
                 id: 6,
+                // status defaults to .pending
                 configuration: aiEthicsConfig,
                 createdAt: Date(timeIntervalSinceNow: -60 * 10), // 10 minutes ago
                 updatedAt: Date(timeIntervalSinceNow: -60 * 10), // 10 minutes ago
