@@ -8,45 +8,34 @@
 import SwiftUI
 import SwiftData
 
-struct Home: View {
+struct Podcasts: View {
     @State private var isPresenting: Bool = false
     @State private var audioPlayer = AudioPlayer()
-    
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                VStack {
-                    MainContent(audioPlayer: audioPlayer)
-                }
-
-                DynamicTabBar(isPresenting: $isPresenting, audioPlayer: audioPlayer)
-            }
+            MainContent(audioPlayer: audioPlayer)
             .toolbar {
-                
-                if #available(iOS 26.0, *) {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Image(systemName: "line.horizontal.3")
-                    }
-                    ToolbarItem {
-                        Image(systemName: "magnifyingglass")
-                    }
-                    ToolbarItem {
-                        Image(systemName: "person")
-                    }
-                } else {
-                    ToolbarItem {
-                        Image(systemName: "line.horizontal.3")
-                    }
-                    ToolbarItem {
-                        Image(systemName: "magnifyingglass")
-                    }
-                    ToolbarItem {
-                        Image(systemName: "person.circle")
-                    }
-                }
-                
+//                ToolbarItem(placement: .topBarLeading) {
+//                    Image(systemName: "line.horizontal.3")
+//                }
+//                ToolbarItem {
+//                    Image(systemName: "plus")
+//                }
+//                if #available(iOS 26.0, *) {
+//                    ToolbarSpacer()
+//                }
+               
+//                ToolbarItemGroup(placement: .bottomBar) {
+//                    Spacer()
+//                    Button (action: { isPresenting = true }) {
+//                        Image(systemName: "plus")
+//                    }
+//                }
             }
             .sheet(isPresented: $isPresenting) { CreateNewPodcast() }
+            .navigationTitle("Podcasts")
+//            .navigationBarTitleDisplayMode(.inline)
             .background(Color(.secondarySystemBackground))
         }
     }
@@ -77,11 +66,11 @@ struct Hero: View {
 }
 
 struct FilterBar: View {
-    @Binding var selectedTab: Tab
+    @Binding var selectedTab: TabItem
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack {
-                ForEach(Tab.allCases) { tab in
+                ForEach(TabItem.allCases) { tab in
                     Button {
                         selectedTab = tab
                     } label: {
@@ -92,8 +81,6 @@ struct FilterBar: View {
                             .background(selectedTab == tab ? Color(.label) : Color(.systemBackground), in: .capsule)
                             .foregroundStyle(selectedTab == tab ? Color(.systemBackground) : Color(.label))
                     }
-                    .compositingGroup()
-                    .shadow(radius: 2, x: 0, y:2)
                 }
             }
             .scrollTargetLayout()
@@ -106,8 +93,12 @@ struct FilterBar: View {
 struct MainContent: View {
     var audioPlayer: AudioPlayer
     @Query(sort: \PodcastRequest.createdAt, order: .reverse) private var podcastRequests: [PodcastRequest]
-    @State var selectedTab: Tab = .all
+    @State var selectedTab: TabItem = .completed
     @State var scrollID: Int?
+    
+    var completedRequests: [PodcastRequest] {
+        return podcastRequests.filter { $0.status == RequestStatus.completed.rawValue }
+    }
 
     var filteredRequests: [PodcastRequest] {
         switch selectedTab {
@@ -130,44 +121,34 @@ struct MainContent: View {
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack {
-                Hero()
-                    .id(0)
+//                Hero()
+//                    .id(0)
 //                    .visualEffect { content, proxy in
 //                        let yOffset = proxy.frame(in: .scrollView).minY
-//                        var opacity: CGFloat = 1.0
-//                        
-//                        if yOffset < 0 {
-//                            let fadeDistance: CGFloat = 56.0
-//                            let currentScroll = abs(yOffset)
-//                            let scrollProgress = min(1.0, currentScroll / fadeDistance)
-//                            opacity = 1.0 - pow(scrollProgress, 2.0)
-//                            opacity = max(0.0, min(1.0, opacity))
-//                        }
-//                        
-//                        return content.opacity(opacity)
+//                        return content.opacity(yOffset < -128 ? 0 : 1)
 //                    }
-                FilterBar(selectedTab: $selectedTab)
-                    .id(1)
-                    .visualEffect { content, proxy in
-                        let yOffset = proxy.frame(in: .scrollView).minY
-                        return content
-                            .offset(y: yOffset < 0 ? -yOffset : 0)
-                    }
+//                FilterBar(selectedTab: $selectedTab)
+//                    .id(1)
+//                    .visualEffect { content, proxy in
+//                        let yOffset = proxy.frame(in: .scrollView).minY
+//                        return content
+//                            .offset(y: yOffset < 0 ? -yOffset : 0)
+//                    }
                 
-                ForEach(Array(filteredRequests.enumerated()), id: \.element) { index, request in
+                ForEach(Array(completedRequests.enumerated()), id: \.element) { index, request in
                     PodcastRequestCard(podcastRequest: request, audioPlayer: audioPlayer)
-                        .id(index + 2)
-                        .visualEffect { content, proxy in
-                            let yOffset = proxy.frame(in: .scrollView).minY
-                            let offset = yOffset > 60 ? 0 : yOffset - 60
-                            let scale = max(1.0 - abs(offset) / 1000, 0)
-                            let brightness = min(scale - 1, 0)
-                            
-                            return content
-                                .scaleEffect(scale, anchor: .top)
-                                .brightness(brightness)
-                                .offset(y: -offset)
-                        }
+//                        .id(index + 2)
+//                        .visualEffect { content, proxy in
+//                            let yOffset = proxy.frame(in: .scrollView).minY
+//                            let offset = yOffset > 60 ? 0 : yOffset - 60
+//                            let scale = max(1.0 - abs(offset) / 1000, 0)
+//                            let brightness = min(scale - 1, 0)
+//                            
+//                            return content
+//                                .scaleEffect(scale, anchor: .top)
+//                                .brightness(brightness)
+//                                .offset(y: -offset)
+//                        }
                 }
             }
             .scrollTargetLayout()
@@ -183,7 +164,7 @@ struct MainContent: View {
 
 struct PodcastRequestCard: View {
     var podcastRequest: PodcastRequest
-    let audioPlayer: AudioPlayer
+    var audioPlayer: AudioPlayer? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 40) {
@@ -210,7 +191,7 @@ struct PodcastRequestCard: View {
             
             // Card footer
             HStack {
-                if podcastRequest.status == RequestStatus.completed.rawValue,
+                if let audioPlayer, podcastRequest.status == RequestStatus.completed.rawValue,
                    let podcast = podcastRequest.completedPodcast {
                     Button(action: { audioPlayer.toggle(podcast) }) {
                         Image(systemName: audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast ? "pause.circle.fill" :"play.circle.fill")
@@ -287,6 +268,6 @@ struct DynamicTabBar: View {
 }
 
 #Preview {
-    Home()
+    Podcasts()
         .modelContainer(SampleData.shared.modelContainer)
 }

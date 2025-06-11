@@ -14,7 +14,7 @@ struct moonfishApp: App {
     
     var body: some Scene {
         WindowGroup {
-            Home()
+            Root()
                 .modelContainer(SampleData.shared.modelContainer)
                 .environment(\.backendClient, client)
         }
