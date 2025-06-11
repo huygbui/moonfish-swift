@@ -16,13 +16,37 @@ struct Home: View {
         NavigationStack {
             ZStack {
                 VStack {
-                    NavBar()
                     MainContent(audioPlayer: audioPlayer)
                 }
 
                 DynamicTabBar(isPresenting: $isPresenting, audioPlayer: audioPlayer)
             }
-            .fullScreenCover(isPresented: $isPresenting) { CreateNewPodcast() }
+            .toolbar {
+                
+                if #available(iOS 26.0, *) {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Image(systemName: "line.horizontal.3")
+                    }
+                    ToolbarItem {
+                        Image(systemName: "magnifyingglass")
+                    }
+                    ToolbarItem {
+                        Image(systemName: "person")
+                    }
+                } else {
+                    ToolbarItem {
+                        Image(systemName: "line.horizontal.3")
+                    }
+                    ToolbarItem {
+                        Image(systemName: "magnifyingglass")
+                    }
+                    ToolbarItem {
+                        Image(systemName: "person.circle")
+                    }
+                }
+                
+            }
+            .sheet(isPresented: $isPresenting) { CreateNewPodcast() }
             .background(Color(.secondarySystemBackground))
         }
     }
@@ -108,20 +132,20 @@ struct MainContent: View {
             VStack {
                 Hero()
                     .id(0)
-                    .visualEffect { content, proxy in
-                        let yOffset = proxy.frame(in: .scrollView).minY
-                        var opacity: CGFloat = 1.0
-                        
-                        if yOffset < 0 {
-                            let fadeDistance: CGFloat = 56.0
-                            let currentScroll = abs(yOffset)
-                            let scrollProgress = min(1.0, currentScroll / fadeDistance)
-                            opacity = 1.0 - pow(scrollProgress, 2.0)
-                            opacity = max(0.0, min(1.0, opacity))
-                        }
-                        
-                        return content.opacity(opacity)
-                    }
+//                    .visualEffect { content, proxy in
+//                        let yOffset = proxy.frame(in: .scrollView).minY
+//                        var opacity: CGFloat = 1.0
+//                        
+//                        if yOffset < 0 {
+//                            let fadeDistance: CGFloat = 56.0
+//                            let currentScroll = abs(yOffset)
+//                            let scrollProgress = min(1.0, currentScroll / fadeDistance)
+//                            opacity = 1.0 - pow(scrollProgress, 2.0)
+//                            opacity = max(0.0, min(1.0, opacity))
+//                        }
+//                        
+//                        return content.opacity(opacity)
+//                    }
                 FilterBar(selectedTab: $selectedTab)
                     .id(1)
                     .visualEffect { content, proxy in
@@ -215,7 +239,6 @@ struct PodcastRequestCard: View {
         .padding()
         .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 32))
         .compositingGroup()
-        .shadow(radius: 4, x:0, y:4)
     }
 }
 
@@ -242,18 +265,24 @@ struct DynamicTabBar: View {
             
             // Create Podcast Button
             Button(action: { isPresenting = true }) {
-                Image(systemName: "plus")
-                    .font(.title2)
-                    .frame(width: 64, height: 64)
-                    .background(Color.primary, in: .circle)
+                if #available(iOS 26.0, *) {
+                    Image(systemName: "plus")
+                        .font(.title2)
+                        .frame(width: 64, height: 64)
+                        .glassEffect(in: .circle)
+                } else {
+                    Image(systemName: "plus")
+                        .font(.title2)
+                        .frame(width: 64, height: 64)
+                        .foregroundStyle(Color(.secondarySystemBackground))
+                        .background(.primary, in: .circle)
+                }
             }
         }
         .padding(32)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-        .foregroundStyle(Color(.systemBackground))
         .ignoresSafeArea()
         .compositingGroup()
-        .shadow(radius: 4, x:0, y:4)
     }
 }
 

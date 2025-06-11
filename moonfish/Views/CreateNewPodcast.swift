@@ -29,24 +29,24 @@ struct CreateNewPodcast: View {
                 Section(header: Text("Content")) {
                     Picker("Length", selection: $selectedLength) {
                         ForEach(PodcastLength.allCases) { length in
-                            Text(length.rawValue).tag(length)
+                            Text(length.rawValue.localizedCapitalized).tag(length)
                         }
                     }
                     Picker("Level", selection: $selectedLevel) {
                         ForEach(PodcastLevel.allCases) { level in
-                            Text(level.rawValue).tag(level)
+                            Text(level.rawValue.localizedCapitalized).tag(level)
                         }
                     }
                 }
                 Section(header: Text("Delivery")) {
                     Picker("Format", selection: $selectedFormat) {
                         ForEach(PodcastFormat.allCases) { format in
-                            Text(format.rawValue).tag(format)
+                            Text(format.rawValue.localizedCapitalized).tag(format)
                         }
                     }
                     Picker("Voice", selection: $selectedVoice) {
                         ForEach(PodcastVoice.allCases) { voice in
-                            Text(voice.rawValue).tag(voice)
+                            Text(voice.rawValue.localizedCapitalized).tag(voice)
                         }
                     }
                 }
