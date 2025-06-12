@@ -9,31 +9,14 @@ import SwiftUI
 import SwiftData
 
 struct Root: View {
-    @State private var audioPlayer = AudioPlayer()
-    @State var selectedTab: Int? = 0
-    @State var searchText: String = ""
-    @Query private var podcastRequests: [PodcastRequest]
-    
-    init() {
-        let completedStatus = RequestStatus.completed.rawValue
-        
-        _podcastRequests = Query(
-            filter: #Predicate<PodcastRequest> { $0.status == completedStatus },
-            sort: \PodcastRequest.createdAt, order: .reverse
-        )
-    }
+    @State private var searchText: String = ""
     
     var body: some View {
         TabView {
-            Tab("Podcasts", systemImage: "ipod") {
-                Podcasts()
-            }
-            Tab("Requests", systemImage: "mail") {
-                PodcastRequests()
-            }
+            Tab("Podcasts", systemImage: "play.square.stack") {Podcasts()}
+            Tab("Requests", systemImage: "tray") {PodcastRequests()}
             Tab(role: .search) {
                 NavigationStack {
-                    
                 }
             }
         }

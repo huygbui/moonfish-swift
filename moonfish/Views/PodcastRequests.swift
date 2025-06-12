@@ -11,32 +11,31 @@ import SwiftData
 struct PodcastRequests: View {
     @State private var isPresented: Bool = false
     @Query(sort: \PodcastRequest.createdAt, order: .reverse) private var podcastRequests: [PodcastRequest]
-    var requests: [PodcastRequest] {
+    
+    private var requests: [PodcastRequest] {
         return podcastRequests.filter { $0.status != RequestStatus.completed.rawValue }
     }
     
     var body: some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 VStack {
-                    ForEach(requests) { request in
-                        PodcastRequestCard(podcastRequest: request)
-                    }
-                }
-            }
-            .toolbar {
-                ToolbarItem {
-                    Button {
-                       isPresented = true
-                    } label: {
-                        Image(systemName: "plus")
+                    ForEach(requests) {
+                        PodcastCard(podcastRequest: $0)
                     }
                 }
             }
             .sheet(isPresented: $isPresented) { CreateNewPodcast() }
+            .navigationTitle("Requests")
+            .toolbar {
+                ToolbarItem {
+                    Button(action: { isPresented = true }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
-            .navigationTitle("Requests")
             .foregroundStyle(.primary)
             .background(Color(.secondarySystemBackground))
         }
