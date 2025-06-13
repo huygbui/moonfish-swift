@@ -56,7 +56,9 @@ extension PodcastRequest {
                     audioURL: URL(string: "https://example.com/audio/gardening_beginner.mp3")!,
                     duration: 620, // about 10 minutes
                     createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600), // Created an hour after the request
-                    configuration: gardeningConfig
+                    configuration: gardeningConfig,
+                    isFavorite: true,
+                    isDownloaded: true
                 )
             ),
 
@@ -144,6 +146,7 @@ extension PodcastRequest {
                     duration: 950,
                     createdAt: Date(timeIntervalSinceNow: -86400 * 2 + (3600*2)), // Podcast created slightly after request
                     configuration: gardeningConfig,
+                    isFavorite: true,
                 )
             ),
 

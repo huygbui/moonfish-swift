@@ -20,9 +20,7 @@ struct RequestCard: View {
                         .font(.body)
                         .lineLimit(1)
                     Spacer()
-                    Image(systemName: "ellipsis")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    RequestCardMenu(podcastRequest: podcastRequest).foregroundStyle(.secondary)
                 }
                 
                 

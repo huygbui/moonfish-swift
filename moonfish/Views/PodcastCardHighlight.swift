@@ -38,11 +38,7 @@ struct PodcastCardHighlight: View {
                 
                 HStack(spacing: 16) {
                     Spacer()
-                    Image(systemName: "ellipsis")
-                        .font(.subheadline)
-                        .frame(width: 32, height: 32)
-                        .foregroundStyle(.secondary)
-                    
+                    PodcastCardMenu(podcast: podcast).foregroundStyle(.secondary)
                     Button(action: { audioPlayer.toggle(podcast) }) {
                         Image(systemName: audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast ? "pause.fill" :"play.fill")
                             .frame(width: 32, height: 32)

@@ -17,6 +17,8 @@ final class Podcast {
     var duration: Int
     var createdAt: Date
     var configuration: PodcastConfiguration
+    var isFavorite: Bool
+    var isDownloaded: Bool
     
     
     init(
@@ -27,7 +29,8 @@ final class Podcast {
         duration: Int,
         createdAt: Date,
         configuration: PodcastConfiguration,
-        
+        isFavorite: Bool = false,
+        isDownloaded: Bool = false
     ) {
         self.title = title
         self.summary = summary
@@ -36,6 +39,8 @@ final class Podcast {
         self.duration = duration
         self.createdAt = createdAt
         self.configuration = configuration
+        self.isFavorite = isFavorite
+        self.isDownloaded = isDownloaded
     }
 }
 

@@ -21,9 +21,7 @@ struct PodcastCard: View {
                         .font(.body)
                         .lineLimit(1)
                     Spacer()
-                    Image(systemName: "ellipsis")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    PodcastCardMenu(podcast: podcast).foregroundStyle(.secondary)
                 }
                 
                 
