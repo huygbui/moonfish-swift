@@ -11,15 +11,13 @@ import SwiftData
 struct Podcasts: View {
     @State private var isPresented: Bool = false
     @State private var audioPlayer = AudioPlayer()
-    @Query(sort: \PodcastRequest.createdAt, order: .reverse) private var podcastRequests: [PodcastRequest]
-    
-    private var requests: [PodcastRequest] {
-        return podcastRequests.filter { $0.status == RequestStatus.completed.rawValue }
-    }
+    @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
     
     
     var body: some View {
-        let newRequests = requests.filter { $0.completedPodcast?.wasPlayed == false}
+        let topThrees = Array(podcasts.prefix(3))
+        let remainings = Array(podcasts.dropFirst(3))
+        
         
         NavigationStack {
             ScrollView {
@@ -28,30 +26,26 @@ struct Podcasts: View {
                         Text("Newly Added").font(.headline)
                         ScrollView(.horizontal) {
                             HStack {
-                                ForEach(newRequests) {
-                                    if let podcast = $0.completedPodcast {
-                                     PodcastCardHighlight(
-                                        podcast: podcast,
+                                ForEach(topThrees) {
+                                    PodcastCardHighlight(
+                                        podcast: $0,
                                         audioPlayer: audioPlayer
                                     )
-                                    .frame(width: 256, height: 256)   
-                                    }
+                                    .frame(width: 256, height: 256)
                                 }
                             }
                         }
-                        .scrollIndicators(.hidden)
                     }
+                    .scrollIndicators(.hidden)
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Past Tracks").font(.headline)
                         VStack(spacing: 8) {
-                            ForEach(requests){
-                                if let podcast = $0.completedPodcast {
-                                    PodcastCard(
-                                        podcast: podcast,
-                                        audioPlayer: audioPlayer
-                                    )
-                                }
+                            ForEach(remainings){
+                                PodcastCard(
+                                    podcast: $0,
+                                    audioPlayer: audioPlayer
+                                )
                             }
                         }
                     }
@@ -66,16 +60,12 @@ struct Podcasts: View {
                         Image(systemName: "person")
                     }
                 }
-                
-               
             }
             .foregroundStyle(.primary)
             .background(Color(.secondarySystemBackground))
         }
     }
 }
-
-
 
 #Preview {
     Podcasts()

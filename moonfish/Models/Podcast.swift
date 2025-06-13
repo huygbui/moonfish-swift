@@ -18,7 +18,6 @@ final class Podcast {
     var createdAt: Date
     var configuration: PodcastConfiguration
     
-    var wasPlayed: Bool
     
     init(
         title: String,
@@ -29,7 +28,6 @@ final class Podcast {
         createdAt: Date,
         configuration: PodcastConfiguration,
         
-        wasPlayed: Bool = false
     ) {
         self.title = title
         self.summary = summary
@@ -38,7 +36,6 @@ final class Podcast {
         self.duration = duration
         self.createdAt = createdAt
         self.configuration = configuration
-        self.wasPlayed = wasPlayed
     }
 }
 

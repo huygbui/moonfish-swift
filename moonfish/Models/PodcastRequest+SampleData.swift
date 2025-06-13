@@ -111,7 +111,6 @@ extension PodcastRequest {
                     duration: 1815, // about 30 minutes
                     createdAt: Date(timeIntervalSinceNow: -86400 * 10 + 7200), // Created 2 hours after the request
                     configuration: aiEthicsConfig,
-                    wasPlayed: true
                 )
             ),
 
@@ -145,7 +144,6 @@ extension PodcastRequest {
                     duration: 950,
                     createdAt: Date(timeIntervalSinceNow: -86400 * 2 + (3600*2)), // Podcast created slightly after request
                     configuration: gardeningConfig,
-                    wasPlayed: true
                 )
             ),
 
