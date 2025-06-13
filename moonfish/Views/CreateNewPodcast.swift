@@ -76,7 +76,7 @@ struct CreateNewPodcast: View {
                             await submit()
                         }
                     } label: {
-                        Image(systemName: "arrow.up.circle")
+                        Image(systemName: "arrow.up")
                     }
                 }
             }

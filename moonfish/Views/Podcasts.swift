@@ -53,15 +53,18 @@ struct Podcasts: View {
             .navigationTitle("Podcasts")
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
+            .foregroundStyle(.primary)
+            .background(Color(.secondarySystemBackground))
             .toolbar {
                 ToolbarItem {
-                    Button(action: {  }) {
+                    Button(action: { isPresented = true }) {
                         Image(systemName: "person")
                     }
                 }
             }
-            .foregroundStyle(.primary)
-            .background(Color(.secondarySystemBackground))
+            .sheet(isPresented: $isPresented) {
+                Account()
+            }
         }
     }
 }
