@@ -9,10 +9,8 @@ import Foundation
 
 enum TabItem: String, Identifiable, CaseIterable {
     case all = "All"
-    case completed = "Completed"
-    case onGoing = "On-Going"
-    case downloaded = "Downloaded"
     case favorite = "Favorite"
+    case downloaded = "Downloaded"
 
     var id: Self { self }
 }

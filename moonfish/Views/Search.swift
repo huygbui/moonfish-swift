@@ -11,29 +11,51 @@ import SwiftData
 struct Search: View {
     var audioPlayer: AudioPlayer
     @State private var searchText: String = ""
-    @State private var selectedOrder: Int = 0
+    @State private var selectedTab: TabItem = .all
 
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
     
     var filteredPodcasts: [Podcast] {
-        if searchText.isEmpty {
-            return podcasts
-        } else {
-            return podcasts.filter {
+        var filtered = podcasts
+        
+        // Apply tab filter
+        switch selectedTab {
+        case .all:
+            filtered = podcasts
+        case .downloaded:
+            filtered = podcasts.filter { $0.isDownloaded }
+        case .favorite:
+            filtered = podcasts.filter { $0.isFavorite }
+        }
+        
+        // Apply search filter if search text is not empty
+        if !searchText.isEmpty {
+            filtered = filtered.filter {
                 $0.title.localizedCaseInsensitiveContains(searchText)
             }
         }
+        
+        return filtered
     }
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading) {
-                    ForEach(filteredPodcasts) { podcast in
-                        PodcastCard (
-                            podcast: podcast,
-                            audioPlayer: audioPlayer
-                        )
+                VStack(spacing: 16) {
+                    Picker("Filter", selection: $selectedTab) {
+                        ForEach(TabItem.allCases) { tab in
+                            Text(tab.rawValue).tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    
+                    VStack(alignment: .leading) {
+                        ForEach(filteredPodcasts) { podcast in
+                            PodcastCard (
+                                podcast: podcast,
+                                audioPlayer: audioPlayer
+                            )
+                        }
                     }
                 }
             }
