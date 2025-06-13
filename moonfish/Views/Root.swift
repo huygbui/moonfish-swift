@@ -14,7 +14,7 @@ struct Root: View {
     var body: some View {
         TabView {
             Tab("Podcasts", systemImage: "play.square.stack") {Podcasts()}
-            Tab("Requests", systemImage: "tray") {PodcastRequests()}
+            Tab("Requests", systemImage: "tray") {Requests()}
             Tab(role: .search) {
                 NavigationStack {
                 }

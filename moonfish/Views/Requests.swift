@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct PodcastRequests: View {
+struct Requests: View {
     @State private var isPresented: Bool = false
     @Query(sort: \PodcastRequest.createdAt, order: .reverse) private var podcastRequests: [PodcastRequest]
     
@@ -21,7 +21,7 @@ struct PodcastRequests: View {
             ScrollView {
                 VStack {
                     ForEach(requests) {
-                        PodcastCard(podcastRequest: $0)
+                        RequestCard(podcastRequest: $0)
                     }
                 }
             }
@@ -43,6 +43,6 @@ struct PodcastRequests: View {
 }
 
 #Preview {
-    PodcastRequests()
+    Requests()
         .modelContainer(SampleData.shared.modelContainer)
 }

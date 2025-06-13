@@ -19,7 +19,7 @@ struct Podcasts: View {
     
     
     var body: some View {
-        let newRequest = requests.filter { $0.completedPodcast?.wasPlayed == false}
+        let newRequests = requests.filter { $0.completedPodcast?.wasPlayed == false}
         
         NavigationStack {
             ScrollView {
@@ -28,7 +28,7 @@ struct Podcasts: View {
                         Text("Newly Added").font(.headline)
                         ScrollView(.horizontal) {
                             HStack {
-                                ForEach(newRequest) {
+                                ForEach(newRequests) {
                                     if let podcast = $0.completedPodcast {
                                      PodcastCardHighlight(
                                         podcast: podcast,
@@ -46,10 +46,12 @@ struct Podcasts: View {
                         Text("Past Tracks").font(.headline)
                         VStack(spacing: 8) {
                             ForEach(requests){
-                                PodcastCard(
-                                    podcastRequest: $0,
-                                    audioPlayer: audioPlayer
-                                )
+                                if let podcast = $0.completedPodcast {
+                                    PodcastCard(
+                                        podcast: podcast,
+                                        audioPlayer: audioPlayer
+                                    )
+                                }
                             }
                         }
                     }
