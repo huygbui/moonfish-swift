@@ -47,11 +47,11 @@ extension PodcastRequest {
                 configuration: gardeningConfig,
                 createdAt: Date(timeIntervalSinceNow: -86400 * 6), // 6 days ago
                 updatedAt: Date(timeIntervalSinceNow: -86400 * 5), // 5 days ago
-                title: "Beginner's Guide to Gardening",
+                title: "Beginner's Guide to Gardening in the Far East",
                 step: .voice,
                 completedPodcast: Podcast(
-                    title: "Beginner's Guide to Gardening",
-                    summary: "A simple guide to get you started with urban gardening, generated from a request.",
+                    title: "Beginner's Guide to Gardening in the Far East",
+                    summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
                     transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
                     audioURL: URL(string: "https://example.com/audio/gardening_beginner.mp3")!,
                     duration: 620, // about 10 minutes
@@ -89,7 +89,7 @@ extension PodcastRequest {
                     audioURL: URL(string: "https://example.com/audio/quantum_from_request.mp3")!,
                     duration: 305,
                     createdAt: Date(timeIntervalSinceNow: -86400 * 5 + 3600), // Podcast created slightly after request
-                    configuration: quantumConfig
+                    configuration: quantumConfig,
                 )
             ),
 
@@ -110,7 +110,8 @@ extension PodcastRequest {
                     audioURL: URL(string: "https://example.com/audio/ai_ethics_deep_dive.mp3")!,
                     duration: 1815, // about 30 minutes
                     createdAt: Date(timeIntervalSinceNow: -86400 * 10 + 7200), // Created 2 hours after the request
-                    configuration: aiEthicsConfig
+                    configuration: aiEthicsConfig,
+                    wasPlayed: true
                 )
             ),
 
@@ -143,7 +144,8 @@ extension PodcastRequest {
                     audioURL: URL(string: "https://example.com/audio/gardening_from_request.mp3")!,
                     duration: 950,
                     createdAt: Date(timeIntervalSinceNow: -86400 * 2 + (3600*2)), // Podcast created slightly after request
-                    configuration: gardeningConfig
+                    configuration: gardeningConfig,
+                    wasPlayed: true
                 )
             ),
 

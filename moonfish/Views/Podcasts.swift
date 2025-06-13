@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct Podcasts: View {
-    @State private var isPresenting: Bool = false
+    @State private var isPresented: Bool = false
     @State private var audioPlayer = AudioPlayer()
     @Query(sort: \PodcastRequest.createdAt, order: .reverse) private var podcastRequests: [PodcastRequest]
     
@@ -17,21 +17,56 @@ struct Podcasts: View {
         return podcastRequests.filter { $0.status == RequestStatus.completed.rawValue }
     }
     
+    
     var body: some View {
+        let newRequest = requests.filter { $0.completedPodcast?.wasPlayed == false}
+        
         NavigationStack {
             ScrollView {
-                VStack {
-                    ForEach(requests){
-                        PodcastCard(
-                            podcastRequest: $0,
-                            audioPlayer: audioPlayer
-                        )
+                VStack(alignment: .leading, spacing: 32) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Newly Added").font(.headline)
+                        ScrollView(.horizontal) {
+                            HStack {
+                                ForEach(newRequest) {
+                                    if let podcast = $0.completedPodcast {
+                                     PodcastCardHighlight(
+                                        podcast: podcast,
+                                        audioPlayer: audioPlayer
+                                    )
+                                    .frame(width: 256, height: 256)   
+                                    }
+                                }
+                            }
+                        }
+                        .scrollIndicators(.hidden)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Past Tracks").font(.headline)
+                        VStack(spacing: 8) {
+                            ForEach(requests){
+                                PodcastCard(
+                                    podcastRequest: $0,
+                                    audioPlayer: audioPlayer
+                                )
+                            }
+                        }
                     }
                 }
             }
             .navigationTitle("Podcasts")
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
+            .toolbar {
+                ToolbarItem {
+                    Button(action: {  }) {
+                        Image(systemName: "person")
+                    }
+                }
+                
+               
+            }
             .foregroundStyle(.primary)
             .background(Color(.secondarySystemBackground))
         }

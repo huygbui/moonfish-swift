@@ -12,13 +12,20 @@ struct PodcastCard: View {
     var audioPlayer: AudioPlayer? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 40) {
+        VStack(alignment: .leading, spacing: 32) {
             // Card header
             VStack(alignment: .leading) {
                 // Card title
-                Text(podcastRequest.title ?? "Untitled")
-                    .font(.body)
-                    .lineLimit(1)
+                HStack(spacing: 16) {
+                    Text(podcastRequest.title ?? "Untitled")
+                        .font(.body)
+                        .lineLimit(1)
+                    Spacer()
+                    Image(systemName: "ellipsis")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                
                 
                 // Card subtitle
                 HStack {
@@ -30,7 +37,7 @@ struct PodcastCard: View {
                         .font(.system(size: 4))
                     Text(podcastRequest.configuration.level.displayName)
                 }
-                .font(.subheadline)
+                .font(.caption)
                 .foregroundStyle(.secondary)
             }
             
@@ -41,29 +48,26 @@ struct PodcastCard: View {
                     Button(action: { audioPlayer.toggle(podcast) }) {
                         Image(systemName: audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast ? "pause.circle.fill" :"play.circle.fill")
                             .resizable()
-                            .frame(width: 36, height: 36)
+                            .frame(width: 32, height: 32)
                     }
                     Text(Duration.seconds(podcast.duration), format: .units(allowed: [.hours, .minutes], width: .abbreviated))
-                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
                     ProgressView(value: podcastRequest.progressValue)
                         .progressViewStyle(GaugeProgressStyle())
-                        .frame(width: 36, height: 36)
+                        .frame(width: 32, height: 32)
                     Text(podcastRequest.stepDescription ?? "Pending")
-                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 
                 Spacer()
 
-                Image(systemName: "ellipsis")
-                    .foregroundStyle(.secondary)
-                    .frame(width: 36, height: 36)
+               
             }
+            .font(.caption)
         }
         .padding()
-        .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 32))
+        .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 16))
     }
 }
 
