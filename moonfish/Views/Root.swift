@@ -10,17 +10,18 @@ import SwiftData
 
 struct Root: View {
     @State private var searchText: String = ""
+    private var player = AudioPlayer()
     
     var body: some View {
         TabView {
-            Tab("Podcasts", systemImage: "play.square.stack") {Podcasts()}
+            Tab("Podcasts", systemImage: "play.square.stack") {
+                Podcasts(audioPlayer: player)
+            }
             Tab("Requests", systemImage: "tray") {Requests()}
             Tab(role: .search) {
-                NavigationStack {
-                }
+                Search(audioPlayer: player)
             }
         }
-        .searchable(text: $searchText)
     }
 }
 

@@ -29,12 +29,12 @@ struct PodcastCard: View {
                 
                 // Card subtitle
                 HStack {
-                    Text(podcast.configuration.length.displayName)
-                    Image(systemName: "circle.fill")
-                        .font(.system(size: 4))
-                    Text(podcast.configuration.format.displayName)
-                    Image(systemName: "circle.fill")
-                        .font(.system(size: 4))
+                    Text(podcast.createdAt.formatted(dateStyle)) +
+                    Text(" • ") +
+                    Text(podcast.configuration.length.displayName) +
+                    Text(", ") +
+                    Text(podcast.configuration.format.displayName) +
+                    Text(", ") +
                     Text(podcast.configuration.level.displayName)
                 }
                 .font(.caption)

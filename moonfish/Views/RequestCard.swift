@@ -28,12 +28,12 @@ struct RequestCard: View {
                 
                 // Card subtitle
                 HStack {
-                    Text(podcastRequest.configuration.length.displayName)
-                    Image(systemName: "circle.fill")
-                        .font(.system(size: 4))
-                    Text(podcastRequest.configuration.format.displayName)
-                    Image(systemName: "circle.fill")
-                        .font(.system(size: 4))
+                    Text(podcastRequest.createdAt.formatted(Date.RelativeFormatStyle())) +
+                    Text(" • ") +
+                    Text(podcastRequest.configuration.length.displayName) +
+                    Text(", ") +
+                    Text(podcastRequest.configuration.format.displayName) +
+                    Text(", ") +
                     Text(podcastRequest.configuration.level.displayName)
                 }
                 .font(.caption)

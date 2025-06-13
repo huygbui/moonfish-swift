@@ -16,7 +16,6 @@ struct PodcastCardHighlight: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text(podcast.title)
-                        .font(.title3)
                         .lineLimit(2)
                 }
                 

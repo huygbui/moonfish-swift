@@ -9,11 +9,10 @@ import SwiftUI
 import SwiftData
 
 struct Podcasts: View {
+    var audioPlayer: AudioPlayer
     @State private var isPresented: Bool = false
-    @State private var audioPlayer = AudioPlayer()
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
-    
-    
+
     var body: some View {
         let topThrees = Array(podcasts.prefix(3))
         let remainings = Array(podcasts.dropFirst(3))
@@ -68,6 +67,6 @@ struct Podcasts: View {
 }
 
 #Preview {
-    Podcasts()
+    Podcasts(audioPlayer: AudioPlayer())
         .modelContainer(SampleData.shared.modelContainer)
 }

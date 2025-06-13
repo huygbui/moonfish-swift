@@ -30,14 +30,6 @@ class AudioPlayer {
         currentPodcast = podcast
         player?.play()
         isPlaying = true
-        
-        NotificationCenter.default.addObserver(
-            forName: .AVPlayerItemDidPlayToEndTime,
-            object: player?.currentItem,
-            queue: .main
-        ) { [weak self] _ in
-            self?.isPlaying = false
-        }
     }
 
     func pause() {
