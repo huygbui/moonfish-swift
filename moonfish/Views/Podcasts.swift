@@ -50,11 +50,9 @@ struct Podcasts: View {
                     }
                 }
             }
-            .navigationTitle("Podcasts")
-            .contentMargins(.vertical, 8)
-            .safeAreaPadding(.horizontal, 16)
-            .foregroundStyle(.primary)
-            .background(Color(.secondarySystemBackground))
+            .sheet(isPresented: $isPresented) {
+                Account()
+            }
             .toolbar {
                 ToolbarItem {
                     Button(action: { isPresented = true }) {
@@ -62,9 +60,12 @@ struct Podcasts: View {
                     }
                 }
             }
-            .sheet(isPresented: $isPresented) {
-                Account()
-            }
+            .navigationTitle("Podcasts")
+            .contentMargins(.vertical, 8)
+            .safeAreaPadding(.horizontal, 16)
+            .foregroundStyle(.primary)
+            .background(Color(.secondarySystemBackground))
+            
         }
     }
 }

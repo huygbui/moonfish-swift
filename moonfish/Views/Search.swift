@@ -11,7 +11,7 @@ import SwiftData
 struct Search: View {
     var audioPlayer: AudioPlayer
     @State private var searchText: String = ""
-    @State private var selectedTab: TabItem = .all
+    @State private var selectedFilter: FilterItem = .all
 
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
     
@@ -19,7 +19,7 @@ struct Search: View {
         var filtered = podcasts
         
         // Apply tab filter
-        switch selectedTab {
+        switch selectedFilter {
         case .all:
             filtered = podcasts
         case .downloaded:
@@ -42,8 +42,8 @@ struct Search: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    Picker("Filter", selection: $selectedTab) {
-                        ForEach(TabItem.allCases) { tab in
+                    Picker("Filter", selection: $selectedFilter) {
+                        ForEach(FilterItem.allCases) { tab in
                             Text(tab.rawValue).tag(tab)
                         }
                     }
@@ -61,6 +61,7 @@ struct Search: View {
             }
             .searchable(text: $searchText)
             .safeAreaPadding(.horizontal, 16)
+            .scrollIndicators(.hidden)
             .navigationTitle("All Podcasts")
             .navigationBarTitleDisplayMode(.inline)
             .foregroundStyle(.primary)

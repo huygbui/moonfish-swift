@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum TabItem: String, Identifiable, CaseIterable {
+enum FilterItem: String, Identifiable, CaseIterable {
     case all = "All"
     case favorite = "Favorite"
     case downloaded = "Downloaded"
