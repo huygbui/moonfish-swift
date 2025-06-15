@@ -6,35 +6,37 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct FullPlayer: View {
-    @Bindable var audioPlayer: AudioPlayer
-    
+    @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(\.dismiss) private var dismiss
     @State private var playbackSpeed: Double = 1.0
-    private let speedOptions: [Double] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+    @State private var timer: Double = 0
     
+    private let speedOptions: [Double] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+    private let timerOptions: [Double] = [0, 5, 10, 15, -1]
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 32) {
                 Spacer()
                 
+                // Album art placeholder
                 Image(systemName: "waveform")
                     .font(.largeTitle)
                     .frame(width: 256, height: 256)
                     .foregroundStyle(.secondary)
-                    .background(Color.secondary, in: .rect(cornerRadius: 16))
+                    .background(Color.secondary.opacity(0.1), in: .rect(cornerRadius: 16))
                 
                 // Track info
-                if let currentPodcast = audioPlayer.currentPodcast {
-                    VStack(spacing: 8) {
-                        Text(currentPodcast.title)
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.horizontal)
+                VStack(spacing: 8) {
+                    Text(audioPlayer.currentPodcast?.title ?? "")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .multilineTextAlignment(.center)
                 }
+                .padding(.horizontal)
                 
                 // Progress slider
                 VStack(spacing: 8) {
@@ -43,7 +45,7 @@ struct FullPlayer: View {
                             get: { audioPlayer.currentTime },
                             set: { audioPlayer.seek(to: $0) }
                         ),
-                        in: 0...audioPlayer.duration
+                        in: 0...max(audioPlayer.duration, 1)
                     )
                     
                     HStack {
@@ -61,29 +63,32 @@ struct FullPlayer: View {
                 
                 // Playback controls
                 ZStack {
+                    // Main controls
                     HStack(spacing: 32) {
                         Button(action: audioPlayer.skipBackward) {
-                            Image(systemName: "gobackward.15").font(.title)
+                            Image(systemName: "gobackward.15")
+                                .font(.title)
                         }
                         
-                        Button {
-                            if let podcast = audioPlayer.currentPodcast {
-                                audioPlayer.toggle(podcast)
-                            }
-                        } label: {
+                        Button(action: audioPlayer.togglePlayback) {
                             Image(systemName: audioPlayer.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 64))
                         }
                         
                         Button(action: audioPlayer.skipForward) {
-                            Image(systemName: "goforward.15").font(.title)
+                            Image(systemName: "goforward.15")
+                                .font(.title)
                         }
                     }
                     
+                    // Secondary controls
                     HStack {
+                        // Speed control
                         Menu {
                             ForEach(speedOptions, id: \.self) { speed in
-                                Button(action:{ playbackSpeed = speed }) {
+                                Button {
+                                    playbackSpeed = speed
+                                } label: {
                                     Label(formatSpeed(speed),
                                           systemImage: playbackSpeed == speed ? "checkmark" : "")
                                 }
@@ -94,15 +99,23 @@ struct FullPlayer: View {
                         }
                         
                         Spacer()
-
-                        Button {
-                            
+                        
+                        // Sleep timer
+                        Menu {
+                            ForEach(timerOptions, id: \.self) { option in
+                                Button {
+                                    timer = option
+                                } label: {
+                                    Label(formatTimer(option),
+                                          systemImage: timer == option ? "checkmark" : "")
+                                }
+                            }
                         } label: {
-                            Image(systemName: "timer").font(.title3)
+                            Image(systemName: "timer")
+                                .font(.title3)
                         }
-                        
-                        
                     }
+                    .foregroundStyle(.secondary)
                 }
 
                 Spacer()
@@ -110,16 +123,13 @@ struct FullPlayer: View {
             .padding(.horizontal, 16)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                       dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
+                    Button("Close", systemImage: "xmark") {
+                        dismiss()
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                    } label: {
-                        Image(systemName: "heart")
+                    Button("Favorite", systemImage: "heart") {
+                        // Favorite action
                     }
                 }
             }
@@ -127,36 +137,22 @@ struct FullPlayer: View {
     }
 }
 
-func formatSpeed(_ speed: Double) -> String {
-    switch speed {
-    case 0.5: return "0.5x"
-    case 1.0: return "1x"
-    case 1.25: return "1.25x"
-    case 1.5: return "1.5x"
-    case 1.75: return "1.75x"
-    case 2.0: return "2x"
-    default: return "\(speed)x"
+private func formatSpeed(_ speed: Double) -> String {
+    if speed == 1.0 {
+        return "1×"
+    } else {
+        return "\(speed.formatted(.number.precision(.fractionLength(0...2))))×"
     }
 }
 
-#Preview {
-    let gardeningConfig = PodcastConfiguration(
-        topic: "Sustainable Urban Gardening",
-        length: .medium,
-        level: .intermediate,
-        format: .conversational,
-        voice: .female
-    )
-    let podcast = Podcast(
-        title: "Beginner's Guide to Gardening in the Far East",
-        summary: "A simple guide to get you started with urban gardening.",
-        transcript: "Welcome to your first step into gardening!",
-        audioURL: URL(string: "https://example.com/audio/gardening_beginner.mp3")!,
-        duration: 620,
-        createdAt: Date(),
-        configuration: gardeningConfig
-    )
-    let audioPlayer = AudioPlayer(currentPodcast: podcast, isPlaying: true)
-    
-    FullPlayer(audioPlayer: audioPlayer)
+private func formatTimer(_ time: Double) -> String {
+    switch time {
+    case 0: return "Off"
+    case -1: return "End of episode"
+    default: return "\(Int(time)) min"
+    }
+}
+
+#Preview(traits: .audioPlayer) {
+    FullPlayer()
 }

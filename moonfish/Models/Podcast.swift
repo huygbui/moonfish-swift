@@ -44,8 +44,6 @@ final class Podcast {
     }
 }
 
-
-
 enum PodcastLength: String, Identifiable, CaseIterable, Codable {
     case short
     case medium

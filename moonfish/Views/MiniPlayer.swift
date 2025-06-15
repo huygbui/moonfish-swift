@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MiniPlayer: View {
-    @Bindable var audioPlayer: AudioPlayer
+    @Environment(AudioPlayer.self) private var audioPlayer
     @State private var isPresented = false
     
     var body: some View {
@@ -21,7 +21,7 @@ struct MiniPlayer: View {
                 
                 Spacer()
                 
-                Button(action: { audioPlayer.toggle(currentPodcast) }) {
+                Button(action: { audioPlayer.togglePlayback() }) {
                     Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
                 }
                 
@@ -33,30 +33,12 @@ struct MiniPlayer: View {
             .padding(.horizontal, 16)
             .onTapGesture { isPresented.toggle() }
             .sheet(isPresented: $isPresented) {
-                FullPlayer(audioPlayer: audioPlayer)
+                FullPlayer()
             }
         }
     }
 }
 
-#Preview {
-    let gardeningConfig = PodcastConfiguration(
-        topic: "Sustainable Urban Gardening",
-        length: .medium,
-        level: .intermediate,
-        format: .conversational,
-        voice: .female
-    )
-    let podcast = Podcast(
-        title: "Beginner's Guide to Gardening in the Far East",
-        summary: "A simple guide to get you started with urban gardening.",
-        transcript: "Welcome to your first step into gardening!",
-        audioURL: URL(string: "https://example.com/audio/gardening_beginner.mp3")!,
-        duration: 620,
-        createdAt: Date(),
-        configuration: gardeningConfig
-    )
-    let audioPlayer = AudioPlayer(currentPodcast: podcast, isPlaying: true)
-    
-    MiniPlayer(audioPlayer: audioPlayer)
+#Preview(traits: .audioPlayer) {
+    MiniPlayer()
 }

@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct Search: View {
-    var audioPlayer: AudioPlayer
     @State private var searchText: String = ""
     @State private var selectedFilter: FilterItem = .all
 
@@ -52,8 +51,7 @@ struct Search: View {
                     VStack(alignment: .leading) {
                         ForEach(filteredPodcasts) { podcast in
                             PodcastCard (
-                                podcast: podcast,
-                                audioPlayer: audioPlayer
+                                podcast: podcast
                             )
                         }
                     }
@@ -70,7 +68,6 @@ struct Search: View {
     }
 }
 
-#Preview {
-    Search(audioPlayer: AudioPlayer())
-        .modelContainer(SampleData.shared.modelContainer)
+#Preview(traits: .audioPlayer) {
+    Search()
 }

@@ -9,8 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct Podcasts: View {
-    var audioPlayer: AudioPlayer
     @State private var isPresented: Bool = false
+    @Environment(AudioPlayer.self) private var audioPlayer
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
 
     var body: some View {
@@ -28,7 +28,6 @@ struct Podcasts: View {
                                 ForEach(topThrees) {
                                     PodcastCardHighlight(
                                         podcast: $0,
-                                        audioPlayer: audioPlayer
                                     )
                                     .frame(width: 256, height: 256)
                                 }
@@ -43,7 +42,6 @@ struct Podcasts: View {
                             ForEach(remainings){
                                 PodcastCard(
                                     podcast: $0,
-                                    audioPlayer: audioPlayer
                                 )
                             }
                         }
@@ -70,7 +68,6 @@ struct Podcasts: View {
     }
 }
 
-#Preview {
-    Podcasts(audioPlayer: AudioPlayer())
-        .modelContainer(SampleData.shared.modelContainer)
+#Preview(traits: .audioPlayer) {
+    Podcasts()
 }

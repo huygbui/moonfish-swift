@@ -9,49 +9,48 @@ import SwiftUI
 import SwiftData
 
 struct Root: View {
+    @Environment(AudioPlayer.self) private var audioPlayer
     @State private var searchText: String = ""
     @State private var isPresented: Bool = false
-    private var player = AudioPlayer()
-    
+
     var body: some View {
         if #available(iOS 26.0, *) {
             TabView {
                 Tab("Podcasts", systemImage: "play.square.stack") {
-                    Podcasts(audioPlayer: player)
+                    Podcasts()
                 }
                 Tab("Requests", systemImage: "tray") {Requests()}
                 Tab(role: .search) {
-                    Search(audioPlayer: player)
+                    Search()
                 }
             }
             .tabBarMinimizeBehavior(.onScrollDown)
             .tabViewBottomAccessory {
-                MiniPlayer(audioPlayer: player)
+                MiniPlayer()
             }
         } else {
-            TabView {
-                Tab("Podcasts", systemImage: "play.square.stack") {
-                    Podcasts(audioPlayer: player)
+            ZStack(alignment: .bottom) {
+                TabView {
+                    Tab("Podcasts", systemImage: "play.square.stack") {
+                        Podcasts()
+                    }
+                    Tab("Requests", systemImage: "tray") {Requests()}
+                    Tab(role: .search) {
+                        Search()
+                    }
                 }
-                Tab("Requests", systemImage: "tray") {Requests()}
-                Tab(role: .search) {
-                    Search(audioPlayer: player)
+                
+                if audioPlayer.currentPodcast != nil {
+                    VStack(spacing: 0) {
+                        MiniPlayer()
+                    }
+                    .padding(.bottom, 64)
                 }
             }
-            
-            if player.currentPodcast != nil {
-                VStack(spacing: 0) {
-                    Spacer()
-                    MiniPlayer(audioPlayer: player)
-                }
-                .ignoresSafeArea(.keyboard)
-            }
-//           CustomTabView()
         }
     }
 }
 
-#Preview {
+#Preview(traits: .audioPlayer) {
     Root()
-        .modelContainer(SampleData.shared.modelContainer)
 }

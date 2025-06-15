@@ -9,7 +9,10 @@ import SwiftUI
 import AVFoundation
 
 @Observable
-class AudioPlayer {
+@MainActor
+final class AudioPlayer {
+    static let shared = AudioPlayer()
+    
     var player: AVPlayer?
     var currentPodcast: Podcast?
     var isPlaying = false
@@ -17,9 +20,19 @@ class AudioPlayer {
     var duration: Double = 0
     var playbackRate: Double = 1.0
     
-    init(currentPodcast: Podcast? = nil, isPlaying: Bool = false) {
-        self.currentPodcast = currentPodcast
-        self.isPlaying = isPlaying
+    private var timeObserverToken: Any?
+
+    private init() {
+        setupAudioSession()
+    }
+    
+    private func setupAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to setup audio session: \(error)")
+        }
     }
 
     func play(_ podcast: Podcast) {
@@ -34,15 +47,28 @@ class AudioPlayer {
         }
         
         
+        // Clean up previous observer
+        if let token = timeObserverToken {
+            player?.removeTimeObserver(token)
+        }
+        
         player = AVPlayer(url: url)
         currentPodcast = podcast
-        
-        // Set duration from podcast model
         duration = Double(podcast.duration)
         
-        // Apply current playback rate to new player
-        player?.rate = Float(playbackRate)
+        // Add time observer - THIS IS CRITICAL!
+        let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
+        timeObserverToken = player?.addPeriodicTimeObserver(
+            forInterval: interval,
+            queue: .main
+        ) { [weak self] time in
+            MainActor.assumeIsolated {
+                self?.currentTime = time.seconds
+            }
+            
+        }
         
+        player?.rate = Float(playbackRate)
         player?.play()
         isPlaying = true
     }
@@ -57,6 +83,12 @@ class AudioPlayer {
             pause()
         } else {
             play(podcast)
+        }
+    }
+    
+    func togglePlayback() {
+        if let podcast = currentPodcast {
+            toggle(podcast)
         }
     }
     

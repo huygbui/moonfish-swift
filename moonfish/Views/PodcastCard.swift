@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PodcastCard: View {
     var podcast: Podcast
-    var audioPlayer: AudioPlayer
+    @Environment(AudioPlayer.self) private var audioPlayer
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -60,7 +60,7 @@ struct PodcastCard: View {
     }
 }
 
-#Preview {
+#Preview(traits: .audioPlayer) {
     let gardeningConfig = PodcastConfiguration(
         topic: "Sustainable Urban Gardening",
         length: .medium,
@@ -77,12 +77,11 @@ struct PodcastCard: View {
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600), // Created an hour after the request
         configuration: gardeningConfig
     )
-    let audioPlayer = AudioPlayer()
     
     ZStack {
         Color(.secondarySystemBackground)
         
-        PodcastCard(podcast: podcast, audioPlayer: audioPlayer)
+        PodcastCard(podcast: podcast)
     }
     .ignoresSafeArea()
 }
