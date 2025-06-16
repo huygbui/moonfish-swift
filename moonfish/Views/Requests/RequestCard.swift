@@ -16,7 +16,7 @@ struct RequestCard: View {
             VStack(alignment: .leading, spacing: 0) {
                 // Card title
                 HStack(spacing: 16) {
-                    Text(podcastRequest.title ?? "Untitled")
+                    Text(podcastRequest.configuration.topic)
                         .font(.body)
                         .lineLimit(1)
                 }

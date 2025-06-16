@@ -47,7 +47,6 @@ extension PodcastRequest {
                 configuration: gardeningConfig,
                 createdAt: Date(timeIntervalSinceNow: -86400 * 6), // 6 days ago
                 updatedAt: Date(timeIntervalSinceNow: -86400 * 5), // 5 days ago
-                title: "Beginner's Guide to Gardening in the Far East",
                 step: .voice,
                 completedPodcast: Podcast(
                     title: "Beginner's Guide to Gardening in the Far East",
@@ -70,7 +69,6 @@ extension PodcastRequest {
                 configuration: quantumConfig,
                 createdAt: Date(timeIntervalSinceNow: -3600 * 5), // 5 hours ago
                 updatedAt: Date(timeIntervalSinceNow: -3600 * 1), // 1 hour ago
-                title: "Exploring Quantum Realms",
                 step: .compose
             ),
             
@@ -82,7 +80,6 @@ extension PodcastRequest {
                 configuration: quantumConfig,
                 createdAt: Date(timeIntervalSinceNow: -86400 * 5), // 5 days ago
                 updatedAt: Date(timeIntervalSinceNow: -86400 * 4), // 4 days ago
-                title: "Quantum Leap for Beginners",
                 step: .voice,
                 completedPodcast: Podcast(
                     title: "Quantum Leap for Beginners",
@@ -103,7 +100,6 @@ extension PodcastRequest {
                 configuration: aiEthicsConfig,
                 createdAt: Date(timeIntervalSinceNow: -86400 * 10), // 10 days ago
                 updatedAt: Date(timeIntervalSinceNow: -86400 * 9),  // 9 days ago
-                title: "Ethical AI in Modern Society",
                 step: .voice,
                 completedPodcast: Podcast(
                     title: "Ethical AI in Modern Society",
@@ -124,7 +120,6 @@ extension PodcastRequest {
                 configuration: gardeningConfig,
                 createdAt: Date(timeIntervalSinceNow: -86400), // 1 day ago
                 updatedAt: Date(timeIntervalSinceNow: -86400), // 1 day ago
-                title: "Gardening Podcast",
                 step: .compose
             ),
             
@@ -136,7 +131,6 @@ extension PodcastRequest {
                 configuration: gardeningConfig,
                 createdAt: Date(timeIntervalSinceNow: -86400 * 2), // 2 days ago
                 updatedAt: Date(timeIntervalSinceNow: -86400 * 2), // 2 days ago
-                title: "Urban Gardening Success",
                 step: .voice,
                 completedPodcast: Podcast(
                     title: "Urban Gardening Success",
@@ -157,7 +151,6 @@ extension PodcastRequest {
                 configuration: aiEthicsConfig,
                 createdAt: Date(timeIntervalSinceNow: -60 * 10), // 10 minutes ago
                 updatedAt: Date(timeIntervalSinceNow: -60 * 10), // 10 minutes ago
-                title: "Quick Thought on AI"
             )
         ]
     }

@@ -50,6 +50,7 @@ struct PodcastContentResponse: Codable {
 
 struct PodcastAudioResponse: Codable {
     var url: String
+    var duration: Int
 }
 
 final class BackendClient: Sendable {

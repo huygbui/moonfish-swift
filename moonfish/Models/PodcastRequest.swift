@@ -16,7 +16,6 @@ final class PodcastRequest {
     var configuration: PodcastConfiguration
     var createdAt: Date
     var updatedAt: Date
-    var title: String?
     var step: RequestStep.RawValue?
     var completedPodcast: Podcast?
     
@@ -27,7 +26,6 @@ final class PodcastRequest {
         configuration: PodcastConfiguration,
         createdAt: Date,
         updatedAt: Date,
-        title: String? = "Untitled",
         step: RequestStep? = nil,
         completedPodcast: Podcast? = nil
     ) {
@@ -37,7 +35,6 @@ final class PodcastRequest {
         self.configuration = configuration
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.title = title
         self.step = step?.rawValue
         self.completedPodcast = completedPodcast
     }
@@ -53,7 +50,7 @@ final class PodcastRequest {
     }
 }
 
-enum RequestStatus: Int, CaseIterable {
+enum RequestStatus: String, CaseIterable {
     case pending
     case active
     case completed
@@ -73,7 +70,7 @@ enum RequestStatus: Int, CaseIterable {
     }
 }
 
-enum RequestStep: Int, CaseIterable {
+enum RequestStep: String, CaseIterable {
     case research
     case compose
     case voice
