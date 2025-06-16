@@ -49,7 +49,7 @@ struct Podcasts: View {
                 }
             }
             .sheet(isPresented: $isPresented) {
-                Account()
+                AccountSheet()
             }
             .toolbar {
                 ToolbarItem {

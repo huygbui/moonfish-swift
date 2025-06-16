@@ -25,7 +25,7 @@ struct Requests: View {
                     }
                 }
             }
-            .sheet(isPresented: $isPresented) { CreateNewPodcast() }
+            .sheet(isPresented: $isPresented) { NewRequestSheet() }
             .navigationTitle("Requests")
             .toolbar {
                 ToolbarItem {

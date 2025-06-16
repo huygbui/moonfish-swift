@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MiniPlayer: View {
+struct PlayerMini: View {
     @Environment(AudioPlayer.self) private var audioPlayer
     @State private var isPresented = false
     
@@ -33,12 +33,12 @@ struct MiniPlayer: View {
             .padding(.horizontal, 16)
             .onTapGesture { isPresented.toggle() }
             .sheet(isPresented: $isPresented) {
-                FullPlayer()
+                PlayerFull()
             }
         }
     }
 }
 
 #Preview(traits: .audioPlayer) {
-    MiniPlayer()
+    PlayerMini()
 }

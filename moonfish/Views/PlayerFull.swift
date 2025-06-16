@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct FullPlayer: View {
+struct PlayerFull: View {
     @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(\.dismiss) private var dismiss
     @State private var playbackSpeed: Double = 1.0
@@ -154,5 +154,5 @@ private func formatTimer(_ time: Double) -> String {
 }
 
 #Preview(traits: .audioPlayer) {
-    FullPlayer()
+    PlayerFull()
 }

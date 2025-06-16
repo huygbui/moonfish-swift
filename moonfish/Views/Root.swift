@@ -27,7 +27,7 @@ struct Root: View {
             }
             .tabBarMinimizeBehavior(.onScrollDown)
             .tabViewBottomAccessory {
-                MiniPlayer()
+                PlayerMini()
             }
         } else {
             TabView(selection: $selectedTab) {
@@ -55,7 +55,7 @@ struct Root: View {
                         
                         VStack {
                             if audioPlayer.currentPodcast != nil {
-                                MiniPlayer()
+                                PlayerMini()
                                     .frame(width: .infinity, height: 48)
                                     .background(.regularMaterial, in: .capsule)
                                     .brightness(0.1)

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CreateNewPodcast: View {
+struct NewRequestSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.backendClient) private var client
     @Environment(\.dismiss) var dismiss
@@ -84,7 +84,7 @@ struct CreateNewPodcast: View {
     }
 }
  
-extension CreateNewPodcast {
+extension NewRequestSheet {
     func submit() async {
         let configuration = PodcastConfiguration(
             topic: topic,
@@ -115,5 +115,5 @@ extension CreateNewPodcast {
 }
 
 #Preview {
-    CreateNewPodcast()
+    NewRequestSheet()
 }

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Account: View {
+struct AccountSheet: View {
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -34,10 +34,9 @@ struct Account: View {
                 }
             }
         }
-        
     }
 }
 
 #Preview {
-    Account()
+    AccountSheet()
 }
