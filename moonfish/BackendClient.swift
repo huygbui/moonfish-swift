@@ -1,9 +1,10 @@
 //
-//  GeminiClient.swift
+//  BackendClient.swift
 //  moonfish
 //
 //  Created by Huy Bui on 17/2/25.
 //
+
 import Foundation
 import SwiftUI
 
@@ -12,22 +13,6 @@ enum ClientError: Error {
     case decodingError
     case configurationError
 }
-
-//"id": 0,
-//"topic": "string",
-//"length": "short",
-//"level": "beginner",
-//"format": "narrative",
-//"voice": "male",
-//"instruction": "string",
-//"status": "pending",
-//"step": "research",
-//"created_at": "2025-06-16T09:13:51.264Z",
-//"updated_at": "2025-06-16T09:13:51.264Z",
-//"title": "string",
-//"summary": "string",
-//"url": "string",
-//"duration": 0
 
 struct PodcastRequestResponse: Codable {
     var id: Int
@@ -40,19 +25,31 @@ struct PodcastRequestResponse: Codable {
     var url: String?
     var duration: Int?
     
-    
     enum CodingKeys: String, CodingKey {
-        case id
-        case status
-        case step
+        case id, status, step, title, summary, duration
         case createdAt = "created_at"
         case updatedAt = "updated_at"
-        case title
-        case summary
         case url = "url"
-        case duration
-        
     }
+}
+
+struct PodcastContentResponse: Codable {
+    var id: Int
+    var title: String
+    var summary: String
+    var transcript: String
+    var createdAt: Date
+    var updatedAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case id, title, summary, transcript
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+struct PodcastAudioResponse: Codable {
+    var url: String
 }
 
 final class BackendClient: Sendable {
@@ -62,11 +59,6 @@ final class BackendClient: Sendable {
     private let encoder: JSONEncoder
     
     init() {
-//        let customDateFormatter = DateFormatter()
-//        customDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-//        customDateFormatter.locale = Locale(identifier: "en_US_POSIX")
-//        customDateFormatter.timeZone = TimeZone(identifier: "UTC")
-        
         self.decoder = JSONDecoder()
         self.decoder.dateDecodingStrategy = .iso8601
         
@@ -86,6 +78,7 @@ final class BackendClient: Sendable {
         return request
     }
    
+    // MARK: - Create Podcast
     func createPodcast(configuration: PodcastConfiguration) async throws -> PodcastRequestResponse {
         var request = try createRequest(for: "podcasts", method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -99,6 +92,78 @@ final class BackendClient: Sendable {
         
         do {
             let result = try decoder.decode(PodcastRequestResponse.self, from: data)
+            return result
+        } catch {
+            throw ClientError.decodingError
+        }
+    }
+    
+    // MARK: - Get All Podcasts
+    func getAllPodcasts() async throws -> [PodcastRequestResponse] {
+        let request = try createRequest(for: "podcasts")
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw ClientError.networkError
+        }
+        
+        do {
+            let result = try decoder.decode([PodcastRequestResponse].self, from: data)
+            return result
+        } catch {
+            throw ClientError.decodingError
+        }
+    }
+    
+    // MARK: - Get Single Podcast
+    func getPodcast(id: Int) async throws -> PodcastRequestResponse {
+        let request = try createRequest(for: "podcasts/\(id)")
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw ClientError.networkError
+        }
+        
+        do {
+            let result = try decoder.decode(PodcastRequestResponse.self, from: data)
+            return result
+        } catch {
+            throw ClientError.decodingError
+        }
+    }
+    
+    // MARK: - Get Podcast Content
+    func getPodcastContent(id: Int) async throws -> PodcastContentResponse {
+        let request = try createRequest(for: "podcasts/\(id)/content")
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw ClientError.networkError
+        }
+        
+        do {
+            let result = try decoder.decode(PodcastContentResponse.self, from: data)
+            return result
+        } catch {
+            throw ClientError.decodingError
+        }
+    }
+    
+    // MARK: - Get Podcast Audio
+    func getPodcastAudio(id: Int) async throws -> PodcastAudioResponse {
+        let request = try createRequest(for: "podcasts/\(id)/audio")
+        
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            throw ClientError.networkError
+        }
+        
+        do {
+            let result = try decoder.decode(PodcastAudioResponse.self, from: data)
             return result
         } catch {
             throw ClientError.decodingError
