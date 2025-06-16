@@ -22,7 +22,8 @@ struct RequestCardMenu: View {
            
         } label: {
             Image(systemName: "ellipsis")
-                .frame(width: 32, height: 32)
+                .font(.footnote)
+                .frame(width: 24, height: 24)
                 .background(Color(.tertiarySystemBackground), in: .circle)
         }
     }

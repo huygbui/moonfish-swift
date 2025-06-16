@@ -12,7 +12,8 @@ struct Root: View {
     @Environment(AudioPlayer.self) private var audioPlayer
     @State private var searchText: String = ""
     @State private var isPresented: Bool = false
-
+    @State private var selectedTab: TabItem = .podcasts
+    
     var body: some View {
         if #available(iOS 26.0, *) {
             TabView {
@@ -29,23 +30,48 @@ struct Root: View {
                 MiniPlayer()
             }
         } else {
-            ZStack(alignment: .bottom) {
-                TabView {
-                    Tab("Podcasts", systemImage: "play.square.stack") {
-                        Podcasts()
-                    }
-                    Tab("Requests", systemImage: "tray") {Requests()}
-                    Tab(role: .search) {
-                        Search()
-                    }
+            TabView(selection: $selectedTab) {
+                ForEach(TabItem.allCases) { tab in
+                    tab.toolbarVisibility(.hidden, for: .tabBar)
                 }
-                
-                if audioPlayer.currentPodcast != nil {
-                    VStack(spacing: 0) {
-                        MiniPlayer()
+            }
+            .overlay {
+                VStack {
+                    Spacer()
+                    ZStack(alignment: .bottom) {
+                        LinearGradient(
+                            colors: [
+                                Color(UIColor.secondarySystemBackground).opacity(0),
+                                Color(UIColor.secondarySystemBackground),
+                                Color(UIColor.secondarySystemBackground),
+                                Color(UIColor.secondarySystemBackground),
+                                Color(UIColor.secondarySystemBackground)
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                        .frame(height: 160)
+                        .allowsHitTesting(false)
+                        
+                        VStack {
+                            if audioPlayer.currentPodcast != nil {
+                                MiniPlayer()
+                                    .frame(width: .infinity, height: 48)
+                                    .background(.regularMaterial, in: .capsule)
+                                    .brightness(0.1)
+                                    .shadow(color: .black.opacity(0.1), radius: 12)
+                                    .padding(.horizontal, 24)
+                            }
+                            CustomTabBar(selectedTab: $selectedTab)
+                                .compositingGroup()
+                                .brightness(0.1)
+                                .shadow(color: .black.opacity(0.1), radius: 12)
+                                .padding(.horizontal, 24)
+                        }
                     }
-                    .padding(.bottom, 64)
+                    .padding(.bottom, 24)
                 }
+                .ignoresSafeArea()
             }
         }
     }

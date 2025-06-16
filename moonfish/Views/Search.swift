@@ -47,7 +47,8 @@ struct Search: View {
                         }
                     }
                     .pickerStyle(.segmented)
-                    
+                    .controlSize(.large)
+
                     VStack(alignment: .leading) {
                         ForEach(filteredPodcasts) { podcast in
                             PodcastCard (

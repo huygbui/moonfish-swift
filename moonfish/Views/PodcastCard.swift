@@ -14,14 +14,12 @@ struct PodcastCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
             // Card header
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
                 // Card title
                 HStack(spacing: 16) {
                     Text(podcast.title)
                         .font(.body)
                         .lineLimit(1)
-                    Spacer()
-                    PodcastCardMenu(podcast: podcast).foregroundStyle(.secondary)
                 }
                 
                 
@@ -51,6 +49,8 @@ struct PodcastCard: View {
                 
                 Spacer()
                 
+                PodcastCardMenu(podcast: podcast).foregroundStyle(.secondary)
+
                
             }
             .font(.caption)
