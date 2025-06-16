@@ -13,27 +13,45 @@ enum ClientError: Error {
     case configurationError
 }
 
+//"id": 0,
+//"topic": "string",
+//"length": "short",
+//"level": "beginner",
+//"format": "narrative",
+//"voice": "male",
+//"instruction": "string",
+//"status": "pending",
+//"step": "research",
+//"created_at": "2025-06-16T09:13:51.264Z",
+//"updated_at": "2025-06-16T09:13:51.264Z",
+//"title": "string",
+//"summary": "string",
+//"url": "string",
+//"duration": 0
+
 struct PodcastRequestResponse: Codable {
     var id: Int
     var status: String
-    var title: String?
     var step: String?
-    var progress: Int
-    var audioUrl: String?
-    var duration: Int?
     var createdAt: Date
     var updatedAt: Date
+    var title: String?
+    var summary: String?
+    var url: String?
+    var duration: Int?
+    
     
     enum CodingKeys: String, CodingKey {
         case id
         case status
-        case title
         case step
-        case progress
-        case audioUrl = "audio_url"
-        case duration
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+        case title
+        case summary
+        case url = "url"
+        case duration
+        
     }
 }
 
@@ -44,13 +62,13 @@ final class BackendClient: Sendable {
     private let encoder: JSONEncoder
     
     init() {
-        let customDateFormatter = DateFormatter()
-        customDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        customDateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        customDateFormatter.timeZone = TimeZone(identifier: "UTC")
+//        let customDateFormatter = DateFormatter()
+//        customDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+//        customDateFormatter.locale = Locale(identifier: "en_US_POSIX")
+//        customDateFormatter.timeZone = TimeZone(identifier: "UTC")
         
         self.decoder = JSONDecoder()
-        self.decoder.dateDecodingStrategy = .formatted(customDateFormatter)
+        self.decoder.dateDecodingStrategy = .iso8601
         
         self.encoder = JSONEncoder()
     }
@@ -60,16 +78,16 @@ final class BackendClient: Sendable {
             throw ClientError.configurationError
         }
         
-        let url = baseURL.appending(component: endpoint)
+        let url = baseURL.appending(components: endpoint)
         var request = URLRequest(url: url)
         request.httpMethod = method
-        request.setValue(config.apiKey, forHTTPHeaderField: "x-header-api-key")
+        request.setValue(config.apiKey, forHTTPHeaderField: "X-API-key")
         
         return request
     }
    
     func createPodcast(configuration: PodcastConfiguration) async throws -> PodcastRequestResponse {
-        var request = try createRequest(for: "podcast", method: "POST")
+        var request = try createRequest(for: "podcasts", method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(configuration)
 

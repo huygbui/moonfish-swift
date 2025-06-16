@@ -26,12 +26,7 @@ final class APIConfig: Sendable {
     
     private func setupAPIKey() {
         let bundleKey: String?
-        
-        #if DEBUG
         bundleKey = Bundle.main.object(forInfoDictionaryKey: "APIKey") as? String
-        #else
-        bundleKey = Bundle.main.object(forInfoDictionaryKey: "ProdAPIKey") as? String
-        #endif
         
         guard let key = bundleKey,
               !key.isEmpty,

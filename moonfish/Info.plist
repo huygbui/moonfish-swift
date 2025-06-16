@@ -5,6 +5,6 @@
 	<key>APIKey</key>
 	<string>$(API_KEY)</string>
 	<key>BackendURL</key>
-	<string>$(BACKEND_URL)</string>
+	<string>http://$(BACKEND_URL)</string>
 </dict>
 </plist>
