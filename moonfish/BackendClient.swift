@@ -14,7 +14,7 @@ enum ClientError: Error {
     case configurationError
 }
 
-struct PodcastRequestResponse: Codable {
+struct PodcastCreateResponse: Codable {
     var id: Int
     var status: String
     var step: String?
@@ -22,14 +22,14 @@ struct PodcastRequestResponse: Codable {
     var updatedAt: Date
     var title: String?
     var summary: String?
-    var url: String?
+    var fileName: String?
     var duration: Int?
     
     enum CodingKeys: String, CodingKey {
         case id, status, step, title, summary, duration
         case createdAt = "created_at"
         case updatedAt = "updated_at"
-        case url = "url"
+        case fileName = "file_name"
     }
 }
 
@@ -37,12 +37,11 @@ struct PodcastContentResponse: Codable {
     var id: Int
     var title: String
     var summary: String
-    var transcript: String
     var createdAt: Date
     var updatedAt: Date
     
     enum CodingKeys: String, CodingKey {
-        case id, title, summary, transcript
+        case id, title, summary
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
@@ -80,7 +79,7 @@ final class BackendClient: Sendable {
     }
    
     // MARK: - Create Podcast
-    func createPodcast(configuration: PodcastConfiguration) async throws -> PodcastRequestResponse {
+    func createPodcast(configuration: PodcastConfiguration) async throws -> PodcastCreateResponse {
         var request = try createRequest(for: "podcasts", method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(configuration)
@@ -92,7 +91,7 @@ final class BackendClient: Sendable {
         }
         
         do {
-            let result = try decoder.decode(PodcastRequestResponse.self, from: data)
+            let result = try decoder.decode(PodcastCreateResponse.self, from: data)
             return result
         } catch {
             throw ClientError.decodingError
@@ -100,7 +99,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get All Podcasts
-    func getAllPodcasts() async throws -> [PodcastRequestResponse] {
+    func getAllPodcasts() async throws -> [PodcastCreateResponse] {
         let request = try createRequest(for: "podcasts")
         
         let (data, response) = try await session.data(for: request)
@@ -110,7 +109,7 @@ final class BackendClient: Sendable {
         }
         
         do {
-            let result = try decoder.decode([PodcastRequestResponse].self, from: data)
+            let result = try decoder.decode([PodcastCreateResponse].self, from: data)
             return result
         } catch {
             throw ClientError.decodingError
@@ -118,7 +117,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get Single Podcast
-    func getPodcast(id: Int) async throws -> PodcastRequestResponse {
+    func getPodcast(id: Int) async throws -> PodcastCreateResponse {
         let request = try createRequest(for: "podcasts/\(id)")
         
         let (data, response) = try await session.data(for: request)
@@ -128,7 +127,7 @@ final class BackendClient: Sendable {
         }
         
         do {
-            let result = try decoder.decode(PodcastRequestResponse.self, from: data)
+            let result = try decoder.decode(PodcastCreateResponse.self, from: data)
             return result
         } catch {
             throw ClientError.decodingError
