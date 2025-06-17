@@ -9,19 +9,22 @@ import SwiftUI
 import SwiftData
 
 struct Requests: View {
-    @State private var isPresented: Bool = false
+    @Environment(\.backendClient) private var client: BackendClient
     @Query(sort: \PodcastRequest.createdAt, order: .reverse) private var podcastRequests: [PodcastRequest]
+    @State private var isPresented: Bool = false
     
     private var requests: [PodcastRequest] {
         return podcastRequests.filter { $0.status != RequestStatus.completed.rawValue }
     }
     
+    @State var ongoingTasks = [PodcastCreateResponse]()
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack {
-                    ForEach(requests) {
-                        RequestCard(podcastRequest: $0)
+                    ForEach(ongoingTasks) {
+                        RequestCard(podcastTask: $0)
                     }
                 }
             }
@@ -39,10 +42,26 @@ struct Requests: View {
             .foregroundStyle(.primary)
             .background(Color(.secondarySystemBackground))
         }
+        .task {
+            do {
+                try await fetchAll()
+            } catch {
+                print("Failed to fetch")
+            }
+        }
+    }
+    
+    func fetchAll() async throws {
+        ongoingTasks = try await client.getAllPodcasts()
     }
 }
 
+
+
 #Preview {
+    let client = BackendClient()
+    
     Requests()
         .modelContainer(SampleData.shared.modelContainer)
+        .environment(\.backendClient, client)
 }

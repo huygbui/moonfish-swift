@@ -69,13 +69,14 @@ struct PodcastCard: View {
         voice: .female
     )
     let podcast = Podcast(
+        taskId: 0,
+        configuration: gardeningConfig,
         title: "Beginner's Guide to Gardening in the Far East",
         summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
         transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
         audioURL: URL(string: "https://example.com/audio/gardening_beginner.mp3")!,
         duration: 620, // about 10 minutes
-        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600), // Created an hour after the request
-        configuration: gardeningConfig
+        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request
     )
     
     ZStack {

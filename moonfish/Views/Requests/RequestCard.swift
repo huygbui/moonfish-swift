@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RequestCard: View {
-    var podcastRequest: PodcastRequest
+    var podcastTask: PodcastCreateResponse
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -16,7 +16,7 @@ struct RequestCard: View {
             VStack(alignment: .leading, spacing: 0) {
                 // Card title
                 HStack(spacing: 16) {
-                    Text(podcastRequest.configuration.topic)
+                    Text(podcastTask.topic)
                         .font(.body)
                         .lineLimit(1)
                 }
@@ -24,13 +24,13 @@ struct RequestCard: View {
                 
                 // Card subtitle
                 HStack {
-                    Text(podcastRequest.createdAt.formatted(Date.RelativeFormatStyle())) +
+                    Text(podcastTask.createdAt.formatted(Date.RelativeFormatStyle())) +
                     Text(" • ") +
-                    Text(podcastRequest.configuration.length.displayName) +
+                    Text(podcastTask.length) +
                     Text(", ") +
-                    Text(podcastRequest.configuration.format.displayName) +
+                    Text(podcastTask.format) +
                     Text(", ") +
-                    Text(podcastRequest.configuration.level.displayName)
+                    Text(podcastTask.level)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -38,16 +38,16 @@ struct RequestCard: View {
             
             // Card footer
             HStack {
-                ProgressView(value: podcastRequest.progressValue)
+                ProgressView(value: 0)
                     .progressViewStyle(GaugeProgressStyle())
                     .frame(width: 32, height: 32)
-                Text(podcastRequest.stepDescription ?? "Pending")
+                Text(podcastTask.step ?? "Pending")
                     .foregroundStyle(.secondary)
                     .font(.caption)
 
                 Spacer()
                 
-                RequestCardMenu(podcastRequest: podcastRequest).foregroundStyle(.secondary)
+                RequestCardMenu().foregroundStyle(.secondary)
             }
         }
         .padding()
@@ -56,6 +56,17 @@ struct RequestCard: View {
 }
 
 #Preview {
-    let podcastRequest = PodcastRequest.sampleData[0]
-    RequestCard(podcastRequest: podcastRequest)
+    let podcastTask: PodcastCreateResponse = .init(
+        id: 0,
+        topic: "Sustainable Urban Gardening",
+        length: PodcastLength.medium.rawValue,
+        level: PodcastLevel.intermediate.rawValue,
+        format: PodcastFormat.conversational.rawValue,
+        voice: PodcastVoice.female.rawValue,
+        status: RequestStatus.pending.rawValue,
+        createdAt: Date(),
+        updatedAt: Date(),
+    )
+    
+    RequestCard(podcastTask: podcastTask)
 }

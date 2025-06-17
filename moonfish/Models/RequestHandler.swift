@@ -14,7 +14,7 @@ import SwiftUI
 enum RequestState {
     case idle
     case submitting
-    case processing(requestId: Int)
+    case processing(requestId: Int, progress: Double = 0.0)
     case completed
     case cancelled
     case failed
@@ -34,6 +34,17 @@ enum RequestState {
             return true
         default:
             return false
+        }
+    }
+    
+    var progress: Double {
+        switch self {
+        case .processing(_, let progress):
+            return progress
+        case .completed:
+            return 1.0
+        default:
+            return 0.0
         }
     }
 }
@@ -70,35 +81,29 @@ final class RequestHandler {
     // MARK: - Submit Request
     func submitRequest(configuration: PodcastConfiguration) async {
         guard state.canSubmit else { return }
-        
-        // Update state
         state = .submitting
-        progressValue = 0.0
         
         do {
-            // Submit to backend first
             let response = try await backendClient.createPodcast(configuration: configuration)
             
-            // Create local request with server data
             let request = PodcastRequest(
                 id: response.id,
                 configuration: configuration,
                 createdAt: response.createdAt,
                 updatedAt: response.updatedAt,
             )
-            
             modelContext.insert(request)
-            try modelContext.save()
-            currentRequest = request
+            do {
+                try modelContext.save()
+                currentRequest = request
+                state = .processing(requestId: response.id)
+            } catch {
+               await handleError(error)
+            }
             
-            // Update state and start polling
-            state = .processing(requestId: response.id)
             await startPolling(requestId: response.id)
-            
         } catch {
-            print("Failed to submit request: \(error)")
-            state = .failed
-            currentRequest = nil
+            await handleError(error)
         }
     }
     
@@ -112,12 +117,11 @@ final class RequestHandler {
         
         // Update state
         state = .cancelled
-        progressValue = 0.0
         
         // Update request status in database
-        if let currentRequest {
-            currentRequest.status = RequestStatus.cancelled.rawValue
-            currentRequest.updatedAt = Date()
+        if let request = currentRequest {
+            request.status = RequestStatus.cancelled.rawValue
+            request.updatedAt = Date()
             try? modelContext.save()
         }
         
@@ -141,64 +145,53 @@ final class RequestHandler {
         var retryCount = 0
         let maxRetries = 5
         
-        while !Task.isCancelled {
+        while !Task.isCancelled && retryCount < maxRetries {
             do {
                 let response = try await backendClient.getPodcast(id: requestId)
                 
-                // Update progress
-                updateProgress(from: response)
+                await updateProgress(from: response)
                 
-                // Check if completed
                 if response.status == "completed" {
                     await handleCompletion(response)
-                    break
+                    return
                 }
                 
-                // Reset retry count on success
-                retryCount = 0
+                retryCount = 0 // Reset on success
                 try await Task.sleep(for: .seconds(pollingInterval))
                 
             } catch {
                 retryCount += 1
-                if retryCount >= maxRetries {
-                    state = .failed
-                    currentRequest = nil
-                    break
-                }
-                
-                // Wait with exponential backoff
                 let backoffDelay = min(pollingInterval * pow(2.0, Double(retryCount)), 300)
                 try? await Task.sleep(for: .seconds(backoffDelay))
             }
         }
-    }
-    
-    private func updateProgress(from response: PodcastRequestResponse) {
-        // Update request in database
-        if let currentRequest {
-            currentRequest.status = RequestStatus(rawValue: response.status)?.rawValue ?? RequestStatus.pending.rawValue
-            currentRequest.step = RequestStep(rawValue: response.step ?? "pending")?.rawValue
-            currentRequest.updatedAt = response.updatedAt
-            
-            // Update progress value based on step
-            switch response.step?.lowercased() {
-            case "research":
-                currentRequest.progressValue = 0.33
-            case "compose":
-                currentRequest.progressValue = 0.66
-            case "voice":
-                currentRequest.progressValue = 0.90
-            default:
-                currentRequest.progressValue = 0.1
-            }
-            
-            try? modelContext.save()
+        
+        if retryCount >= maxRetries {
+            await handleError(URLError(.timedOut))
         }
     }
     
-    private func handleCompletion(_ response: PodcastRequestResponse) async {
+    private func updateProgress(from response: PodcastCreateResponse) async {
+        let progress = progressValue(for: response.step)
+        state = .processing(requestId: response.id, progress: progress)
+        
+        guard let request = currentRequest else { return }
+        
+        request.status = response.status
+        request.step = response.step
+        request.updatedAt = response.updatedAt
+        request.progressValue = progress
+        
+        try? modelContext.save()
+    }
+    
+    private func handleCompletion(_ response: PodcastCreateResponse) async {
+        guard let request = currentRequest else {
+            await handleError(URLError(.unknown))
+            return
+        }
+        
         do {
-            
             // Fetch content and audio
             let content = try await backendClient.getPodcastContent(id: response.id)
             let audio = try await backendClient.getPodcastAudio(id: response.id)
@@ -209,28 +202,21 @@ final class RequestHandler {
             
             // Create podcast
             let podcast = Podcast(
+                taskId: 0,
+                configuration: request.configuration,
                 title: content.title,
                 summary: content.summary,
-                transcript: content.transcript,
+                transcript: "",
                 audioURL: audioURL,
                 duration: audio.duration,
                 createdAt: content.createdAt,
-                configuration: currentRequest?.configuration ?? PodcastConfiguration(
-                    topic: "",
-                    length: .short,
-                    level: .beginner,
-                    format: .narrative,
-                    voice: .male
-                )
             )
             
             // Update request
-            if let request = currentRequest {
-                request.status = RequestStatus.completed.rawValue
-                request.progressValue = 1.0
-                request.completedPodcast = podcast
-                request.updatedAt = Date()
-            }
+            request.status = RequestStatus.completed.rawValue
+            request.progressValue = 1.0
+            request.completedPodcast = podcast
+            request.updatedAt = Date()
             
             // Save to database
             modelContext.insert(podcast)
@@ -239,7 +225,6 @@ final class RequestHandler {
             // Update state
             state = .completed
             progressValue = 1.0
-            statusMessage = "Podcast ready!"
             
             // Clear current request after a delay
             Task {
@@ -248,15 +233,28 @@ final class RequestHandler {
                     currentRequest = nil
                     state = .idle
                     progressValue = 0.0
-                    statusMessage = ""
                 }
             }
             
         } catch {
             print("Failed to complete request: \(error)")
             state = .failed
-            statusMessage = "Failed to download podcast"
             currentRequest = nil
+        }
+    }
+    
+    private func handleError(_ error: Error) async {
+        print("Request failed: \(error)")
+        state = .failed
+        currentRequest = nil
+    }
+    
+    private func progressValue(for step: String?) -> Double {
+        switch step?.lowercased() {
+        case "research": return 0.33
+        case "compose": return 0.66
+        case "voice": return 0.90
+        default: return 0.1
         }
     }
     

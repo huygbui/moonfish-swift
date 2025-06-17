@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RequestCardMenu: View {
-    var podcastRequest: PodcastRequest
+//    var podcastTask: PodcastTask
     
     var body: some View {
         Menu {
@@ -30,6 +30,6 @@ struct RequestCardMenu: View {
 }
 
 #Preview {
-    let podcastRequest = PodcastRequest.sampleData[0]
-    RequestCardMenu(podcastRequest: podcastRequest)
+//    let podcastRequest = PodcastRequest.sampleData[0]
+    RequestCardMenu()
 }

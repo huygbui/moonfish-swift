@@ -10,35 +10,38 @@ import SwiftData
 
 @Model
 final class Podcast {
+    var taskId: Int
+    var configuration: PodcastConfiguration
     var title: String
     var summary: String
     var transcript: String
     var audioURL: URL
     var duration: Int
     var createdAt: Date
-    var configuration: PodcastConfiguration
     var isFavorite: Bool
     var isDownloaded: Bool
     
     
     init(
+        taskId: Int,
+        configuration: PodcastConfiguration,
         title: String,
         summary: String,
         transcript: String,
         audioURL: URL,
         duration: Int,
         createdAt: Date,
-        configuration: PodcastConfiguration,
         isFavorite: Bool = false,
         isDownloaded: Bool = false
     ) {
+        self.taskId = taskId
+        self.configuration = configuration
         self.title = title
         self.summary = summary
         self.transcript = transcript
         self.audioURL = audioURL
         self.duration = duration
         self.createdAt = createdAt
-        self.configuration = configuration
         self.isFavorite = isFavorite
         self.isDownloaded = isDownloaded
     }

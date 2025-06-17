@@ -14,22 +14,73 @@ enum ClientError: Error {
     case configurationError
 }
 
-struct PodcastCreateResponse: Codable {
+struct PodcastCreateResponse: Codable, Identifiable {
+    var id: Int
+    
+    var topic: String
+    var length: String
+    var level: String
+    var format: String
+    var voice: String
+    var instruction: String = ""
+    
+    var status: String
+    var step: String?
+    var title: String?
+    var summary: String?
+    var url: String?
+    var duration: Int?
+    
+    var createdAt: Date
+    var updatedAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case id, topic, length, level, format, voice, instruction, status, step, title, summary, url, duration
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+struct PodcastTask: Identifiable {
     var id: Int
     var status: String
     var step: String?
-    var createdAt: Date
-    var updatedAt: Date
     var title: String?
     var summary: String?
-    var fileName: String?
+    var url: String?
     var duration: Int?
     
-    enum CodingKeys: String, CodingKey {
-        case id, status, step, title, summary, duration
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-        case fileName = "file_name"
+    var createdAt: Date
+    var updatedAt: Date
+
+    var configuration: PodcastConfiguration
+    
+    init(id: Int, status: String, step: String? = nil, title: String? = nil, summary: String? = nil, url: String? = nil, duration: Int? = nil, createdAt: Date, updatedAt: Date, configuration: PodcastConfiguration) {
+        self.id = id
+        self.status = status
+        self.step = step
+        self.title = title
+        self.summary = summary
+        self.url = url
+        self.duration = duration
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+        self.configuration = configuration
+    }
+    
+    init(from response: PodcastCreateResponse, configuration: PodcastConfiguration) {
+        self.init(
+            id: response.id,
+            status: response.status,
+            step: response.step,
+            title: response.title,
+            summary: response.summary,
+            url: response.url,
+            duration: response.duration,
+            createdAt: response.createdAt,
+            updatedAt: response.updatedAt,
+            configuration: configuration
+        )
     }
 }
 
