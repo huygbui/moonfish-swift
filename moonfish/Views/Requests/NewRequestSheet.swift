@@ -97,15 +97,6 @@ extension NewRequestSheet {
         
         do {
             let response = try await client.createPodcast(configuration: configuration)
-            let request = PodcastRequest(
-                id: response.id,
-                configuration: configuration,
-                createdAt: response.createdAt,
-                updatedAt: response.updatedAt
-            )
-            
-            modelContext.insert(request)
-            try modelContext.save()
         } catch {
             print(error.localizedDescription)
         }

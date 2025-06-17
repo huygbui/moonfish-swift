@@ -6,10 +6,8 @@
 //
 
 import Foundation
-import SwiftData
 
-@Model
-final class PodcastRequest {
+struct PodcastRequest {
     var id: Int
     var status: RequestStatus.RawValue
     var progressValue: Double
