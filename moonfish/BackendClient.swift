@@ -10,7 +10,7 @@ import SwiftUI
 
 enum ClientError: Error {
     case networkError
-    case decodingError
+    case decodingError(String)
     case configurationError
 }
 
@@ -125,7 +125,7 @@ final class BackendClient: Sendable {
             let result = try decoder.decode(PodcastResponse.self, from: data)
             return result
         } catch {
-            throw ClientError.decodingError
+            throw ClientError.decodingError(error.localizedDescription)
         }
     }
     
@@ -143,7 +143,7 @@ final class BackendClient: Sendable {
             let result = try decoder.decode([PodcastResponse].self, from: data)
             return result
         } catch {
-            throw ClientError.decodingError
+            throw ClientError.decodingError(error.localizedDescription)
         }
     }
     
@@ -161,7 +161,7 @@ final class BackendClient: Sendable {
             let result = try decoder.decode([OngoingPodcastResponse].self, from: data)
             return result
         } catch {
-            throw ClientError.decodingError
+            throw ClientError.decodingError(error.localizedDescription)
         }
     }
     
@@ -179,7 +179,7 @@ final class BackendClient: Sendable {
             let result = try decoder.decode(PodcastResponse.self, from: data)
             return result
         } catch {
-            throw ClientError.decodingError
+            throw ClientError.decodingError(error.localizedDescription)
         }
     }
     
@@ -197,7 +197,7 @@ final class BackendClient: Sendable {
             let result = try decoder.decode(PodcastContentResponse.self, from: data)
             return result
         } catch {
-            throw ClientError.decodingError
+            throw ClientError.decodingError(error.localizedDescription)
         }
     }
     
@@ -215,7 +215,7 @@ final class BackendClient: Sendable {
             let result = try decoder.decode(PodcastAudioResponse.self, from: data)
             return result
         } catch {
-            throw ClientError.decodingError
+            throw ClientError.decodingError(error.localizedDescription)
         }
     }
 }
