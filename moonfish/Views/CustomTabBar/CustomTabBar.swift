@@ -54,7 +54,6 @@ struct CustomTabBar: View {
             .frame(width: 64, height: 64)
             .background(.ultraThinMaterial, in: .circle)
         }
-
     }
 }
 

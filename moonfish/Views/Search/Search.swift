@@ -69,6 +69,14 @@ struct Search: View {
     }
 }
 
+enum FilterItem: String, Identifiable, CaseIterable {
+    case all = "All"
+    case favorite = "Favorite"
+    case downloaded = "Downloaded"
+
+    var id: Self { self }
+}
+
 #Preview(traits: .audioPlayer) {
     Search()
 }
