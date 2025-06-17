@@ -6,29 +6,22 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct Requests: View {
     @Environment(\.backendClient) private var client: BackendClient
-    @Query(sort: \PodcastRequest.createdAt, order: .reverse) private var podcastRequests: [PodcastRequest]
     @State private var isPresented: Bool = false
-    
-    private var requests: [PodcastRequest] {
-        return podcastRequests.filter { $0.status != RequestStatus.completed.rawValue }
-    }
-    
-    @State var ongoingTasks = [PodcastCreateResponse]()
+    @State var requests = [OngoingPodcastResponse]()
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack {
-                    ForEach(ongoingTasks) {
-                        RequestCard(podcastTask: $0)
+                LazyVStack {
+                    ForEach(requests) {
+                        RequestCard(request: $0)
                     }
                 }
             }
-            .sheet(isPresented: $isPresented) { NewRequestSheet() }
+            .refreshable { await refresh() }
             .navigationTitle("Requests")
             .toolbar {
                 ToolbarItem {
@@ -37,26 +30,25 @@ struct Requests: View {
                     }
                 }
             }
+            .sheet(isPresented: $isPresented) { NewRequestSheet() }
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
             .foregroundStyle(.primary)
             .background(Color(.secondarySystemBackground))
         }
         .task {
-            do {
-                try await fetchAll()
-            } catch {
-                print("Failed to fetch")
-            }
+            await refresh()
         }
     }
     
-    func fetchAll() async throws {
-        ongoingTasks = try await client.getAllPodcasts()
+    func refresh() async {
+        do {
+            requests = try await client.getOngoingPodcasts()
+        } catch {
+            print("Failed to fetch: \(error)")
+        }
     }
 }
-
-
 
 #Preview {
     let client = BackendClient()

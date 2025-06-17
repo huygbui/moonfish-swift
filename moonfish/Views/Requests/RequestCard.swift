@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RequestCard: View {
-    var podcastTask: PodcastCreateResponse
+    var request: OngoingPodcastResponse
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -16,7 +16,7 @@ struct RequestCard: View {
             VStack(alignment: .leading, spacing: 0) {
                 // Card title
                 HStack(spacing: 16) {
-                    Text(podcastTask.topic)
+                    Text(request.topic)
                         .font(.body)
                         .lineLimit(1)
                 }
@@ -24,13 +24,13 @@ struct RequestCard: View {
                 
                 // Card subtitle
                 HStack {
-                    Text(podcastTask.createdAt.formatted(Date.RelativeFormatStyle())) +
+                    Text(request.createdAt.formatted(Date.RelativeFormatStyle())) +
                     Text(" • ") +
-                    Text(podcastTask.length) +
+                    Text(request.length) +
                     Text(", ") +
-                    Text(podcastTask.format) +
+                    Text(request.format) +
                     Text(", ") +
-                    Text(podcastTask.level)
+                    Text(request.level)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -41,7 +41,7 @@ struct RequestCard: View {
                 ProgressView(value: 0)
                     .progressViewStyle(GaugeProgressStyle())
                     .frame(width: 32, height: 32)
-                Text(podcastTask.step ?? "Pending")
+                Text(request.step ?? "Pending")
                     .foregroundStyle(.secondary)
                     .font(.caption)
 
@@ -56,7 +56,7 @@ struct RequestCard: View {
 }
 
 #Preview {
-    let podcastTask: PodcastCreateResponse = .init(
+    let podcastTask: OngoingPodcastResponse = .init(
         id: 0,
         topic: "Sustainable Urban Gardening",
         length: PodcastLength.medium.rawValue,
@@ -68,5 +68,5 @@ struct RequestCard: View {
         updatedAt: Date(),
     )
     
-    RequestCard(podcastTask: podcastTask)
+    RequestCard(request: podcastTask)
 }
