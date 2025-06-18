@@ -18,9 +18,9 @@ struct Podcasts: View {
     
     var body: some View {
         // Calculate date 3 days ago
-        let threeDaysAgo = Calendar.current.date(byAdding: .day, value: -3, to: Date()) ?? Date()
-        let recents = podcasts.filter { $0.createdAt >= threeDaysAgo }
-        let pasts = podcasts.filter { $0.createdAt < threeDaysAgo }
+        let threeDaysInSeconds: TimeInterval = 3 * 24 * 60 * 60
+        let recents = podcasts.filter { $0.createdAt.timeIntervalSinceNow > -threeDaysInSeconds }
+        let pasts = podcasts.filter { $0.createdAt.timeIntervalSinceNow <= -threeDaysInSeconds }
         
         NavigationStack {
             ScrollView {
