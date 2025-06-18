@@ -15,11 +15,9 @@ struct RequestCard: View {
             // Card header
             VStack(alignment: .leading, spacing: 0) {
                 // Card title
-                HStack(spacing: 16) {
-                    Text(request.topic)
-                        .font(.body)
-                        .lineLimit(1)
-                }
+                Text(request.topic)
+                    .font(.body)
+                    .lineLimit(1)
                 
                 
                 // Card subtitle

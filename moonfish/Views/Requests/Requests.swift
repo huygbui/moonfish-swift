@@ -10,34 +10,40 @@ import SwiftUI
 struct Requests: View {
     @Environment(\.backendClient) private var client: BackendClient
     @State private var isPresented: Bool = false
+    @State private var isLoading: Bool = false
     @State var requests = [OngoingPodcastResponse]()
+    @State private var phase: CGFloat = -1.0
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack {
+                if isLoading {
+                    RequestCardPlaceholder()
+                } else {
                     ForEach(requests) {
                         RequestCard(request: $0)
                     }
                 }
             }
             .refreshable { await refresh() }
+            .contentMargins(.vertical, 8)
+            .safeAreaPadding(.horizontal, 16)
+            .background(Color(.secondarySystemBackground))
             .navigationTitle("Requests")
             .toolbar {
-                ToolbarItem {
+                ToolbarItem(placement: .primaryAction) {
                     Button(action: { isPresented = true }) {
                         Image(systemName: "plus")
                     }
                 }
             }
             .sheet(isPresented: $isPresented) { NewRequestSheet() }
-            .contentMargins(.vertical, 8)
-            .safeAreaPadding(.horizontal, 16)
-            .foregroundStyle(.primary)
-            .background(Color(.secondarySystemBackground))
-        }
-        .task {
-            await refresh()
+            .task {
+                isLoading = true
+                defer { isLoading = false }
+//                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                await refresh()
+            }
         }
     }
     
