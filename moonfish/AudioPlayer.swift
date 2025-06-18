@@ -36,7 +36,7 @@ final class AudioPlayer {
     }
 
     func play(_ podcast: Podcast) {
-        let url = URL(string: "http://localhost:8000/audio")!
+        guard let url = podcast.url else { return }
         
         if currentPodcast == podcast && player != nil {
             if !isPlaying {

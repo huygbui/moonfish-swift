@@ -11,7 +11,9 @@ import SwiftData
 struct PodcastCard: View {
     var podcast: Podcast
     @Environment(AudioPlayer.self) private var audioPlayer
-    
+    @Environment(\.backendClient) private var client: BackendClient
+    @Environment(\.modelContext) private var modelContext: ModelContext
+
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
             // Card header
@@ -22,7 +24,6 @@ struct PodcastCard: View {
                         .font(.body)
                         .lineLimit(1)
                 }
-                
                 
                 // Card subtitle
                 HStack {
@@ -40,7 +41,9 @@ struct PodcastCard: View {
             
             // Card footer
             HStack {
-                Button(action: { audioPlayer.toggle(podcast) }) {
+                Button {
+                    Task { await playPause() }
+                } label: {
                     Image(systemName: audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast ? "pause.circle.fill" :"play.circle.fill")
                         .resizable()
                         .frame(width: 32, height: 32)
@@ -59,7 +62,22 @@ struct PodcastCard: View {
         .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 16))
     }
     
-    
+    func playPause() async {
+        let currentDate = Date()
+        if podcast.expiresAt == nil || currentDate > podcast.expiresAt! {
+            do {
+                let audio = try await client.getPodcastAudio(id: podcast.taskId)
+                podcast.url = audio.url
+                podcast.expiresAt = audio.expiresAt
+                try modelContext.save()
+            } catch {
+                print("Failed to fetch podcast audio: \(error)")
+                return
+            }
+        }
+        
+        audioPlayer.toggle(podcast)
+    }
 }
 
 #Preview(traits: .audioPlayer) {
