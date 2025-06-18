@@ -17,8 +17,10 @@ struct Podcasts: View {
     @State private var isPresented: Bool = false
     
     var body: some View {
-        let topThrees = Array(podcasts.prefix(3))
-        let remainings = Array(podcasts.dropFirst(3))
+        // Calculate date 3 days ago
+        let threeDaysAgo = Calendar.current.date(byAdding: .day, value: -3, to: Date()) ?? Date()
+        let recents = podcasts.filter { $0.createdAt >= threeDaysAgo }
+        let pasts = podcasts.filter { $0.createdAt < threeDaysAgo }
         
         NavigationStack {
             ScrollView {
@@ -27,7 +29,7 @@ struct Podcasts: View {
                         Text("Newly Added").font(.headline)
                         ScrollView(.horizontal) {
                             LazyHStack {
-                                ForEach(topThrees) {
+                                ForEach(recents) {
                                     PodcastCardHighlight(
                                         podcast: $0,
                                     )
@@ -41,7 +43,7 @@ struct Podcasts: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Past Tracks").font(.headline)
                         LazyVStack(spacing: 8) {
-                            ForEach(remainings){
+                            ForEach(pasts){
                                 PodcastCard(podcast: $0)
                             }
                         }
@@ -59,12 +61,8 @@ struct Podcasts: View {
                     }
                 }
             }
-            .sheet(isPresented: $isPresented) {
-                AccountSheet()
-            }
-            .task {
-                await refresh()
-            }
+            .sheet(isPresented: $isPresented) { AccountSheet() }
+            .task { await refresh() }
         }
     }
     
