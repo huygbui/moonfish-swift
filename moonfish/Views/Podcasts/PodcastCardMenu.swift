@@ -9,35 +9,32 @@ import SwiftUI
 import SwiftData
 
 struct PodcastCardMenu: View {
-    @Environment(\.modelContext) private var modelContext: ModelContext
-    @Environment(\.backendClient) private var client: BackendClient
-    @Environment(AudioPlayer.self) private var audioPlayer
-    var podcast: Podcast
+    var viewModel: PodcastViewModel
     
     var body: some View {
         Menu {
             Button {
-                podcast.isFavorite.toggle()
+                viewModel.toggleFavorite()
             } label: {
                 HStack {
-                    Image(systemName: podcast.isFavorite ? "heart.fill" : "heart")
+                    Image(systemName: viewModel.favoriteImageName)
                     
-                    Text(podcast.isFavorite ? "Liked" : "Like")
+                    Text(viewModel.favoriteText)
                 }
             }
             
             Button {
-                podcast.isDownloaded.toggle()
+                viewModel.downloadPodcast()
             } label: {
                 HStack {
-                    Image(systemName: podcast.isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle")
-                    Text(podcast.isDownloaded ? "Downloaded" : "Download")
+                    Image(systemName: viewModel.downloadImageName)
+                    Text(viewModel.downloadText)
                 }
             }
             
             Button(role: .destructive) {
                 Task {
-                    await deletePodcast()
+                    await viewModel.deletePodcast()
                 }
             } label: {
                 HStack {
@@ -53,22 +50,13 @@ struct PodcastCardMenu: View {
                 .background(Color(.tertiarySystemBackground), in: .circle)
         }
     }
-    
-    func deletePodcast() async {
-        do {
-            if podcast == audioPlayer.currentPodcast {
-                audioPlayer.pause()
-                audioPlayer.currentPodcast = nil
-            }
-            modelContext.delete(podcast)
-            try await client.deletePodcast(id: podcast.taskId)
-        } catch {
-            print("Failed to delete podcast: \(error)")
-        }
-    }
 }
 
 #Preview(traits: .audioPlayer) {
+    @Previewable @Environment(AudioPlayer.self) var audioPlayer
+    @Previewable @Environment(\.backendClient) var client: BackendClient
+    @Previewable @Environment(\.modelContext) var modelContext: ModelContext
+    
     let podcast = Podcast(
         taskId: 0,
         topic: "Sustainable Urban Gardening",
@@ -84,5 +72,12 @@ struct PodcastCardMenu: View {
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request
     )
     
-    PodcastCardMenu(podcast: podcast)
+    let viewModel = PodcastViewModel.init(
+        podcast: podcast,
+        audioPlayer: audioPlayer,
+        client: client,
+        modelContext: modelContext
+    )
+    
+    PodcastCardMenu(viewModel: viewModel)
 }

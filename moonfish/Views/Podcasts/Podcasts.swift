@@ -12,7 +12,9 @@ struct Podcasts: View {
     @Environment(\.modelContext) private var modelContext: ModelContext
     @Environment(\.backendClient) private var client: BackendClient
     @Environment(AudioPlayer.self) private var audioPlayer
+    
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
+    
     @State private var apiPodcasts: [CompletedPodcastResponse] = []
     @State private var isPresented: Bool = false
     
@@ -29,11 +31,15 @@ struct Podcasts: View {
                         Text("Newly Added").font(.headline)
                         ScrollView(.horizontal) {
                             LazyHStack {
-                                ForEach(recents) {
-                                    PodcastCardHighlight(
-                                        podcast: $0,
+                                ForEach(recents) { podcast in
+                                    let viewModel = PodcastViewModel(
+                                        podcast: podcast,
+                                        audioPlayer: audioPlayer,
+                                        client: client,
+                                        modelContext: modelContext
                                     )
-                                    .frame(width: 256, height: 256)
+                                    PodcastCardHighlight(viewModel: viewModel)
+                                        .frame(width: 256, height: 256)
                                 }
                             }
                         }
@@ -43,8 +49,14 @@ struct Podcasts: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Past Tracks").font(.headline)
                         LazyVStack(spacing: 8) {
-                            ForEach(pasts){
-                                PodcastCard(podcast: $0)
+                            ForEach(pasts){ podcast  in
+                                let viewModel = PodcastViewModel(
+                                    podcast: podcast,
+                                    audioPlayer: audioPlayer,
+                                    client: client,
+                                    modelContext: modelContext
+                                )
+                                PodcastCard(viewModel: viewModel)
                             }
                         }
                     }

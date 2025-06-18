@@ -9,10 +9,14 @@ import SwiftUI
 import SwiftData
 
 struct Search: View {
+    @Environment(\.modelContext) private var modelContext: ModelContext
+    @Environment(\.backendClient) private var client: BackendClient
+    @Environment(AudioPlayer.self) private var audioPlayer
+    @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
+    
+    @State private var apiPodcasts: [CompletedPodcastResponse] = []
     @State private var searchText: String = ""
     @State private var selectedFilter: FilterItem = .all
-
-    @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
     
     var filteredPodcasts: [Podcast] {
         var filtered = podcasts
@@ -40,7 +44,7 @@ struct Search: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                LazyVStack(spacing: 16) {
                     Picker("Filter", selection: $selectedFilter) {
                         ForEach(FilterItem.allCases) { tab in
                             Text(tab.rawValue).tag(tab)
@@ -48,27 +52,47 @@ struct Search: View {
                     }
                     .pickerStyle(.segmented)
                     .controlSize(.large)
-
-                    VStack(alignment: .leading) {
+                    
+                    LazyVStack(alignment: .leading) {
                         ForEach(filteredPodcasts) { podcast in
-                            PodcastCard (
-                                podcast: podcast
+                            let viewModel = PodcastViewModel(
+                                podcast: podcast,
+                                audioPlayer: audioPlayer,
+                                client: client,
+                                modelContext: modelContext
                             )
+                            PodcastCard (viewModel: viewModel)
                         }
                     }
                 }
             }
-            .searchable(text: $searchText)
-            .safeAreaPadding(.horizontal, 16)
-            .scrollIndicators(.hidden)
-            .navigationTitle("All Podcasts")
-            .navigationBarTitleDisplayMode(.inline)
             .foregroundStyle(.primary)
             .background(Color(.secondarySystemBackground))
+            .safeAreaPadding(.horizontal, 16)
+            .navigationTitle("All Podcasts")
+            .navigationBarTitleDisplayMode(.inline)
+            .scrollIndicators(.hidden)
+            .searchable(text: $searchText)
+            .refreshable { await refresh() }
+            .task { await refresh() }
+        }
+    }
+    
+    func refresh() async {
+        do {
+            apiPodcasts = try await client.getCompletedPodcasts()
+            for apiPodcast in apiPodcasts {
+                if let podcast = Podcast(from: apiPodcast) {
+                    modelContext.insert(podcast)
+                }
+            }
+            try modelContext.save()
+        } catch {
+            print("Failed to fetch podcasts: \(error)")
         }
     }
 }
-
+    
 enum FilterItem: String, Identifiable, CaseIterable {
     case all = "All"
     case favorite = "Favorite"

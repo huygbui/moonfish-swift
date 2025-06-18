@@ -9,31 +9,28 @@ import SwiftUI
 import SwiftData
 
 struct PodcastCard: View {
-    var podcast: Podcast
-    @Environment(AudioPlayer.self) private var audioPlayer
-    @Environment(\.backendClient) private var client: BackendClient
-    @Environment(\.modelContext) private var modelContext: ModelContext
-
+    var viewModel: PodcastViewModel
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
             // Card header
             VStack(alignment: .leading, spacing: 0) {
                 // Card title
                 HStack(spacing: 16) {
-                    Text(podcast.title)
+                    Text(viewModel.title)
                         .font(.body)
                         .lineLimit(1)
                 }
                 
                 // Card subtitle
                 HStack {
-                    Text(podcast.createdAt.formatted(dateStyle)) +
+                    Text(viewModel.createdAt)
                     Text(" • ") +
-                    Text(podcast.length.localizedCapitalized) +
+                    Text(viewModel.length) +
                     Text(", ") +
-                    Text(podcast.format.localizedCapitalized) +
+                    Text(viewModel.format) +
                     Text(", ") +
-                    Text(podcast.level.localizedCapitalized)
+                    Text(viewModel.level)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -42,18 +39,18 @@ struct PodcastCard: View {
             // Card footer
             HStack {
                 Button {
-                    Task { await playPause() }
+                    Task { await viewModel.playPause() }
                 } label: {
-                    Image(systemName: audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast ? "pause.circle.fill" :"play.circle.fill")
+                    Image(systemName: viewModel.playButtonImageName)
                         .resizable()
                         .frame(width: 32, height: 32)
                 }
-                Text(Duration.seconds(podcast.duration), format: .units(allowed: [.hours, .minutes], width: .abbreviated))
+                Text(viewModel.duration, format: .units(allowed: [.hours, .minutes], width: .abbreviated))
                     .foregroundStyle(.secondary)
                 
                 Spacer()
                 
-                PodcastCardMenu(podcast: podcast).foregroundStyle(.secondary)
+                PodcastCardMenu(viewModel: viewModel).foregroundStyle(.secondary)
             }
             .foregroundStyle(.primary)
             .font(.caption)
@@ -61,26 +58,13 @@ struct PodcastCard: View {
         .padding()
         .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 16))
     }
-    
-    func playPause() async {
-        let currentDate = Date()
-        if podcast.expiresAt == nil || currentDate > podcast.expiresAt! {
-            do {
-                let audio = try await client.getPodcastAudio(id: podcast.taskId)
-                podcast.url = audio.url
-                podcast.expiresAt = audio.expiresAt
-                try modelContext.save()
-            } catch {
-                print("Failed to fetch podcast audio: \(error)")
-                return
-            }
-        }
-        
-        audioPlayer.toggle(podcast)
-    }
 }
 
 #Preview(traits: .audioPlayer) {
+    @Previewable @Environment(AudioPlayer.self) var audioPlayer
+    @Previewable @Environment(\.backendClient) var client: BackendClient
+    @Previewable @Environment(\.modelContext) var modelContext: ModelContext
+    
     let podcast = Podcast(
         taskId: 0,
         topic: "Sustainable Urban Gardening",
@@ -96,10 +80,17 @@ struct PodcastCard: View {
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request
     )
     
+    let viewModel = PodcastViewModel.init(
+        podcast: podcast,
+        audioPlayer: audioPlayer,
+        client: client,
+        modelContext: modelContext
+    )
+    
     ZStack {
         Color(.secondarySystemBackground)
         
-        PodcastCard(podcast: podcast)
+        PodcastCard(viewModel: viewModel)
     }
     .ignoresSafeArea()
 }

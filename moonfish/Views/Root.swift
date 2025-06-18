@@ -26,9 +26,7 @@ struct Root: View {
                 }
             }
             .tabBarMinimizeBehavior(.onScrollDown)
-            .tabViewBottomAccessory {
-                PlayerMini()
-            }
+            .tabViewBottomAccessory { PlayerMini() }
         } else {
             TabView(selection: $selectedTab) {
                 ForEach(TabItem.allCases) { tab in
@@ -68,8 +66,8 @@ struct Root: View {
                                 .shadow(color: .black.opacity(0.1), radius: 12)
                                 .padding(.horizontal, 24)
                         }
+                        .padding(.bottom, 24)
                     }
-                    .padding(.bottom, 24)
                 }
                 .ignoresSafeArea()
             }

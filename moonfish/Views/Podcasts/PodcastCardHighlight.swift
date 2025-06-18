@@ -6,25 +6,25 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PodcastCardHighlight: View {
-    var podcast: Podcast
-    @Environment(AudioPlayer.self) private var audioPlayer
+    var viewModel: PodcastViewModel
 
     var body: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(podcast.title)
+                    Text(viewModel.title)
                         .lineLimit(2)
                 }
                 
                 
-                (Text(Duration.seconds(podcast.duration), format: .units(allowed: [.hours, .minutes], width: .abbreviated))
+                (Text(viewModel.duration, format: .units(allowed: [.hours, .minutes], width: .abbreviated))
                     .font(.subheadline) +
                  Text(" • ")
                     .font(.subheadline) +
-                Text(podcast.summary)
+                 Text(viewModel.summary)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 )
@@ -38,14 +38,18 @@ struct PodcastCardHighlight: View {
                 
                 HStack(spacing: 16) {
                     Spacer()
-                    PodcastCardMenu(podcast: podcast).foregroundStyle(.secondary)
-                    Button(action: { audioPlayer.toggle(podcast) }) {
-                        Image(systemName: audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast ? "pause.fill" :"play.fill")
+                    
+                    PodcastCardMenu(viewModel: viewModel).foregroundStyle(.secondary)
+                    
+                    Button {
+                        Task { await viewModel.playPause() }
+                    } label: {
+                        Image(systemName: viewModel.playButtonImageName)
+                            .resizable()
                             .frame(width: 32, height: 32)
                     }
-                    .foregroundStyle(Color(.systemBackground))
-                    .background(.primary, in: .circle)
                 }
+                .foregroundStyle(.primary)
             }
         }
         .padding()
@@ -54,6 +58,10 @@ struct PodcastCardHighlight: View {
 }
 
 #Preview(traits: .audioPlayer) {
+    @Previewable @Environment(AudioPlayer.self) var audioPlayer
+    @Previewable @Environment(\.backendClient) var client: BackendClient
+    @Previewable @Environment(\.modelContext) var modelContext: ModelContext
+    
     let podcast = Podcast(
         taskId: 0,
         topic: "Sustainable Urban Gardening",
@@ -69,10 +77,17 @@ struct PodcastCardHighlight: View {
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request
     )
     
+    let viewModel = PodcastViewModel.init(
+        podcast: podcast,
+        audioPlayer: audioPlayer,
+        client: client,
+        modelContext: modelContext
+    )
+    
     ZStack {
         Color(.secondarySystemBackground)
         
-        PodcastCardHighlight(podcast: podcast)
+        PodcastCardHighlight(viewModel: viewModel)
             .frame(width: 272, height: 272)
     }
     .ignoresSafeArea()
