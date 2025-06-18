@@ -6,8 +6,12 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PodcastCardMenu: View {
+    @Environment(\.modelContext) private var modelContext: ModelContext
+    @Environment(\.backendClient) private var client: BackendClient
+    @Environment(AudioPlayer.self) private var audioPlayer
     var podcast: Podcast
     
     var body: some View {
@@ -32,6 +36,9 @@ struct PodcastCardMenu: View {
             }
             
             Button(role: .destructive) {
+                Task {
+                    await deletePodcast()
+                }
             } label: {
                 HStack {
                     Image(systemName: "trash")
@@ -46,9 +53,22 @@ struct PodcastCardMenu: View {
                 .background(Color(.tertiarySystemBackground), in: .circle)
         }
     }
+    
+    func deletePodcast() async {
+        do {
+            if podcast == audioPlayer.currentPodcast {
+                audioPlayer.pause()
+                audioPlayer.currentPodcast = nil
+            }
+            modelContext.delete(podcast)
+            try await client.deletePodcast(id: podcast.taskId)
+        } catch {
+            print("Failed to delete podcast: \(error)")
+        }
+    }
 }
 
-#Preview {
+#Preview(traits: .audioPlayer) {
     let podcast = Podcast(
         taskId: 0,
         topic: "Sustainable Urban Gardening",

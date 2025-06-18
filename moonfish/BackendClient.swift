@@ -61,7 +61,8 @@ final class BackendClient: Sendable {
 
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+              httpResponse.statusCode == 200
+        else {
             throw ClientError.networkError
         }
         
@@ -79,7 +80,8 @@ final class BackendClient: Sendable {
         
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+              httpResponse.statusCode == 200
+        else {
             throw ClientError.networkError
         }
         
@@ -97,7 +99,8 @@ final class BackendClient: Sendable {
         
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+              httpResponse.statusCode == 200
+        else {
             throw ClientError.networkError
         }
         
@@ -115,7 +118,8 @@ final class BackendClient: Sendable {
         
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+              httpResponse.statusCode == 200
+        else {
             throw ClientError.networkError
         }
         
@@ -133,7 +137,8 @@ final class BackendClient: Sendable {
         
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+              httpResponse.statusCode == 200
+        else {
             throw ClientError.networkError
         }
         
@@ -151,7 +156,8 @@ final class BackendClient: Sendable {
         
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200 else {
+              httpResponse.statusCode == 200
+        else {
             throw ClientError.networkError
         }
         
@@ -162,7 +168,20 @@ final class BackendClient: Sendable {
             throw ClientError.decodingError(error.localizedDescription)
         }
     }
+
+    // MARK: - Delete Podcast
+    func deletePodcast(id: Int) async throws {
+        let request = try createRequest(for: "podcasts/\(id)", method: "DELETE")
+        
+        let (_, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+                [200, 204].contains(httpResponse.statusCode)
+        else {
+            throw ClientError.networkError
+        }
+    }
 }
+
 
 private struct BackendClientKey: EnvironmentKey {
     static let defaultValue: BackendClient = BackendClient()

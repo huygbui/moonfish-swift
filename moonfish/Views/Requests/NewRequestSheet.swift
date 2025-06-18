@@ -96,7 +96,7 @@ extension NewRequestSheet {
         )
         
         do {
-            let response = try await client.createPodcast(configuration: configuration)
+            let _ = try await client.createPodcast(configuration: configuration)
         } catch {
             print(error.localizedDescription)
         }

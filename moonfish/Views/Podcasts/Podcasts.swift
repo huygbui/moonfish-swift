@@ -20,7 +20,6 @@ struct Podcasts: View {
         let topThrees = Array(podcasts.prefix(3))
         let remainings = Array(podcasts.dropFirst(3))
         
-        
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 32) {
@@ -43,9 +42,7 @@ struct Podcasts: View {
                         Text("Past Tracks").font(.headline)
                         LazyVStack(spacing: 8) {
                             ForEach(remainings){
-                                PodcastCard(
-                                    podcast: $0,
-                                )
+                                PodcastCard(podcast: $0)
                             }
                         }
                     }
@@ -79,9 +76,7 @@ struct Podcasts: View {
                     modelContext.insert(podcast)
                 }
             }
-            
             try modelContext.save()
-            
         } catch {
             print("Failed to fetch podcasts: \(error)")
         }

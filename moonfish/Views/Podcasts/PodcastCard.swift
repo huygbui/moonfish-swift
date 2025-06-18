@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct PodcastCard: View {
     var podcast: Podcast
     @Environment(AudioPlayer.self) private var audioPlayer
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
             // Card header
@@ -27,11 +28,11 @@ struct PodcastCard: View {
                 HStack {
                     Text(podcast.createdAt.formatted(dateStyle)) +
                     Text(" • ") +
-                    Text(podcast.length) +
+                    Text(podcast.length.localizedCapitalized) +
                     Text(", ") +
-                    Text(podcast.format) +
+                    Text(podcast.format.localizedCapitalized) +
                     Text(", ") +
-                    Text(podcast.level)
+                    Text(podcast.level.localizedCapitalized)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -57,10 +58,11 @@ struct PodcastCard: View {
         .padding()
         .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 16))
     }
+    
+    
 }
 
 #Preview(traits: .audioPlayer) {
-    
     let podcast = Podcast(
         taskId: 0,
         topic: "Sustainable Urban Gardening",

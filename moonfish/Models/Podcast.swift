@@ -65,7 +65,6 @@ final class Podcast {
     }
     
     convenience init? (from podcastResponse: CompletedPodcastResponse) {
-        
         self.init(
             taskId: podcastResponse.id,
             topic: podcastResponse.topic,
