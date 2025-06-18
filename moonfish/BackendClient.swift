@@ -14,74 +14,7 @@ enum ClientError: Error {
     case configurationError
 }
 
-struct PodcastResponse: Codable, Identifiable {
-    var id: Int
-    
-    var topic: String
-    var length: String
-    var level: String
-    var format: String
-    var voice: String
-    var instruction: String = ""
-    
-    var status: String
-    var step: String?
-    var title: String?
-    var summary: String?
-    var url: String?
-    var duration: Int?
-    
-    var createdAt: Date
-    var updatedAt: Date
-    
-    enum CodingKeys: String, CodingKey {
-        case id, topic, length, level, format, voice, instruction, status, step, title, summary, url, duration
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-    }
-}
 
-struct OngoingPodcastResponse: Codable, Identifiable {
-    var id: Int
-    
-    var topic: String
-    var length: String
-    var level: String
-    var format: String
-    var voice: String
-    var instruction: String = ""
-    
-    var status: String
-    var step: String?
-    
-    var createdAt: Date
-    var updatedAt: Date
-    
-    enum CodingKeys: String, CodingKey {
-        case id, topic, length, level, format, voice, instruction, status, step
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-    }
-}
-
-struct PodcastContentResponse: Codable {
-    var id: Int
-    var title: String
-    var summary: String
-    var createdAt: Date
-    var updatedAt: Date
-    
-    enum CodingKeys: String, CodingKey {
-        case id, title, summary
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-    }
-}
-
-struct PodcastAudioResponse: Codable {
-    var url: String
-    var duration: Int
-}
 
 final class BackendClient: Sendable {
     private let config = APIConfig.shared
@@ -121,7 +54,7 @@ final class BackendClient: Sendable {
     }
    
     // MARK: - Create Podcast
-    func createPodcast(configuration: PodcastConfiguration) async throws -> PodcastResponse {
+    func createPodcast(configuration: PodcastConfiguration) async throws -> CompletedPodcastResponse {
         var request = try createRequest(for: "podcasts", method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(configuration)
@@ -133,7 +66,7 @@ final class BackendClient: Sendable {
         }
         
         do {
-            let result = try decoder.decode(PodcastResponse.self, from: data)
+            let result = try decoder.decode(CompletedPodcastResponse.self, from: data)
             return result
         } catch {
             throw ClientError.decodingError(error.localizedDescription)
@@ -141,7 +74,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get Completed Podcasts
-    func getCompletedPodcasts() async throws -> [PodcastResponse] {
+    func getCompletedPodcasts() async throws -> [CompletedPodcastResponse] {
         let request = try createRequest(for: "podcasts/completed")
         
         let (data, response) = try await session.data(for: request)
@@ -151,7 +84,7 @@ final class BackendClient: Sendable {
         }
         
         do {
-            let result = try decoder.decode([PodcastResponse].self, from: data)
+            let result = try decoder.decode([CompletedPodcastResponse].self, from: data)
             return result
         } catch {
             throw ClientError.decodingError(error.localizedDescription)
@@ -177,7 +110,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get Single Podcast
-    func getPodcast(id: Int) async throws -> PodcastResponse {
+    func getPodcast(id: Int) async throws -> CompletedPodcastResponse {
         let request = try createRequest(for: "podcasts/\(id)")
         
         let (data, response) = try await session.data(for: request)
@@ -187,7 +120,7 @@ final class BackendClient: Sendable {
         }
         
         do {
-            let result = try decoder.decode(PodcastResponse.self, from: data)
+            let result = try decoder.decode(CompletedPodcastResponse.self, from: data)
             return result
         } catch {
             throw ClientError.decodingError(error.localizedDescription)

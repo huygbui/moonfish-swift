@@ -20,11 +20,11 @@ struct Podcasts: View {
         
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 32) {
+                LazyVStack(alignment: .leading, spacing: 32) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Newly Added").font(.headline)
                         ScrollView(.horizontal) {
-                            HStack {
+                            LazyHStack {
                                 ForEach(topThrees) {
                                     PodcastCardHighlight(
                                         podcast: $0,
@@ -33,12 +33,12 @@ struct Podcasts: View {
                                 }
                             }
                         }
+                        .scrollIndicators(.hidden)
                     }
-                    .scrollIndicators(.hidden)
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Past Tracks").font(.headline)
-                        VStack(spacing: 8) {
+                        LazyVStack(spacing: 8) {
                             ForEach(remainings){
                                 PodcastCard(
                                     podcast: $0,
@@ -48,9 +48,10 @@ struct Podcasts: View {
                     }
                 }
             }
-            .sheet(isPresented: $isPresented) {
-                AccountSheet()
-            }
+            .contentMargins(.vertical, 8)
+            .safeAreaPadding(.horizontal, 16)
+            .background(Color(.secondarySystemBackground))
+            .navigationTitle("Podcasts")
             .toolbar {
                 ToolbarItem {
                     Button(action: { isPresented = true }) {
@@ -58,13 +59,21 @@ struct Podcasts: View {
                     }
                 }
             }
-            .navigationTitle("Podcasts")
-            .contentMargins(.vertical, 8)
-            .safeAreaPadding(.horizontal, 16)
-            .foregroundStyle(.primary)
-            .background(Color(.secondarySystemBackground))
-            
+            .sheet(isPresented: $isPresented) {
+                AccountSheet()
+            }
+            .task {
+                await refresh()
+            }
         }
+    }
+}
+
+func refresh() async {
+    do {
+        
+    } catch {
+        
     }
 }
 

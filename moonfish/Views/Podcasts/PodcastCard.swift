@@ -27,11 +27,11 @@ struct PodcastCard: View {
                 HStack {
                     Text(podcast.createdAt.formatted(dateStyle)) +
                     Text(" • ") +
-                    Text(podcast.configuration.length.displayName) +
+                    Text(podcast.length) +
                     Text(", ") +
-                    Text(podcast.configuration.format.displayName) +
+                    Text(podcast.format) +
                     Text(", ") +
-                    Text(podcast.configuration.level.displayName)
+                    Text(podcast.level)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -50,9 +50,8 @@ struct PodcastCard: View {
                 Spacer()
                 
                 PodcastCardMenu(podcast: podcast).foregroundStyle(.secondary)
-
-               
             }
+            .foregroundStyle(.primary)
             .font(.caption)
         }
         .padding()
@@ -61,19 +60,17 @@ struct PodcastCard: View {
 }
 
 #Preview(traits: .audioPlayer) {
-    let gardeningConfig = PodcastConfiguration(
-        topic: "Sustainable Urban Gardening",
-        length: .medium,
-        level: .intermediate,
-        format: .conversational,
-        voice: .female
-    )
+    
     let podcast = Podcast(
         taskId: 0,
-        configuration: gardeningConfig,
+        topic: "Sustainable Urban Gardening",
+        length: PodcastLength.medium.rawValue,
+        level: PodcastLevel.intermediate.rawValue,
+        format: PodcastFormat.conversational.rawValue,
+        voice: PodcastVoice.female.rawValue,
         title: "Beginner's Guide to Gardening in the Far East",
         summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
-        transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
+//        transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
         audioURL: URL(string: "https://example.com/audio/gardening_beginner.mp3")!,
         duration: 620, // about 10 minutes
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request

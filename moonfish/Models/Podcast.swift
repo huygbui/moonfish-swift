@@ -10,11 +10,17 @@ import SwiftData
 
 @Model
 final class Podcast {
-    var taskId: Int
-    var configuration: PodcastConfiguration
+    @Attribute(.unique) var taskId: Int
+    
+    var topic: String
+    var length: String
+    var level: String
+    var format: String
+    var voice: String
+    var instruction: String
+    
     var title: String
     var summary: String
-    var transcript: String
     var audioURL: URL
     var duration: Int
     var createdAt: Date
@@ -24,10 +30,16 @@ final class Podcast {
     
     init(
         taskId: Int,
-        configuration: PodcastConfiguration,
+        
+        topic: String,
+        length: String,
+        level: String,
+        format: String,
+        voice: String,
+        instruction: String = "",
+        
         title: String,
         summary: String,
-        transcript: String,
         audioURL: URL,
         duration: Int,
         createdAt: Date,
@@ -35,15 +47,40 @@ final class Podcast {
         isDownloaded: Bool = false
     ) {
         self.taskId = taskId
-        self.configuration = configuration
+        
+        self.topic = topic
+        self.length = length
+        self.level = level
+        self.format = format
+        self.voice = voice
+        self.instruction = instruction
+
         self.title = title
         self.summary = summary
-        self.transcript = transcript
         self.audioURL = audioURL
         self.duration = duration
         self.createdAt = createdAt
         self.isFavorite = isFavorite
         self.isDownloaded = isDownloaded
+    }
+    
+    convenience init? (from podcastResponse: CompletedPodcastResponse) {
+        guard let audioURL = URL(string: podcastResponse.url) else { return nil }
+        
+        self.init(
+            taskId: podcastResponse.id,
+            topic: podcastResponse.topic,
+            length: podcastResponse.length,
+            level: podcastResponse.level,
+            format: podcastResponse.format,
+            voice: podcastResponse.voice,
+            instruction: podcastResponse.instruction,
+            title: podcastResponse.title,
+            summary: podcastResponse.summary,
+            audioURL: audioURL,
+            duration: podcastResponse.duration,
+            createdAt: podcastResponse.createdAt
+        )
     }
 }
 

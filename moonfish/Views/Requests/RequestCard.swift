@@ -15,7 +15,7 @@ struct RequestCard: View {
             // Card header
             VStack(alignment: .leading, spacing: 0) {
                 // Card title
-                Text(request.topic)
+                Text(request.topic.localizedCapitalized)
                     .font(.body)
                     .lineLimit(1)
                 
@@ -24,11 +24,11 @@ struct RequestCard: View {
                 HStack {
                     Text(request.createdAt.formatted(Date.RelativeFormatStyle())) +
                     Text(" • ") +
-                    Text(request.length) +
+                    Text(request.length.localizedCapitalized) +
                     Text(", ") +
-                    Text(request.format) +
+                    Text(request.format.localizedCapitalized) +
                     Text(", ") +
-                    Text(request.level)
+                    Text(request.level.localizedCapitalized)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
