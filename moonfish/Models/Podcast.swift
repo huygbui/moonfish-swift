@@ -27,6 +27,8 @@ final class Podcast {
     var isFavorite: Bool
     var isDownloaded: Bool
     
+    var url: URL?
+    var expiresAt: Date?
     
     init(
         taskId: Int,
@@ -44,7 +46,9 @@ final class Podcast {
         duration: Int,
         createdAt: Date,
         isFavorite: Bool = false,
-        isDownloaded: Bool = false
+        isDownloaded: Bool = false,
+        url: URL? = nil,
+        expiresAt: Date? = nil,
     ) {
         self.taskId = taskId
         
@@ -62,6 +66,9 @@ final class Podcast {
         self.createdAt = createdAt
         self.isFavorite = isFavorite
         self.isDownloaded = isDownloaded
+        
+        self.url = url
+        self.expiresAt = expiresAt
     }
     
     convenience init? (from podcastResponse: CompletedPodcastResponse) {

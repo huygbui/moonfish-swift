@@ -72,6 +72,11 @@ struct PodcastContentResponse: Codable {
 }
 
 struct PodcastAudioResponse: Codable {
-    var url: String
-    var duration: Int
+    var url: URL
+    var expiresAt: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case url
+        case expiresAt = "expires_at"
+    }
 }
