@@ -21,7 +21,7 @@ final class Podcast {
     
     var title: String
     var summary: String
-    var audioURL: URL
+    var fileName: String
     var duration: Int
     var createdAt: Date
     var isFavorite: Bool
@@ -40,7 +40,7 @@ final class Podcast {
         
         title: String,
         summary: String,
-        audioURL: URL,
+        fileName: String,
         duration: Int,
         createdAt: Date,
         isFavorite: Bool = false,
@@ -57,7 +57,7 @@ final class Podcast {
 
         self.title = title
         self.summary = summary
-        self.audioURL = audioURL
+        self.fileName = fileName
         self.duration = duration
         self.createdAt = createdAt
         self.isFavorite = isFavorite
@@ -65,7 +65,6 @@ final class Podcast {
     }
     
     convenience init? (from podcastResponse: CompletedPodcastResponse) {
-        guard let audioURL = URL(string: podcastResponse.url) else { return nil }
         
         self.init(
             taskId: podcastResponse.id,
@@ -77,7 +76,7 @@ final class Podcast {
             instruction: podcastResponse.instruction,
             title: podcastResponse.title,
             summary: podcastResponse.summary,
-            audioURL: audioURL,
+            fileName: podcastResponse.fileName,
             duration: podcastResponse.duration,
             createdAt: podcastResponse.createdAt
         )

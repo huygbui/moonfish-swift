@@ -20,14 +20,14 @@ struct CompletedPodcastResponse: Codable, Identifiable {
     var status: String
     var title: String
     var summary: String
-    var url: String
+    var fileName: String
     var duration: Int
     
     var createdAt: Date
     var updatedAt: Date
     
     enum CodingKeys: String, CodingKey {
-        case id, topic, length, level, format, voice, instruction, status, title, summary, url, duration
+        case id, topic, length, level, format, voice, instruction, status, title, summary, fileName, duration
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }

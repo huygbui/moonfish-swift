@@ -9,10 +9,13 @@ import SwiftUI
 import SwiftData
 
 struct Podcasts: View {
-    @State private var isPresented: Bool = false
+    @Environment(\.modelContext) private var modelContext: ModelContext
+    @Environment(\.backendClient) private var client: BackendClient
     @Environment(AudioPlayer.self) private var audioPlayer
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
-
+    @State private var apiPodcasts: [CompletedPodcastResponse] = []
+    @State private var isPresented: Bool = false
+    
     var body: some View {
         let topThrees = Array(podcasts.prefix(3))
         let remainings = Array(podcasts.dropFirst(3))
@@ -67,15 +70,25 @@ struct Podcasts: View {
             }
         }
     }
-}
-
-func refresh() async {
-    do {
-        
-    } catch {
-        
+    
+    func refresh() async {
+        do {
+            apiPodcasts = try await client.getCompletedPodcasts()
+            for apiPodcast in apiPodcasts {
+                if let podcast = Podcast(from: apiPodcast) {
+                    modelContext.insert(podcast)
+                }
+            }
+            
+            try modelContext.save()
+            
+        } catch {
+            print("Failed to fetch podcasts: \(error)")
+        }
     }
 }
+
+
 
 #Preview(traits: .audioPlayer) {
     Podcasts()

@@ -51,7 +51,7 @@ struct Requests: View {
         do {
             requests = try await client.getOngoingPodcasts()
         } catch {
-            print("Failed to fetch: \(error)")
+            print("Failed to fetch podcast requests: \(error)")
         }
     }
 }
