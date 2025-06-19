@@ -20,9 +20,18 @@ struct Requests: View {
                 if isLoading {
                     RequestCardPlaceholder()
                 } else {
-                    ForEach(requests) {
-                        RequestCard(request: $0)
+                    LazyVStack {
+                        ForEach(requests) {
+                            RequestCard(request: $0)
+                        }
                     }
+                    .padding(.bottom, {
+                        if #available(iOS 26.0, *) {
+                            return 0
+                        } else {
+                            return 128
+                        }
+                    }())
                 }
             }
             .refreshable { await refresh() }

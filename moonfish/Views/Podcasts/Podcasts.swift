@@ -27,18 +27,20 @@ struct Podcasts: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 32) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Newly Added").font(.headline)
-                        ScrollView(.horizontal) {
-                            LazyHStack {
-                                ForEach(recents) { podcast in
-                                    let viewModel = PodcastViewModel(podcast: podcast)
-                                    PodcastCardHighlight(viewModel: viewModel)
-                                        .frame(width: 256, height: 256)
+                    if !recents.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Newly Added").font(.headline)
+                            ScrollView(.horizontal) {
+                                LazyHStack {
+                                    ForEach(recents) { podcast in
+                                        let viewModel = PodcastViewModel(podcast: podcast)
+                                        PodcastCardHighlight(viewModel: viewModel)
+                                            .frame(width: 256, height: 256)
+                                    }
                                 }
                             }
+                            .scrollIndicators(.hidden)
                         }
-                        .scrollIndicators(.hidden)
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
@@ -50,6 +52,13 @@ struct Podcasts: View {
                             }
                         }
                     }
+                    .padding(.bottom, {
+                        if #available(iOS 26.0, *) {
+                            return 0
+                        } else {
+                            return 128
+                        }
+                    }())
                 }
             }
             .contentMargins(.vertical, 8)
