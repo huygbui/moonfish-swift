@@ -12,6 +12,10 @@ struct PodcastCardMenu: View {
     @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.backendClient) private var client: BackendClient
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var showingDeleteAlert = false
+    
     var viewModel: PodcastViewModel
     
     var body: some View {
@@ -21,7 +25,7 @@ struct PodcastCardMenu: View {
             } label: {
                 HStack {
                     Image(systemName: viewModel.isFavorite ? "heart.fill" : "heart")
-                    Text(viewModel.isFavorite ? "Remove from Favorites" : "Add to Favorites")
+                    Text(viewModel.isFavorite ? "Remove Favorite" : "Add to Favorites")
                 }
             }
             
@@ -35,14 +39,7 @@ struct PodcastCardMenu: View {
             }
             
             Button(role: .destructive) {
-                Task {
-                    await viewModel
-                        .deletePodcast(
-                            audioPlayer: audioPlayer,
-                            client: client,
-                            modelContext: context
-                        )
-                }
+                showingDeleteAlert = true
             } label: {
                 HStack {
                     Image(systemName: "trash")
@@ -56,14 +53,26 @@ struct PodcastCardMenu: View {
                 .frame(width: 24, height: 24)
                 .background(Color(.tertiarySystemBackground), in: .circle)
         }
+        .alert("Delete Episode", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                Task {
+                    await viewModel
+                        .deletePodcast(
+                            audioPlayer: audioPlayer,
+                            client: client,
+                            modelContext: context
+                        )
+                }
+                dismiss()
+            }
+        } message: {
+            Text("This episode will be deleted forever.")
+        }
     }
 }
 
 #Preview(traits: .audioPlayer) {
-    @Previewable @Environment(AudioPlayer.self) var audioPlayer
-    @Previewable @Environment(\.backendClient) var client: BackendClient
-    @Previewable @Environment(\.modelContext) var modelContext: ModelContext
-    
     let podcast = Podcast(
         taskId: 0,
         topic: "Sustainable Urban Gardening",

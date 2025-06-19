@@ -38,6 +38,14 @@ class PodcastViewModel {
     
     // MARK: - Actions
     
+    func toggleFavorite() {
+        podcast.isFavorite.toggle()
+    }
+    
+    func downloadPodcast() {
+        podcast.isDownloaded.toggle()
+    }
+    
     func isPlaying(using audioPlayer: AudioPlayer) -> Bool {
         return audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast
     }
@@ -70,14 +78,6 @@ class PodcastViewModel {
         audioPlayer.skipBackward()
     }
     
-    func toggleFavorite() {
-        podcast.isFavorite.toggle()
-    }
-    
-    func downloadPodcast() {
-        podcast.isDownloaded.toggle()
-    }
-    
     func deletePodcast(audioPlayer: AudioPlayer, client: BackendClient, modelContext: ModelContext) async {
         do {
             if podcast == audioPlayer.currentPodcast {
@@ -91,11 +91,9 @@ class PodcastViewModel {
         }
     }
     
- 
     func setPlaybackRate(rate: Double, audioPlayer: AudioPlayer) {
         audioPlayer.setPlaybackRate(rate)
     }
-    
     
     func currentPlaybackRate(_ audioPlayer: AudioPlayer) -> Double {
         return audioPlayer.playbackRate
