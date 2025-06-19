@@ -26,7 +26,12 @@ struct Root: View {
                 }
             }
             .tabBarMinimizeBehavior(.onScrollDown)
-            .tabViewBottomAccessory { PlayerMini() }
+            .tabViewBottomAccessory {
+                if let podcast = audioPlayer.currentPodcast {
+                    let viewModel = PodcastViewModel(podcast: podcast)
+                    PlayerMini(viewModel: viewModel)
+                }
+            }
         } else {
             TabView(selection: $selectedTab) {
                 ForEach(TabItem.allCases) { tab in
@@ -52,8 +57,9 @@ struct Root: View {
                         .allowsHitTesting(false)
                         
                         VStack {
-                            if audioPlayer.currentPodcast != nil {
-                                PlayerMini()
+                            if let podcast = audioPlayer.currentPodcast {
+                                let viewModel = PodcastViewModel(podcast: podcast)
+                                PlayerMini(viewModel: viewModel)
                                     .frame(width: .infinity, height: 48)
                                     .background(.regularMaterial, in: .capsule)
                                     .brightness(0.1)

@@ -29,6 +29,13 @@ class PodcastViewModel {
     var isFavorite: Bool { podcast.isFavorite }
     var isDownloaded: Bool { podcast.isDownloaded }
     
+    
+    // MARK: - Podcast Playback Options
+    
+    let playbackRateOptions: [Double] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
+    let timerOptions: [Double] = [0, 5, 10, 15, -1]
+
+    
     // MARK: - Actions
     
     func isPlaying(using audioPlayer: AudioPlayer) -> Bool {
@@ -51,6 +58,18 @@ class PodcastViewModel {
         audioPlayer.toggle(podcast)
     }
     
+    func skipForward(_ audioPlayer: AudioPlayer) {
+        if !isPlaying(using: audioPlayer) { return }
+        
+        audioPlayer.skipForward()
+    }
+    
+    func skipBackward(_ audioPlayer: AudioPlayer) {
+        if !isPlaying(using: audioPlayer) { return }
+        
+        audioPlayer.skipBackward()
+    }
+    
     func toggleFavorite() {
         podcast.isFavorite.toggle()
     }
@@ -70,5 +89,23 @@ class PodcastViewModel {
         } catch {
             print("Failed to delete podcast: \(error)")
         }
+    }
+    
+ 
+    func setPlaybackRate(rate: Double, audioPlayer: AudioPlayer) {
+        audioPlayer.setPlaybackRate(rate)
+    }
+    
+    
+    func currentPlaybackRate(_ audioPlayer: AudioPlayer) -> Double {
+        return audioPlayer.playbackRate
+    }
+    
+    func setTimer(timer: Double, audioPlayer: AudioPlayer) {
+        
+    }
+    
+    func currentTimer(_ audioPlayer: AudioPlayer) -> Double {
+       return 0 
     }
 }
