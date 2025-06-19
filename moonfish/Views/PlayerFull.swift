@@ -9,10 +9,13 @@ import SwiftUI
 import SwiftData
 
 struct PlayerFull: View {
+    @Environment(\.modelContext) private var modelContext: ModelContext
     @Environment(AudioPlayer.self) private var audioPlayer
+    @Environment(\.backendClient) private var client: BackendClient
     @Environment(\.dismiss) private var dismiss
     @State private var playbackSpeed: Double = 1.0
     @State private var timer: Double = 0
+    @State private var isPresented: Bool = false
     
     private let speedOptions: [Double] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
     private let timerOptions: [Double] = [0, 5, 10, 15, -1]
@@ -28,6 +31,8 @@ struct PlayerFull: View {
                     .frame(width: 256, height: 256)
                     .foregroundStyle(.secondary)
                     .background(Color.secondary.opacity(0.1), in: .rect(cornerRadius: 16))
+                
+//                PodcastCover()
                 
                 // Track info
                 VStack(spacing: 8) {
@@ -128,10 +133,14 @@ struct PlayerFull: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Favorite", systemImage: "heart") {
-                        // Favorite action
+                    Button("Menu", systemImage: "ellipsis") {
+                        isPresented = true
                     }
                 }
+            }
+            .sheet(isPresented: $isPresented) {
+                Text("Hello")
+                    .presentationDetents([.medium, .large])
             }
         }
     }
