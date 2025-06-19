@@ -9,6 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct PodcastCardMenu: View {
+    @Environment(AudioPlayer.self) private var audioPlayer
+    @Environment(\.modelContext) private var context: ModelContext
+    @Environment(\.backendClient) private var client: BackendClient
     var viewModel: PodcastViewModel
     
     var body: some View {
@@ -17,9 +20,8 @@ struct PodcastCardMenu: View {
                 viewModel.toggleFavorite()
             } label: {
                 HStack {
-                    Image(systemName: viewModel.favoriteImageName)
-                    
-                    Text(viewModel.favoriteText)
+                    Image(systemName: viewModel.isFavorite ? "heart.fill" : "heart")
+                    Text(viewModel.isFavorite ? "Remove from Favorites" : "Add to Favorites")
                 }
             }
             
@@ -27,19 +29,24 @@ struct PodcastCardMenu: View {
                 viewModel.downloadPodcast()
             } label: {
                 HStack {
-                    Image(systemName: viewModel.downloadImageName)
-                    Text(viewModel.downloadText)
+                    Image(systemName: viewModel.isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle")
+                    Text(viewModel.isDownloaded ? "Remove Download" : "Download Episode")
                 }
             }
             
             Button(role: .destructive) {
                 Task {
-                    await viewModel.deletePodcast()
+                    await viewModel
+                        .deletePodcast(
+                            audioPlayer: audioPlayer,
+                            client: client,
+                            modelContext: context
+                        )
                 }
             } label: {
                 HStack {
                     Image(systemName: "trash")
-                    Text("Delete")
+                    Text("Delete Episode")
                 }
             }
            
@@ -72,12 +79,7 @@ struct PodcastCardMenu: View {
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request
     )
     
-    let viewModel = PodcastViewModel.init(
-        podcast: podcast,
-        audioPlayer: audioPlayer,
-        client: client,
-        modelContext: modelContext
-    )
+    let viewModel = PodcastViewModel(podcast: podcast)
     
     PodcastCardMenu(viewModel: viewModel)
 }

@@ -9,6 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct PodcastCard: View {
+    @Environment(AudioPlayer.self) private var audioPlayer
+    @Environment(\.modelContext) private var context: ModelContext
+    @Environment(\.backendClient) private var client: BackendClient
     var viewModel: PodcastViewModel
     
     var body: some View {
@@ -39,9 +42,16 @@ struct PodcastCard: View {
             // Card footer
             HStack {
                 Button {
-                    Task { await viewModel.playPause() }
+                    Task {
+                        await viewModel.playPause(
+                            audioPlayer: audioPlayer,
+                            client: client,
+                            modelContext: context
+                        )
+                    }
                 } label: {
-                    Image(systemName: viewModel.playButtonImageName)
+                    Image(systemName: viewModel.isPlaying(using: audioPlayer)
+                           ? "pause.circle.fill" : "play.circle.fill")
                         .resizable()
                         .frame(width: 32, height: 32)
                 }
@@ -80,12 +90,7 @@ struct PodcastCard: View {
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request
     )
     
-    let viewModel = PodcastViewModel.init(
-        podcast: podcast,
-        audioPlayer: audioPlayer,
-        client: client,
-        modelContext: modelContext
-    )
+    let viewModel = PodcastViewModel.init(podcast: podcast)
     
     ZStack {
         Color(.secondarySystemBackground)

@@ -12,15 +12,9 @@ import SwiftData
 @Observable
 class PodcastViewModel {
     let podcast: Podcast
-    private let audioPlayer: AudioPlayer
-    private let client: BackendClient
-    private let modelContext: ModelContext
     
-    init(podcast: Podcast, audioPlayer: AudioPlayer, client: BackendClient, modelContext: ModelContext) {
+    init(podcast: Podcast) {
         self.podcast = podcast
-        self.audioPlayer = audioPlayer
-        self.client = client
-        self.modelContext = modelContext
     }
     
     // MARK: - Podcast Data Properties
@@ -35,41 +29,13 @@ class PodcastViewModel {
     var isFavorite: Bool { podcast.isFavorite }
     var isDownloaded: Bool { podcast.isDownloaded }
     
-    // MARK: - Computed Properties
-    
-    var isPlaying: Bool {
-        audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast
-    }
-    
-    var playButtonImageName: String {
-        isPlaying ? "pause.circle.fill" : "play.circle.fill"
-    }
-    
-    var playButtonImageNameCompact: String {
-        isPlaying ? "pause.fill" : "play.fill"
-    }
-    
-    var favoriteImageName: String {
-        isFavorite ? "heart.fill" : "heart"
-    }
-    
-    var favoriteText: String {
-        isFavorite ? "Liked" : "Like"
-    }
-    
-    var downloadImageName: String {
-        isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle"
-    }
-    
-    var downloadText: String {
-        isDownloaded ? "Downloaded" : "Download"
-    }
-    
     // MARK: - Actions
     
-    @MainActor
-    func playPause() async {
-        // Check if audio URL needs refreshing
+    func isPlaying(using audioPlayer: AudioPlayer) -> Bool {
+        return audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast
+    }
+    
+    func playPause(audioPlayer: AudioPlayer, client: BackendClient, modelContext: ModelContext) async {
         let currentDate = Date()
         if podcast.expiresAt == nil || currentDate > podcast.expiresAt! {
             do {
@@ -82,30 +48,18 @@ class PodcastViewModel {
                 return
             }
         }
-        
         audioPlayer.toggle(podcast)
     }
     
     func toggleFavorite() {
         podcast.isFavorite.toggle()
-        do {
-            try modelContext.save()
-        } catch {
-            print("Failed to save favorite state: \(error)")
-        }
     }
     
     func downloadPodcast() {
         podcast.isDownloaded.toggle()
-        do {
-            try modelContext.save()
-        } catch {
-            print("Failed to save download state: \(error)")
-        }
     }
     
-    @MainActor
-    func deletePodcast() async {
+    func deletePodcast(audioPlayer: AudioPlayer, client: BackendClient, modelContext: ModelContext) async {
         do {
             if podcast == audioPlayer.currentPodcast {
                 audioPlayer.pause()

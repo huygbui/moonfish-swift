@@ -32,12 +32,7 @@ struct Podcasts: View {
                         ScrollView(.horizontal) {
                             LazyHStack {
                                 ForEach(recents) { podcast in
-                                    let viewModel = PodcastViewModel(
-                                        podcast: podcast,
-                                        audioPlayer: audioPlayer,
-                                        client: client,
-                                        modelContext: modelContext
-                                    )
+                                    let viewModel = PodcastViewModel(podcast: podcast)
                                     PodcastCardHighlight(viewModel: viewModel)
                                         .frame(width: 256, height: 256)
                                 }
@@ -50,12 +45,7 @@ struct Podcasts: View {
                         Text("Past Tracks").font(.headline)
                         LazyVStack(spacing: 8) {
                             ForEach(pasts){ podcast  in
-                                let viewModel = PodcastViewModel(
-                                    podcast: podcast,
-                                    audioPlayer: audioPlayer,
-                                    client: client,
-                                    modelContext: modelContext
-                                )
+                                let viewModel = PodcastViewModel(podcast: podcast)
                                 PodcastCard(viewModel: viewModel)
                             }
                         }

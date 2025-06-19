@@ -133,14 +133,11 @@ struct PlayerFull: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Menu", systemImage: "ellipsis") {
-                        isPresented = true
+                    if let podcast = audioPlayer.currentPodcast {
+                        let viewModel = PodcastViewModel(podcast: podcast)
+                        PodcastCardMenu(viewModel: viewModel)
                     }
                 }
-            }
-            .sheet(isPresented: $isPresented) {
-                Text("Hello")
-                    .presentationDetents([.medium, .large])
             }
         }
     }
