@@ -13,28 +13,19 @@ struct PodcastCard: View {
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.backendClient) private var client: BackendClient
     var viewModel: PodcastViewModel
+    var podcast: Podcast
     
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
             // Card header
             VStack(alignment: .leading, spacing: 0) {
                 // Card title
-                HStack(spacing: 16) {
-                    Text(viewModel.title)
-                        .font(.body)
-                        .lineLimit(1)
-                }
+                Text(podcast.title)
+                    .font(.body)
+                    .lineLimit(1)
                 
                 // Card subtitle
-                HStack {
-                    Text(viewModel.createdAt)
-                    Text(" • ") +
-                    Text(viewModel.length) +
-                    Text(", ") +
-                    Text(viewModel.format) +
-                    Text(", ") +
-                    Text(viewModel.level)
-                }
+                Text("\(podcast.formattedDate) • \(podcast.details)")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
@@ -55,7 +46,7 @@ struct PodcastCard: View {
                         .resizable()
                         .frame(width: 32, height: 32)
                 }
-                Text(viewModel.duration, format: .units(allowed: [.hours, .minutes], width: .abbreviated))
+                Text(podcast.formattedDuration)
                     .foregroundStyle(.secondary)
                 
                 Spacer()
@@ -95,7 +86,7 @@ struct PodcastCard: View {
     ZStack {
         Color(.secondarySystemBackground)
         
-        PodcastCard(viewModel: viewModel)
+        PodcastCard(viewModel: viewModel, podcast: podcast)
     }
     .ignoresSafeArea()
 }

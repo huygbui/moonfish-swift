@@ -21,7 +21,7 @@ class PodcastViewModel {
     
     var title: String { podcast.title }
     var summary: String { podcast.summary }
-    var createdAt: String { podcast.createdAt.formatted(dateStyle) }
+    var createdAt: String { podcast.formattedDate }
     var duration: Duration { Duration.seconds(podcast.duration) }
     var length: String { podcast.length.localizedCapitalized }
     var format: String { podcast.format.localizedCapitalized }

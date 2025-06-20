@@ -48,7 +48,7 @@ struct PodcastsRoot: View {
                         LazyVStack(spacing: 8) {
                             ForEach(pasts){ podcast  in
                                 let viewModel = PodcastViewModel(podcast: podcast)
-                                PodcastCard(viewModel: viewModel)
+                                PodcastCard(viewModel: viewModel, podcast: podcast)
                             }
                         }
                     }

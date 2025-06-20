@@ -56,7 +56,7 @@ struct SearchRoot: View {
                     LazyVStack(alignment: .leading) {
                         ForEach(filteredPodcasts) { podcast in
                             let viewModel = PodcastViewModel(podcast: podcast)
-                            PodcastCard(viewModel: viewModel)
+                            PodcastCard(viewModel: viewModel, podcast: podcast)
                         }
                     }
                 }
