@@ -18,51 +18,43 @@ struct PodcastCardHighlight: View {
 
     var body: some View {
         VStack(alignment: .leading) {
+            // Card header
             VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(viewModel.title)
-                        .lineLimit(2)
-                }
+                Text(podcast.title)
                 
-                
-                (Text(viewModel.duration, format: .units(allowed: [.hours, .minutes], width: .abbreviated))
-                    .font(.subheadline) +
-                 Text(" • ")
-                    .font(.subheadline) +
-                 Text(viewModel.summary)
-                    .font(.subheadline)
+                (Text(podcast.duration.hoursMinutes) +
+                 Text(" • ") +
+                 Text(podcast.summary)
                     .foregroundStyle(.secondary)
                 )
+                .font(.subheadline)
                 .lineLimit(3)
-                 
             }
+            
             Spacer()
             
             // Card footer
-            VStack(spacing: 16) {
+            HStack(spacing: 16) {
+                Spacer()
                 
-                HStack(spacing: 16) {
-                    Spacer()
-                    
-                    PodcastCardMenu(viewModel: viewModel).foregroundStyle(.secondary)
-                    
-                    Button {
-                        Task {
-                            await viewModel.playPause(
-                                audioPlayer: audioPlayer,
-                                client: client,
-                                modelContext: context
-                            )
-                        }
-                    } label: {
-                        Image(systemName: viewModel.isPlaying(using: audioPlayer)
-                              ? "pause.circle.fill" : "play.circle.fill")
-                            .resizable()
-                            .frame(width: 32, height: 32)
+                PodcastCardMenu(viewModel: viewModel).foregroundStyle(.secondary)
+                
+                Button {
+                    Task {
+                        await viewModel.playPause(
+                            audioPlayer: audioPlayer,
+                            client: client,
+                            modelContext: context
+                        )
                     }
+                } label: {
+                    Image(systemName: viewModel.isPlaying(using: audioPlayer)
+                          ? "pause.circle.fill" : "play.circle.fill")
+                    .resizable()
+                    .frame(width: 32, height: 32)
                 }
-                .foregroundStyle(.primary)
             }
+            .foregroundStyle(.primary)
         }
         .padding()
         .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 16))
@@ -70,12 +62,7 @@ struct PodcastCardHighlight: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    @Previewable @Environment(AudioPlayer.self) var audioPlayer
-    @Previewable @Environment(\.backendClient) var client: BackendClient
-    @Previewable @Environment(\.modelContext) var modelContext: ModelContext
-    
     let podcast: Podcast = .preview
-    
     let viewModel = PodcastViewModel(podcast: podcast)
     
     ZStack {
