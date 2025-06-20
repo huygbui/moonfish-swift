@@ -12,3 +12,9 @@ extension Double {
         Duration.seconds(self).formatted(.units(allowed: [.hours, .minutes], width: .abbreviated))
     }
 }
+
+extension Date {
+    var compact: String {
+        self.formatted(Date.FormatStyle().year(.twoDigits).month().day())
+    }
+}

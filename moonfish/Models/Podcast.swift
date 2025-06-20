@@ -90,20 +90,6 @@ final class Podcast {
 }
 
 extension Podcast {
-    var formattedDate: String {
-        return createdAt.formatted(Date.FormatStyle().year(.twoDigits).month().day())
-    }
-    
-    var formattedDuration: String {
-        return  Duration.seconds(duration).formatted(.units(allowed: [.hours, .minutes], width: .abbreviated))
-    }
-    
-    var details: String {
-        return "\(length), \(format), \(level)"
-    }
-}
-
-extension Podcast {
     @MainActor
     static var preview = Podcast(
         taskId: 0,

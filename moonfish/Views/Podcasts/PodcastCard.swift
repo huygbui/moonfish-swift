@@ -25,9 +25,13 @@ struct PodcastCard: View {
                     .lineLimit(1)
                 
                 // Card subtitle
-                (Text(podcast.duration.hoursMinutes) +
-                 Text(" • ") +
-                 Text(podcast.details))
+                Text("""
+                    \(podcast.createdAt.compact) • \
+                    \(podcast.length.localizedCapitalized), \
+                    \(podcast.format.localizedCapitalized), \
+                    \(podcast.level.localizedCapitalized)
+                    """
+                )
                     .font(.caption)
                     .lineLimit(1)
                     .foregroundStyle(.secondary)
@@ -49,7 +53,7 @@ struct PodcastCard: View {
                         .resizable()
                         .frame(width: 32, height: 32)
                 }
-                Text(podcast.formattedDuration)
+                Text(podcast.duration.hoursMinutes)
                     .foregroundStyle(.secondary)
                 
                 Spacer()
