@@ -22,7 +22,7 @@ final class Podcast {
     var title: String
     var summary: String
     var fileName: String
-    var duration: Int
+    var duration: Double
     var createdAt: Date
     var isFavorite: Bool
     var isDownloaded: Bool
@@ -43,7 +43,7 @@ final class Podcast {
         title: String,
         summary: String,
         fileName: String,
-        duration: Int,
+        duration: Double,
         createdAt: Date,
         isFavorite: Bool = false,
         isDownloaded: Bool = false,
@@ -101,6 +101,24 @@ extension Podcast {
     var details: String {
         return "\(length), \(format), \(level)"
     }
+}
+
+extension Podcast {
+    @MainActor
+    static var preview = Podcast(
+        taskId: 0,
+        topic: "Sustainable Urban Gardening",
+        length: "short",
+        level: "beginner",
+        format: "conversational",
+        voice: "female",
+        title: "Beginner's Guide to Gardening in the Far East",
+        summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
+//        transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
+        fileName: "gardening_beginner.mp3",
+        duration: 620, // about 10 minutes
+        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request
+    )
 }
 
 enum PodcastLength: String, Identifiable, CaseIterable, Codable {

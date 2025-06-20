@@ -21,7 +21,7 @@ struct CompletedPodcastResponse: Codable, Identifiable {
     var title: String
     var summary: String
     var fileName: String
-    var duration: Int
+    var duration: Double
     
     var createdAt: Date
     var updatedAt: Date
