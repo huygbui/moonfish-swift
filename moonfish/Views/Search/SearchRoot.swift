@@ -103,6 +103,6 @@ enum FilterItem: String, Identifiable, CaseIterable {
     var id: Self { self }
 }
 
-#Preview(traits: .audioPlayer) {
+#Preview(traits: .audioPlayerTrait) {
     SearchRoot()
 }

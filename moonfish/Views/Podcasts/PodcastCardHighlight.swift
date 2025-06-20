@@ -67,7 +67,7 @@ struct PodcastCardHighlight: View {
     }
 }
 
-#Preview(traits: .audioPlayer) {
+#Preview(traits: .audioPlayerTrait) {
     @Previewable @Environment(AudioPlayer.self) var audioPlayer
     @Previewable @Environment(\.backendClient) var client: BackendClient
     @Previewable @Environment(\.modelContext) var modelContext: ModelContext

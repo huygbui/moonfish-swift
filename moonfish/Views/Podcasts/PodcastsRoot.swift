@@ -94,6 +94,6 @@ struct PodcastsRoot: View {
 
 
 
-#Preview(traits: .audioPlayer) {
+#Preview(traits: .audioPlayerTrait) {
     PodcastsRoot()
 }

@@ -77,6 +77,6 @@ struct Root: View {
     }
 }
 
-#Preview(traits: .audioPlayer) {
+#Preview(traits: .audioPlayerTrait) {
     Root()
 }

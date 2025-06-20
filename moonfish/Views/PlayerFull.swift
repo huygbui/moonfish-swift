@@ -163,7 +163,7 @@ private func formatTimer(_ time: Double) -> String {
     }
 }
 
-#Preview(traits: .audioPlayer) {
+#Preview(traits: .audioPlayerTrait) {
     let podcast = Podcast(
         taskId: 0,
         topic: "Sustainable Urban Gardening",

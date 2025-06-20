@@ -36,5 +36,5 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
 
 // Extension for easy access
 extension PreviewTrait where T == Preview.ViewTraits {
-    @MainActor static var audioPlayer: Self = .modifier(AudioPlayerPreviewModifier())
+    @MainActor static var audioPlayerTrait: Self = .modifier(AudioPlayerPreviewModifier())
 }

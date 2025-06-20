@@ -49,7 +49,7 @@ struct PlayerMini: View {
     }
 }
 
-#Preview(traits: .audioPlayer) {
+#Preview(traits: .audioPlayerTrait) {
     let podcast = Podcast(
         taskId: 0,
         topic: "Sustainable Urban Gardening",
