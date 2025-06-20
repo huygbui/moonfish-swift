@@ -32,7 +32,7 @@ struct PlayerFull: View {
                 
                 // Track info
                 VStack(spacing: 8) {
-                    Text(viewModel.title)
+                    Text(audioPlayer.currentPodcast?.title ?? "")
                         .font(.title2)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
@@ -139,7 +139,7 @@ struct PlayerFull: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     if let podcast = audioPlayer.currentPodcast {
                         let viewModel = PodcastViewModel(podcast: podcast)
-                        PodcastCardMenu(viewModel: viewModel)
+                        PodcastCardMenu(viewModel: viewModel, podcast: podcast)
                     }
                 }
             }

@@ -17,7 +17,7 @@ struct PlayerMini: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Text(viewModel.title)
+            Text(audioPlayer.currentPodcast?.title ?? "")
                 .font(.footnote)
                 .fontWeight(.medium)
                 .lineLimit(1)
@@ -33,7 +33,7 @@ struct PlayerMini: View {
                     )
                 }
             } label: {
-                Image(systemName: viewModel.isPlaying(using: audioPlayer) ? "pause.fill" : "play.fill")
+                Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
             }
             
             // Forward 15 seconds

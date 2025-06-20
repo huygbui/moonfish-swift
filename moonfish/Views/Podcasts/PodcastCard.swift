@@ -58,7 +58,7 @@ struct PodcastCard: View {
                 
                 Spacer()
                 
-                PodcastCardMenu(viewModel: viewModel).foregroundStyle(.secondary)
+                PodcastCardMenu(viewModel: viewModel, podcast: podcast).foregroundStyle(.secondary)
             }
             .foregroundStyle(.primary)
             .font(.caption)

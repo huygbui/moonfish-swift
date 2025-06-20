@@ -17,18 +17,6 @@ class PodcastViewModel {
         self.podcast = podcast
     }
     
-    // MARK: - Podcast Data Properties
-    
-    var title: String { podcast.title }
-    var summary: String { podcast.summary }
-    var duration: Duration { Duration.seconds(podcast.duration) }
-    var length: String { podcast.length.localizedCapitalized }
-    var format: String { podcast.format.localizedCapitalized }
-    var level: String { podcast.level.localizedCapitalized }
-    var isFavorite: Bool { podcast.isFavorite }
-    var isDownloaded: Bool { podcast.isDownloaded }
-    
-    
     // MARK: - Podcast Playback Options
     
     let playbackRateOptions: [Double] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]

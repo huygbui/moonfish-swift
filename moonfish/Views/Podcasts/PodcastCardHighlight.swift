@@ -37,7 +37,7 @@ struct PodcastCardHighlight: View {
             HStack(spacing: 16) {
                 Spacer()
                 
-                PodcastCardMenu(viewModel: viewModel).foregroundStyle(.secondary)
+                PodcastCardMenu(viewModel: viewModel, podcast: podcast).foregroundStyle(.secondary)
                 
                 Button {
                     Task {
