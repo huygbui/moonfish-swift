@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct PodcastCardMenu: View {
+    
     @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.backendClient) private var client: BackendClient

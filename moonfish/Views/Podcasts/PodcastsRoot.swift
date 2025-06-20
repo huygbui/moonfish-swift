@@ -34,7 +34,7 @@ struct PodcastsRoot: View {
                                 LazyHStack {
                                     ForEach(recents) { podcast in
                                         let viewModel = PodcastViewModel(podcast: podcast)
-                                        PodcastCardHighlight(viewModel: viewModel)
+                                        PodcastCardHighlight(viewModel: viewModel, podcast: podcast)
                                             .frame(width: 256, height: 256)
                                     }
                                 }
