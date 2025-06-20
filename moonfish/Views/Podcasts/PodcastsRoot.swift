@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct Podcasts: View {
+struct PodcastsRoot: View {
     @Environment(\.modelContext) private var modelContext: ModelContext
     @Environment(\.backendClient) private var client: BackendClient
     @Environment(AudioPlayer.self) private var audioPlayer
@@ -95,5 +95,5 @@ struct Podcasts: View {
 
 
 #Preview(traits: .audioPlayer) {
-    Podcasts()
+    PodcastsRoot()
 }

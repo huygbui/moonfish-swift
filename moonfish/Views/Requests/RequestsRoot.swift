@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Requests: View {
+struct RequestsRoot: View {
     @Environment(\.backendClient) private var client: BackendClient
     @State private var isPresented: Bool = false
     @State private var isLoading: Bool = false
@@ -68,7 +68,7 @@ struct Requests: View {
 #Preview {
     let client = BackendClient()
     
-    Requests()
+    RequestsRoot()
         .modelContainer(SampleData.shared.modelContainer)
         .environment(\.backendClient, client)
 }

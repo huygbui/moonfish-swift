@@ -17,13 +17,9 @@ struct Root: View {
     var body: some View {
         if #available(iOS 26.0, *) {
             TabView {
-                Tab("Podcasts", systemImage: "play.square.stack") {
-                    Podcasts()
-                }
-                Tab("Requests", systemImage: "tray") {Requests()}
-                Tab(role: .search) {
-                    Search()
-                }
+                Tab("Podcasts", systemImage: "play.square.stack") { PodcastsRoot() }
+                Tab("Requests", systemImage: "tray") { RequestsRoot()}
+                Tab(role: .search) { SearchRoot() }
             }
             .tabBarMinimizeBehavior(.onScrollDown)
             .tabViewBottomAccessory {

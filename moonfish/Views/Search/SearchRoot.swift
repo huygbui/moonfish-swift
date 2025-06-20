@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct Search: View {
+struct SearchRoot: View {
     @Environment(\.modelContext) private var modelContext: ModelContext
     @Environment(\.backendClient) private var client: BackendClient
     @Environment(AudioPlayer.self) private var audioPlayer
@@ -104,5 +104,5 @@ enum FilterItem: String, Identifiable, CaseIterable {
 }
 
 #Preview(traits: .audioPlayer) {
-    Search()
+    SearchRoot()
 }
