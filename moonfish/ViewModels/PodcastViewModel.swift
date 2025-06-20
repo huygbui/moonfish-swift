@@ -11,35 +11,13 @@ import SwiftData
 @MainActor
 @Observable
 class PodcastViewModel {
-    let podcast: Podcast
-    
-    init(podcast: Podcast) {
-        self.podcast = podcast
-    }
-    
-    // MARK: - Podcast Playback Options
+    private let client = BackendClient()
     
     let playbackRateOptions: [Double] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
     let timerOptions: [Double] = [0, 5, 10, 15, -1]
-
     
-    // MARK: - Actions
-    
-    func toggleFavorite() {
-        podcast.isFavorite.toggle()
-    }
-    
-    func downloadPodcast() {
-        podcast.isDownloaded.toggle()
-    }
-    
-    func isPlaying(using audioPlayer: AudioPlayer) -> Bool {
-        return audioPlayer.isPlaying && audioPlayer.currentPodcast == podcast
-    }
-    
-    func playPause(audioPlayer: AudioPlayer, client: BackendClient, modelContext: ModelContext) async {
-        let currentDate = Date()
-        if podcast.expiresAt == nil || currentDate > podcast.expiresAt! {
+    func refreshAudioURL(_ podcast: Podcast, modelContext: ModelContext) async {
+        if podcast.expiresAt == nil || Date() > podcast.expiresAt! {
             do {
                 let audio = try await client.getPodcastAudio(id: podcast.taskId)
                 podcast.url = audio.url
@@ -47,50 +25,38 @@ class PodcastViewModel {
                 try modelContext.save()
             } catch {
                 print("Failed to fetch podcast audio: \(error)")
-                return
             }
         }
-        audioPlayer.toggle(podcast)
     }
     
-    func skipForward(_ audioPlayer: AudioPlayer) {
-        if !isPlaying(using: audioPlayer) { return }
-        
-        audioPlayer.skipForward()
-    }
-    
-    func skipBackward(_ audioPlayer: AudioPlayer) {
-        if !isPlaying(using: audioPlayer) { return }
-        
-        audioPlayer.skipBackward()
-    }
-    
-    func deletePodcast(audioPlayer: AudioPlayer, client: BackendClient, modelContext: ModelContext) async {
+    func refresh(_ context: ModelContext) async {
         do {
-            if podcast == audioPlayer.currentPodcast {
-                audioPlayer.pause()
-                audioPlayer.currentPodcast = nil
+            let serverPodcasts = try await client.getCompletedPodcasts()
+            for serverPodcast in serverPodcasts {
+                if let podcast = Podcast(from: serverPodcast) {
+                    context.insert(podcast)
+                }
             }
-            modelContext.delete(podcast)
+            try context.save()
+        } catch {
+            print("Failed to fetch podcasts: \(error)")
+        }
+    }
+    
+    func delete(_ podcast: Podcast, context: ModelContext) async {
+        do {
             try await client.deletePodcast(id: podcast.taskId)
+            context.delete(podcast)
         } catch {
             print("Failed to delete podcast: \(error)")
         }
     }
     
-    func setPlaybackRate(rate: Double, audioPlayer: AudioPlayer) {
-        audioPlayer.setPlaybackRate(rate)
+    func toggleFavorite(_ podcast: Podcast) {
+        podcast.isFavorite.toggle()
     }
     
-    func currentPlaybackRate(_ audioPlayer: AudioPlayer) -> Double {
-        return audioPlayer.playbackRate
-    }
-    
-    func setTimer(timer: Double, audioPlayer: AudioPlayer) {
-        
-    }
-    
-    func currentTimer(_ audioPlayer: AudioPlayer) -> Double {
-       return 0 
+    func download(_ podcast: Podcast) {
+        podcast.isDownloaded.toggle()
     }
 }

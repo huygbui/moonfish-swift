@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RequestsRoot: View {
-    @Environment(\.backendClient) private var client: BackendClient
+
     @State private var isPresented: Bool = false
     @State private var isLoading: Bool = false
     @State var requests = [OngoingPodcastResponse]()
@@ -57,18 +57,15 @@ struct RequestsRoot: View {
     }
     
     func refresh() async {
-        do {
-            requests = try await client.getOngoingPodcasts()
-        } catch {
-            print("Failed to fetch podcast requests: \(error)")
-        }
+//        do {
+//            requests = try await client.getOngoingPodcasts()
+//        } catch {
+//            print("Failed to fetch podcast requests: \(error)")
+//        }
     }
 }
 
 #Preview {
-    let client = BackendClient()
-    
     RequestsRoot()
         .modelContainer(SampleData.shared.modelContainer)
-        .environment(\.backendClient, client)
 }

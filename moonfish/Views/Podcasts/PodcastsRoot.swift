@@ -9,32 +9,25 @@ import SwiftUI
 import SwiftData
 
 struct PodcastsRoot: View {
-    @Environment(\.modelContext) private var modelContext: ModelContext
-    @Environment(\.backendClient) private var client: BackendClient
+    @Environment(PodcastViewModel.self) private var viewModel
     @Environment(AudioPlayer.self) private var audioPlayer
+    @Environment(\.modelContext) private var context: ModelContext
     
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
     
-    @State private var apiPodcasts: [CompletedPodcastResponse] = []
-    @State private var isPresented: Bool = false
+    @State private var showingAccountSheet: Bool = false
     
     var body: some View {
-        // Calculate date 3 days ago
-        let threeDaysInSeconds: TimeInterval = 3 * 24 * 60 * 60
-        let recents = podcasts.filter { $0.createdAt.timeIntervalSinceNow > -threeDaysInSeconds }
-        let pasts = podcasts.filter { $0.createdAt.timeIntervalSinceNow <= -threeDaysInSeconds }
-        
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 32) {
-                    if !recents.isEmpty {
+                    if !recentPodcasts.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Newly Added").font(.headline)
                             ScrollView(.horizontal) {
                                 LazyHStack {
-                                    ForEach(recents) { podcast in
-                                        let viewModel = PodcastViewModel(podcast: podcast)
-                                        PodcastCardHighlight(viewModel: viewModel, podcast: podcast)
+                                    ForEach(recentPodcasts) {
+                                        PodcastCardHighlight(podcast: $0)
                                             .frame(width: 256, height: 256)
                                     }
                                 }
@@ -46,9 +39,8 @@ struct PodcastsRoot: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Past Tracks").font(.headline)
                         LazyVStack(spacing: 8) {
-                            ForEach(pasts){ podcast  in
-                                let viewModel = PodcastViewModel(podcast: podcast)
-                                PodcastCard(viewModel: viewModel, podcast: podcast)
+                            ForEach(pastPodcasts){
+                                PodcastCard(podcast: $0)
                             }
                         }
                     }
@@ -67,32 +59,27 @@ struct PodcastsRoot: View {
             .navigationTitle("Podcasts")
             .toolbar {
                 ToolbarItem {
-                    Button(action: { isPresented = true }) {
-                        Image(systemName: "person")
+                    Button(action: { showingAccountSheet = true }) {
+                        Label(
+                            "Account",
+                            systemImage: "person"
+                        )
                     }
                 }
             }
-            .sheet(isPresented: $isPresented) { AccountSheet() }
-            .task { await refresh() }
+            .sheet(isPresented: $showingAccountSheet) { AccountSheet() }
+            .task { await viewModel.refresh(context) }
         }
-    }
-    
-    func refresh() async {
-        do {
-            apiPodcasts = try await client.getCompletedPodcasts()
-            for apiPodcast in apiPodcasts {
-                if let podcast = Podcast(from: apiPodcast) {
-                    modelContext.insert(podcast)
-                }
-            }
-            try modelContext.save()
-        } catch {
-            print("Failed to fetch podcasts: \(error)")
+        
+        var recentPodcasts: [Podcast] {
+            podcasts.filter { $0.createdAt.timeIntervalSinceNow > -3 * 24 * 60 * 60 }
+        }
+        
+        var pastPodcasts: [Podcast] {
+            podcasts.filter { $0.createdAt.timeIntervalSinceNow <= -3 * 24 * 60 * 60 }
         }
     }
 }
-
-
 
 #Preview(traits: .audioPlayerTrait) {
     PodcastsRoot()

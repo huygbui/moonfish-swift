@@ -9,9 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct PlayerFull: View {
-    var viewModel: PodcastViewModel
+    var podcast: Podcast
+    @Environment(PodcastViewModel.self) private var viewModel
     @Environment(AudioPlayer.self) private var audioPlayer
-    @Environment(\.backendClient) private var client: BackendClient
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) private var dismiss
     @State private var isPresented: Bool = false
@@ -28,7 +28,7 @@ struct PlayerFull: View {
                     .foregroundStyle(.secondary)
                     .background(Color.secondary.opacity(0.1), in: .rect(cornerRadius: 16))
                 
-//                PodcastCover()
+                // PodcastCover()
                 
                 // Track info
                 VStack(spacing: 8) {
@@ -66,25 +66,25 @@ struct PlayerFull: View {
                 ZStack {
                     // Main controls
                     HStack(spacing: 32) {
-                        Button(action: { viewModel.skipBackward(audioPlayer) }) {
+                        Button(action: { audioPlayer.skipBackward() }) {
                             Image(systemName: "gobackward.15")
                                 .font(.title)
                         }
                         
                         Button{
                             Task {
-                                await viewModel.playPause(
-                                    audioPlayer: audioPlayer,
-                                    client: client,
+                                await viewModel.refreshAudioURL(
+                                    podcast,
                                     modelContext: context
                                 )
+                                audioPlayer.toggle(podcast)
                             }
                         } label: {
-                            Image(systemName: viewModel.isPlaying(using: audioPlayer) ? "pause.circle.fill" : "play.circle.fill")
+                            Image(systemName: audioPlayer.isPlaying(podcast) ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 64))
                         }
                         
-                        Button(action: { viewModel.skipForward(audioPlayer) }) {
+                        Button(action: { audioPlayer.skipForward() }) {
                             Image(systemName: "goforward.15")
                                 .font(.title)
                         }
@@ -96,14 +96,16 @@ struct PlayerFull: View {
                         Menu {
                             ForEach(viewModel.playbackRateOptions, id: \.self) { rate in
                                 Button {
-                                    viewModel.setPlaybackRate(rate: rate, audioPlayer: audioPlayer)
+                                    audioPlayer.setPlaybackRate(rate)
                                 } label: {
-                                    Label(formatRate(rate),
-                                          systemImage: viewModel.currentPlaybackRate(audioPlayer) == rate ? "checkmark" : "")
+                                    Label(
+                                        formatRate(rate),
+                                        systemImage: audioPlayer.playbackRate == rate ? "checkmark" : ""
+                                    )
                                 }
                             }
                         } label: {
-                            Text(formatRate(viewModel.currentPlaybackRate(audioPlayer)))
+                            Text(formatRate(audioPlayer.playbackRate))
                                 .font(.title3)
                         }
                         
@@ -113,10 +115,12 @@ struct PlayerFull: View {
                         Menu {
                             ForEach(viewModel.timerOptions, id: \.self) { timer in
                                 Button {
-                                    viewModel.setTimer(timer: timer, audioPlayer: audioPlayer)
+                                    // viewModel.setTimer(timer: timer, audioPlayer: audioPlayer)
                                 } label: {
-                                    Label(formatTimer(timer),
-                                          systemImage: viewModel.currentTimer(audioPlayer) == timer ? "checkmark" : "")
+                                    Label(
+                                        formatTimer(timer),
+                                        systemImage: audioPlayer.timer == timer ? "checkmark" : ""
+                                    )
                                 }
                             }
                         } label: {
@@ -126,7 +130,7 @@ struct PlayerFull: View {
                     }
                     .foregroundStyle(.secondary)
                 }
-
+                
                 Spacer()
             }
             .padding(.horizontal, 16)
@@ -137,10 +141,7 @@ struct PlayerFull: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    if let podcast = audioPlayer.currentPodcast {
-                        let viewModel = PodcastViewModel(podcast: podcast)
-                        PodcastCardMenu(viewModel: viewModel, podcast: podcast)
-                    }
+                    PodcastCardMenu(podcast: podcast)
                 }
             }
         }
@@ -164,21 +165,5 @@ private func formatTimer(_ time: Double) -> String {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    let podcast = Podcast(
-        taskId: 0,
-        topic: "Sustainable Urban Gardening",
-        length: PodcastLength.medium.rawValue,
-        level: PodcastLevel.intermediate.rawValue,
-        format: PodcastFormat.conversational.rawValue,
-        voice: PodcastVoice.female.rawValue,
-        title: "Beginner's Guide to Gardening in the Far East",
-        summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
-//        transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
-        fileName: "gardening_beginner.mp3",
-        duration: 620, // about 10 minutes
-        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request
-    )
-    let viewModel = PodcastViewModel(podcast: podcast)
-    
-    PlayerFull(viewModel: viewModel)
+    PlayerFull(podcast: .preview)
 }

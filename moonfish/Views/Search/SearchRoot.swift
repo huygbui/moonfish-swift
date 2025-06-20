@@ -9,9 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct SearchRoot: View {
-    @Environment(\.modelContext) private var modelContext: ModelContext
-    @Environment(\.backendClient) private var client: BackendClient
+    @Environment(PodcastViewModel.self) private var viewModel
     @Environment(AudioPlayer.self) private var audioPlayer
+    @Environment(\.modelContext) private var modelContext: ModelContext
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
     
     @State private var apiPodcasts: [CompletedPodcastResponse] = []
@@ -55,8 +55,7 @@ struct SearchRoot: View {
                     
                     LazyVStack(alignment: .leading) {
                         ForEach(filteredPodcasts) { podcast in
-                            let viewModel = PodcastViewModel(podcast: podcast)
-                            PodcastCard(viewModel: viewModel, podcast: podcast)
+                            PodcastCard(podcast: podcast)
                         }
                     }
                 }
@@ -81,17 +80,17 @@ struct SearchRoot: View {
     }
     
     func refresh() async {
-        do {
-            apiPodcasts = try await client.getCompletedPodcasts()
-            for apiPodcast in apiPodcasts {
-                if let podcast = Podcast(from: apiPodcast) {
-                    modelContext.insert(podcast)
-                }
-            }
-            try modelContext.save()
-        } catch {
-            print("Failed to fetch podcasts: \(error)")
-        }
+//        do {
+//            apiPodcasts = try await client.getCompletedPodcasts()
+//            for apiPodcast in apiPodcasts {
+//                if let podcast = Podcast(from: apiPodcast) {
+//                    modelContext.insert(podcast)
+//                }
+//            }
+//            try modelContext.save()
+//        } catch {
+//            print("Failed to fetch podcasts: \(error)")
+//        }
     }
 }
     

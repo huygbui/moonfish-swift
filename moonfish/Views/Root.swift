@@ -23,9 +23,8 @@ struct Root: View {
             }
             .tabBarMinimizeBehavior(.onScrollDown)
             .tabViewBottomAccessory {
-                if let podcast = audioPlayer.currentPodcast {
-                    let viewModel = PodcastViewModel(podcast: podcast)
-                    PlayerMini(viewModel: viewModel)
+                if audioPlayer.currentPodcast != nil {
+                    PlayerMini()
                 }
             }
         } else {
@@ -53,9 +52,8 @@ struct Root: View {
                         .allowsHitTesting(false)
                         
                         VStack {
-                            if let podcast = audioPlayer.currentPodcast {
-                                let viewModel = PodcastViewModel(podcast: podcast)
-                                PlayerMini(viewModel: viewModel)
+                            if audioPlayer.currentPodcast != nil {
+                                PlayerMini()
                                     .frame(width: .infinity, height: 48)
                                     .background(.regularMaterial, in: .capsule)
                                     .brightness(0.1)

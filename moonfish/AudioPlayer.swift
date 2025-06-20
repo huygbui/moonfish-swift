@@ -11,18 +11,17 @@ import AVFoundation
 @Observable
 @MainActor
 final class AudioPlayer {
-    static let shared = AudioPlayer()
-    
     var player: AVPlayer?
     var currentPodcast: Podcast?
     var isPlaying = false
     var currentTime: Double = 0
     var duration: Double = 0
     var playbackRate: Double = 1.0
+    var timer: Double = 0.0
     
     private var timeObserverToken: Any?
 
-    private init() {
+    init() {
         setupAudioSession()
     }
     
@@ -113,5 +112,9 @@ final class AudioPlayer {
         if isPlaying {
             player?.rate = Float(rate)
         }
+    }
+    
+    func isPlaying(_ podcast: Podcast) -> Bool {
+        currentPodcast == podcast && isPlaying
     }
 }

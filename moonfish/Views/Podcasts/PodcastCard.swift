@@ -11,8 +11,7 @@ import SwiftData
 struct PodcastCard: View {
     @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
-    @Environment(\.backendClient) private var client: BackendClient
-    var viewModel: PodcastViewModel
+    @Environment(PodcastViewModel.self) private var viewModel
     var podcast: Podcast
     
     var body: some View {
@@ -41,26 +40,28 @@ struct PodcastCard: View {
             HStack {
                 Button {
                     Task {
-                        await viewModel.playPause(
-                            audioPlayer: audioPlayer,
-                            client: client,
+                        await viewModel.refreshAudioURL(
+                            podcast,
                             modelContext: context
                         )
+                        
+                        audioPlayer.toggle(podcast)
                     }
                 } label: {
-                    Image(systemName: viewModel.isPlaying(using: audioPlayer)
+                    Image(systemName: audioPlayer.isPlaying(podcast)
                            ? "pause.circle.fill" : "play.circle.fill")
                         .resizable()
                         .frame(width: 32, height: 32)
                 }
+                .foregroundStyle(.primary)
+                
                 Text(podcast.duration.hoursMinutes)
-                    .foregroundStyle(.secondary)
                 
                 Spacer()
                 
-                PodcastCardMenu(viewModel: viewModel, podcast: podcast).foregroundStyle(.secondary)
+                PodcastCardMenu(podcast: podcast)
+                    .foregroundStyle(.secondary)
             }
-            .foregroundStyle(.primary)
             .font(.caption)
         }
         .padding()
@@ -69,11 +70,9 @@ struct PodcastCard: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    let viewModel = PodcastViewModel.init(podcast: .preview)
-    
     ZStack {
         Color(.secondarySystemBackground)
-        PodcastCard(viewModel: viewModel, podcast: .preview)
+        PodcastCard(podcast: .preview)
     }
     .ignoresSafeArea()
 }

@@ -9,12 +9,11 @@ import SwiftUI
 import SwiftData
 
 struct PodcastCardHighlight: View {
-    var viewModel: PodcastViewModel
     var podcast: Podcast
     
+    @Environment(PodcastViewModel.self) private var viewModel
     @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
-    @Environment(\.backendClient) private var client: BackendClient
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -37,18 +36,19 @@ struct PodcastCardHighlight: View {
             HStack(spacing: 16) {
                 Spacer()
                 
-                PodcastCardMenu(viewModel: viewModel, podcast: podcast).foregroundStyle(.secondary)
+                PodcastCardMenu(podcast: podcast)
+                    .foregroundStyle(.secondary)
                 
                 Button {
                     Task {
-                        await viewModel.playPause(
-                            audioPlayer: audioPlayer,
-                            client: client,
+                        await viewModel.refreshAudioURL(
+                            podcast,
                             modelContext: context
                         )
+                        audioPlayer.toggle(podcast)
                     }
                 } label: {
-                    Image(systemName: viewModel.isPlaying(using: audioPlayer)
+                    Image(systemName: audioPlayer.isPlaying(podcast)
                           ? "pause.circle.fill" : "play.circle.fill")
                     .resizable()
                     .frame(width: 32, height: 32)
@@ -62,13 +62,10 @@ struct PodcastCardHighlight: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    let podcast: Podcast = .preview
-    let viewModel = PodcastViewModel(podcast: podcast)
-    
     ZStack {
         Color(.secondarySystemBackground)
         
-        PodcastCardHighlight(viewModel: viewModel, podcast: podcast)
+        PodcastCardHighlight(podcast: .preview)
             .frame(width: 272, height: 272)
     }
     .ignoresSafeArea()

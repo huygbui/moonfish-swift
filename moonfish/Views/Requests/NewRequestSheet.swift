@@ -9,7 +9,6 @@ import SwiftUI
 
 struct NewRequestSheet: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.backendClient) private var client
     @Environment(\.dismiss) var dismiss
     @State private var topic: String = ""
     @State private var selectedLength: PodcastLength = .short
@@ -95,11 +94,11 @@ extension NewRequestSheet {
             instruction: instruction
         )
         
-        do {
-            let _ = try await client.createPodcast(configuration: configuration)
-        } catch {
-            print(error.localizedDescription)
-        }
+//        do {
+//            let _ = try await client.createPodcast(configuration: configuration)
+//        } catch {
+//            print(error.localizedDescription)
+//        }
         
         dismiss()
     }

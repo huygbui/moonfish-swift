@@ -181,15 +181,3 @@ final class BackendClient: Sendable {
         }
     }
 }
-
-
-private struct BackendClientKey: EnvironmentKey {
-    static let defaultValue: BackendClient = BackendClient()
-}
-
-extension EnvironmentValues {
-    var backendClient: BackendClient {
-        get { self[BackendClientKey.self] }
-        set { self[BackendClientKey.self] = newValue }
-    }
-}

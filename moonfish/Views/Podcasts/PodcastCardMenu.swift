@@ -9,26 +9,25 @@ import SwiftUI
 import SwiftData
 
 struct PodcastCardMenu: View {
-    var viewModel: PodcastViewModel
     var podcast: Podcast
     
     @Environment(AudioPlayer.self) private var audioPlayer
+    @Environment(PodcastViewModel.self) private var viewModel
     @Environment(\.modelContext) private var context: ModelContext
-    @Environment(\.backendClient) private var client: BackendClient
     @Environment(\.dismiss) private var dismiss
     
     @State private var showingAlert = false
     
     var body: some View {
         Menu {
-            Button(action: viewModel.toggleFavorite) {
+            Button(action: {}) {
                 Label(
                     podcast.isFavorite ? "Remove Favorite" : "Add to Favorites",
                     systemImage: podcast.isFavorite ? "heart.fill" : "heart"
                 )
             }
             
-            Button(action: viewModel.downloadPodcast) {
+            Button(action: {}) {
                 Label(
                     podcast.isDownloaded ? "Remove Download" : "Download Episode",
                     systemImage: podcast.isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle"
@@ -51,14 +50,13 @@ struct PodcastCardMenu: View {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
                 Task {
-                    await viewModel
-                        .deletePodcast(
-                            audioPlayer: audioPlayer,
-                            client: client,
-                            modelContext: context
-                        )
+                    await viewModel.delete(podcast, context: context)
+                    if podcast == audioPlayer.currentPodcast {
+                        audioPlayer.pause()
+                        audioPlayer.currentPodcast = nil
+                    }
+                    dismiss()
                 }
-                dismiss()
             }
         } message: {
             Text("This episode will be deleted forever.")
@@ -67,8 +65,5 @@ struct PodcastCardMenu: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    let podcast: Podcast = .preview
-    let viewModel = PodcastViewModel(podcast: podcast)
-    
-    PodcastCardMenu(viewModel: viewModel, podcast: podcast)
+    PodcastCardMenu(podcast: .preview)
 }

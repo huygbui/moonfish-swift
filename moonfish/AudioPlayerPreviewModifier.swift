@@ -15,20 +15,21 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
     }
     
     func body(content: Content, context: ModelContainer) -> some View {
-        content
-            .environment(AudioPlayer.shared)
+        let audioPlayer = AudioPlayer() // Use the same instance
+        let viewModel = PodcastViewModel()
+
+        return content
+            .environment(audioPlayer)
+            .environment(viewModel)
             .modelContainer(context)
             .task {
-                // Fetch a random podcast from the sample data
-                let descriptor = FetchDescriptor<Podcast>()
+                let podcast: Podcast = .preview
                 
-                if let podcast = try? context.mainContext.fetch(descriptor).randomElement() {
-                    await MainActor.run {
-                        AudioPlayer.shared.currentPodcast = podcast
-                        AudioPlayer.shared.duration = Double(podcast.duration)
-                        AudioPlayer.shared.isPlaying = true
-                        AudioPlayer.shared.currentTime = 45 // Start partway through
-                    }
+                await MainActor.run {
+                    audioPlayer.currentPodcast = podcast
+                    audioPlayer.duration = podcast.duration
+                    audioPlayer.isPlaying = true
+                    audioPlayer.currentTime = 45 // Start partway through
                 }
             }
     }
