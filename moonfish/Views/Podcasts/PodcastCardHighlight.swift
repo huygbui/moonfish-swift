@@ -11,7 +11,7 @@ import SwiftData
 struct PodcastCardHighlight: View {
     var podcast: Podcast
     
-    @Environment(PodcastViewModel.self) private var viewModel
+    @Environment(PodcastViewModel.self) private var rootModel
     @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
 
@@ -41,7 +41,7 @@ struct PodcastCardHighlight: View {
                 
                 Button {
                     Task {
-                        await viewModel.refreshAudioURL(
+                        await rootModel.refreshAudioURL(
                             podcast,
                             modelContext: context
                         )
@@ -58,6 +58,7 @@ struct PodcastCardHighlight: View {
         }
         .padding()
         .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 16))
+        .frame(width: 256, height: 256)
     }
 }
 
@@ -66,7 +67,6 @@ struct PodcastCardHighlight: View {
         Color(.secondarySystemBackground)
         
         PodcastCardHighlight(podcast: .preview)
-            .frame(width: 272, height: 272)
     }
     .ignoresSafeArea()
 }

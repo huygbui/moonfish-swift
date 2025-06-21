@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RequestCard: View {
-    var request: OngoingPodcastResponse
+    var request: PodcastRequest
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
@@ -21,17 +21,15 @@ struct RequestCard: View {
                 
                 
                 // Card subtitle
-                HStack {
-                    Text(request.createdAt.formatted(Date.RelativeFormatStyle())) +
-                    Text(" • ") +
-                    Text(request.length.localizedCapitalized) +
-                    Text(", ") +
-                    Text(request.format.localizedCapitalized) +
-                    Text(", ") +
-                    Text(request.level.localizedCapitalized)
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                Text("""
+                    \(request.createdAt.relative) • \
+                    \(request.length.localizedCapitalized), \
+                    \(request.format.localizedCapitalized), \
+                    \(request.level.localizedCapitalized)
+                    """
+                )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             
             // Card footer
@@ -39,7 +37,7 @@ struct RequestCard: View {
                 ProgressView(value: 0)
                     .progressViewStyle(GaugeProgressStyle())
                     .frame(width: 32, height: 32)
-                Text(request.step ?? "Pending")
+                Text(request.formattedStep)
                     .foregroundStyle(.secondary)
                     .font(.caption)
 
@@ -54,17 +52,5 @@ struct RequestCard: View {
 }
 
 #Preview {
-    let podcastTask: OngoingPodcastResponse = .init(
-        id: 0,
-        topic: "Sustainable Urban Gardening",
-        length: PodcastLength.medium.rawValue,
-        level: PodcastLevel.intermediate.rawValue,
-        format: PodcastFormat.conversational.rawValue,
-        voice: PodcastVoice.female.rawValue,
-        status: RequestStatus.pending.rawValue,
-        createdAt: Date(),
-        updatedAt: Date(),
-    )
-    
-    RequestCard(request: podcastTask)
+    RequestCard(request: .preview)
 }

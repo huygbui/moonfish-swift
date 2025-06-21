@@ -12,7 +12,7 @@ struct PodcastCardMenu: View {
     var podcast: Podcast
     
     @Environment(AudioPlayer.self) private var audioPlayer
-    @Environment(PodcastViewModel.self) private var viewModel
+    @Environment(PodcastViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) private var dismiss
     
@@ -50,7 +50,7 @@ struct PodcastCardMenu: View {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
                 Task {
-                    await viewModel.delete(podcast, context: context)
+                    await rootModel.delete(podcast, context: context)
                     if podcast == audioPlayer.currentPodcast {
                         audioPlayer.pause()
                         audioPlayer.currentPodcast = nil

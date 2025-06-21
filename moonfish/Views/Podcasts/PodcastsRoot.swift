@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct PodcastsRoot: View {
-    @Environment(PodcastViewModel.self) private var viewModel
+    @Environment(PodcastViewModel.self) private var rootModel
     @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
     
@@ -28,7 +28,6 @@ struct PodcastsRoot: View {
                                 LazyHStack {
                                     ForEach(recentPodcasts) {
                                         PodcastCardHighlight(podcast: $0)
-                                            .frame(width: 256, height: 256)
                                     }
                                 }
                             }
@@ -68,7 +67,7 @@ struct PodcastsRoot: View {
                 }
             }
             .sheet(isPresented: $showingAccountSheet) { AccountSheet() }
-            .task { await viewModel.refresh(context) }
+            .task { await rootModel.refresh(context) }
         }
         
         var recentPodcasts: [Podcast] {

@@ -54,10 +54,10 @@ final class BackendClient: Sendable {
     }
    
     // MARK: - Create Podcast
-    func createPodcast(configuration: PodcastConfiguration) async throws -> CompletedPodcastResponse {
+    func createPodcast(config: PodcastConfig) async throws -> OngoingPodcastResponse {
         var request = try createRequest(for: "podcasts", method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try encoder.encode(configuration)
+        request.httpBody = try encoder.encode(config)
 
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
@@ -67,7 +67,7 @@ final class BackendClient: Sendable {
         }
         
         do {
-            let result = try decoder.decode(CompletedPodcastResponse.self, from: data)
+            let result = try decoder.decode(OngoingPodcastResponse.self, from: data)
             return result
         } catch {
             throw ClientError.decodingError(error.localizedDescription)

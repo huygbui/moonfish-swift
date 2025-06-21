@@ -10,8 +10,6 @@ import SwiftData
 
 struct Root: View {
     @Environment(AudioPlayer.self) private var audioPlayer
-    @State private var searchText: String = ""
-    @State private var isPresented: Bool = false
     @State private var selectedTab: TabItem = .podcasts
     
     var body: some View {
@@ -23,8 +21,8 @@ struct Root: View {
             }
             .tabBarMinimizeBehavior(.onScrollDown)
             .tabViewBottomAccessory {
-                if audioPlayer.currentPodcast != nil {
-                    PlayerMini()
+                if let podcast = audioPlayer.currentPodcast {
+                    PlayerMini(podcast: podcast)
                 }
             }
         } else {
@@ -48,17 +46,16 @@ struct Root: View {
                             startPoint: .top,
                             endPoint: .bottom
                         )
-                        .frame(height: 160)
+                        .frame(height: audioPlayer.currentPodcast != nil ? 160 : 128)
                         .allowsHitTesting(false)
                         
                         VStack {
-                            if audioPlayer.currentPodcast != nil {
-                                PlayerMini()
-                                    .frame(width: .infinity, height: 48)
+                            if let podcast = audioPlayer.currentPodcast {
+                                PlayerMini(podcast: podcast)
                                     .background(.regularMaterial, in: .capsule)
+                                    .padding(.horizontal, 24)
                                     .brightness(0.1)
                                     .shadow(color: .black.opacity(0.1), radius: 12)
-                                    .padding(.horizontal, 24)
                             }
                             CustomTabBar(selectedTab: $selectedTab)
                                 .compositingGroup()

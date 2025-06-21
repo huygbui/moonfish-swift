@@ -7,15 +7,17 @@
 
 import SwiftUI
 
-struct NewRequestSheet: View {
-    @Environment(\.modelContext) private var modelContext
+struct CreateSheet: View {
+    @Bindable var rootModel: RequestViewModel
     @Environment(\.dismiss) var dismiss
-    @State private var topic: String = ""
-    @State private var selectedLength: PodcastLength = .short
-    @State private var selectedFormat: PodcastFormat = .narrative
-    @State private var selectedLevel: PodcastLevel = .beginner
-    @State private var selectedVoice: PodcastVoice = .female
-    @State private var instruction: String = ""
+    
+    @State var topic: String = ""
+    @State var length: PodcastLength = .short
+    @State var level: PodcastLevel = .beginner
+    @State var format: PodcastFormat = .narrative
+    @State var voice: PodcastVoice = .female
+    @State var instruction: String = ""
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -26,24 +28,24 @@ struct NewRequestSheet: View {
                     )
                 }
                 Section(header: Text("Content")) {
-                    Picker("Length", selection: $selectedLength) {
+                    Picker("Length", selection: $length) {
                         ForEach(PodcastLength.allCases) { length in
                             Text(length.rawValue.localizedCapitalized).tag(length)
                         }
                     }
-                    Picker("Level", selection: $selectedLevel) {
+                    Picker("Level", selection: $level) {
                         ForEach(PodcastLevel.allCases) { level in
                             Text(level.rawValue.localizedCapitalized).tag(level)
                         }
                     }
                 }
                 Section(header: Text("Delivery")) {
-                    Picker("Format", selection: $selectedFormat) {
+                    Picker("Format", selection: $format) {
                         ForEach(PodcastFormat.allCases) { format in
                             Text(format.rawValue.localizedCapitalized).tag(format)
                         }
                     }
-                    Picker("Voice", selection: $selectedVoice) {
+                    Picker("Voice", selection: $voice) {
                         ForEach(PodcastVoice.allCases) { voice in
                             Text(voice.rawValue.localizedCapitalized).tag(voice)
                         }
@@ -70,40 +72,36 @@ struct NewRequestSheet: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        Task {
-                            await submit()
-                        }
-                    } label: {
-                        Image(systemName: "arrow.up")
+                    Button(action: submit) {
+                        Label(
+                            "Submit Request",
+                            systemImage: "arrow.up"
+                        )
                     }
                 }
             }
         }
     }
-}
- 
-extension NewRequestSheet {
-    func submit() async {
-        let configuration = PodcastConfiguration(
-            topic: topic,
-            length: selectedLength,
-            level: selectedLevel,
-            format: selectedFormat,
-            voice: selectedVoice,
-            instruction: instruction
-        )
-        
-//        do {
-//            let _ = try await client.createPodcast(configuration: configuration)
-//        } catch {
-//            print(error.localizedDescription)
-//        }
-        
-        dismiss()
+    
+    func submit() {
+        Task {
+            let config = PodcastConfig(
+                topic: topic,
+                length: length,
+                level: level,
+                format: format,
+                voice: voice,
+                instruction: instruction
+            )
+            
+            await rootModel.submitRequest(for: config)
+            
+            dismiss()
+        }
     }
 }
 
 #Preview {
-    NewRequestSheet()
+    @Previewable @State var rootModel = RequestViewModel()
+    CreateSheet(rootModel: rootModel)
 }

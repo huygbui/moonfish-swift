@@ -11,7 +11,7 @@ import SwiftData
 struct PodcastCard: View {
     @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
-    @Environment(PodcastViewModel.self) private var viewModel
+    @Environment(PodcastViewModel.self) private var rootModel
     var podcast: Podcast
     
     var body: some View {
@@ -40,7 +40,7 @@ struct PodcastCard: View {
             HStack {
                 Button {
                     Task {
-                        await viewModel.refreshAudioURL(
+                        await rootModel.refreshAudioURL(
                             podcast,
                             modelContext: context
                         )

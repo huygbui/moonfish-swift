@@ -8,20 +8,16 @@
 import SwiftUI
 
 struct RequestsRoot: View {
-
-    @State private var isPresented: Bool = false
-    @State private var isLoading: Bool = false
-    @State var requests = [OngoingPodcastResponse]()
-    @State private var phase: CGFloat = -1.0
+    @State private var rootModel = RequestViewModel()
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                if isLoading {
+                if rootModel.isLoading {
                     RequestCardPlaceholder()
                 } else {
                     LazyVStack {
-                        ForEach(requests) {
+                        ForEach(rootModel.requests) {
                             RequestCard(request: $0)
                         }
                     }
@@ -34,34 +30,28 @@ struct RequestsRoot: View {
                     }())
                 }
             }
-            .refreshable { await refresh() }
+            .refreshable { await rootModel.refresh() }
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
             .background(Color(.secondarySystemBackground))
             .navigationTitle("Requests")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { isPresented = true }) {
-                        Image(systemName: "plus")
+                    Button(action: { rootModel.showingCreateSheet = true }) {
+                        Label(
+                            "Create",
+                            systemImage: "plus"
+                        )
                     }
                 }
             }
-            .sheet(isPresented: $isPresented) { NewRequestSheet() }
+            .sheet(isPresented: $rootModel.showingCreateSheet) {
+                CreateSheet(rootModel: rootModel)
+            }
             .task {
-                isLoading = true
-                defer { isLoading = false }
-//                try? await Task.sleep(nanoseconds: 3_000_000_000)
-                await refresh()
+                await rootModel.load()
             }
         }
-    }
-    
-    func refresh() async {
-//        do {
-//            requests = try await client.getOngoingPodcasts()
-//        } catch {
-//            print("Failed to fetch podcast requests: \(error)")
-//        }
     }
 }
 

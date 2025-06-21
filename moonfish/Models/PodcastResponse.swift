@@ -42,7 +42,7 @@ struct OngoingPodcastResponse: Codable, Identifiable {
     var level: String
     var format: String
     var voice: String
-    var instruction: String = ""
+    var instruction: String?
     
     var status: String
     var step: String?

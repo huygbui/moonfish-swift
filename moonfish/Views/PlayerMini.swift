@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct PlayerMini: View {
+    var podcast: Podcast
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(AudioPlayer.self) private var audioPlayer
     @Environment(PodcastViewModel.self) private var viewModel
@@ -16,43 +17,42 @@ struct PlayerMini: View {
     @State private var isPresented = false
     
     var body: some View {
-        if let podcast = audioPlayer.currentPodcast {
-            HStack(spacing: 12) {
-                Text(audioPlayer.currentPodcast?.title ?? "")
-                    .font(.footnote)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
-                
-                Spacer()
-                
-                Button {
-                    Task {
-                        await viewModel.refreshAudioURL(
-                            podcast,
-                            modelContext: context
-                        )
-                        audioPlayer.toggle(podcast)
-                    }
-                } label: {
-                    Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
+        HStack(spacing: 12) {
+            Text(podcast.title)
+                .font(.footnote)
+                .fontWeight(.medium)
+                .lineLimit(1)
+            
+            Spacer()
+            
+            Button {
+                Task {
+                    await viewModel.refreshAudioURL(
+                        podcast,
+                        modelContext: context
+                    )
+                    audioPlayer.toggle(podcast)
                 }
-                
-                // Forward 15 seconds
-                Button(action: audioPlayer.skipForward) {
-                    Image(systemName: "goforward.15")
-                }
+            } label: {
+                Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
             }
-            .padding(.horizontal, 16)
-            .onTapGesture { isPresented.toggle() }
-            .sheet(isPresented: $isPresented) {
-                if let podcast = audioPlayer.currentPodcast {
-                    PlayerFull(podcast: podcast)
-                }
+            
+            // Forward 15 seconds
+            Button(action: audioPlayer.skipForward) {
+                Image(systemName: "goforward.15")
+            }
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 16)
+        .onTapGesture { isPresented.toggle() }
+        .sheet(isPresented: $isPresented) {
+            if let podcast = audioPlayer.currentPodcast {
+                PlayerFull(podcast: podcast)
             }
         }
     }
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PlayerMini()
+    PlayerMini(podcast: .preview)
 }

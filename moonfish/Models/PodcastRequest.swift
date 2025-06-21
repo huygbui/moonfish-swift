@@ -7,80 +7,108 @@
 
 import Foundation
 
-struct PodcastRequest {
+struct PodcastRequest: Codable, Identifiable {
     var id: Int
-    var status: RequestStatus.RawValue
-    var progressValue: Double
-    var configuration: PodcastConfiguration
+    
+    var topic: String
+    var length: String
+    var level: String
+    var format: String
+    var voice: String
+    var instruction: String?
+    
+    var status: String
+    var step: String?
+    
     var createdAt: Date
     var updatedAt: Date
-    var step: RequestStep.RawValue?
-    var completedPodcast: Podcast?
     
     init(
         id: Int,
-        status: RequestStatus = .pending,
-        progressValue: Double = 0,
-        configuration: PodcastConfiguration,
+        topic: String,
+        length: String,
+        level: String,
+        format: String,
+        voice: String,
+        instruction: String? = nil,
+        status: String,
+        step: String? = nil,
         createdAt: Date,
-        updatedAt: Date,
-        step: RequestStep? = nil,
-        completedPodcast: Podcast? = nil
+        updatedAt: Date
     ) {
         self.id = id
-        self.status = status.rawValue
-        self.progressValue = progressValue
-        self.configuration = configuration
+        self.topic = topic
+        self.length = length
+        self.level = level
+        self.format = format
+        self.voice = voice
+        self.instruction = instruction
+        self.status = status
+        self.step = step
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-        self.step = step?.rawValue
-        self.completedPodcast = completedPodcast
-    }
-
-    var statusDescription: String? {
-        guard let currentStatus = RequestStatus(rawValue: self.status) else { return nil }
-        return currentStatus.description
-    }
-    
-    var stepDescription: String? {
-        guard let step = self.step, let currentStep = RequestStep(rawValue: step) else { return nil }
-        return currentStep.description
     }
 }
 
-enum RequestStatus: String, CaseIterable {
-    case pending
-    case active
-    case completed
-    case cancelled
-    
-    var description: String {
-        switch self {
-        case .pending:
+extension PodcastRequest {
+    init(from response: OngoingPodcastResponse) {
+        self.id = response.id
+        self.topic = response.topic
+        self.length = response.length
+        self.level = response.level
+        self.format = response.format
+        self.voice = response.voice
+        self.instruction = response.instruction
+        self.status = response.status
+        self.step = response.step
+        self.createdAt = response.createdAt
+        self.updatedAt = response.updatedAt
+    }
+}
+ 
+extension PodcastRequest {
+    var formattedStatus: String {
+        switch status {
+        case "pending":
             return "Pending"
-        case .active:
+        case "active":
             return "Active"
-        case .completed:
+        case "completed":
             return "Completed"
-        case .cancelled:
+        case "cancelled":
             return "Cancelled"
+        default:
+            return "Unknown"
+        }
+    }
+    
+    var formattedStep: String {
+        switch step {
+        case "research":
+            return "Researching..."
+        case "compose":
+            return "Composing..."
+        case "voice":
+            return "Voicing..."
+        default:
+            return ""
         }
     }
 }
 
-enum RequestStep: String, CaseIterable {
-    case research
-    case compose
-    case voice
-    
-    var description: String {
-        switch self {
-        case .research:
-            return "Researching"
-        case .compose:
-            return "Composing the script"
-        case .voice:
-            return "Voicing"
-        }
-    }
+extension PodcastRequest {
+    static let preview = PodcastRequest(
+        id: 0,
+        
+        topic: "Sustainable Urban Gardening",
+        length: "short",
+        level: "beginner",
+        format: "conversational",
+        voice: "female",
+        status: "active",
+        
+        createdAt: Date(),
+        updatedAt: Date(),
+    )
 }
+
