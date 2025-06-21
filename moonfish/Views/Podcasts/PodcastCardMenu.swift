@@ -20,7 +20,7 @@ struct PodcastCardMenu: View {
     
     var body: some View {
         Menu {
-            Button(action: {}) {
+            Button(action: { rootModel.toggleFavorite(podcast) }) {
                 Label(
                     podcast.isFavorite ? "Remove Favorite" : "Add to Favorites",
                     systemImage: podcast.isFavorite ? "heart.fill" : "heart"

@@ -20,14 +20,15 @@ struct PodcastCardHighlight: View {
             // Card header
             VStack(alignment: .leading, spacing: 4) {
                 Text(podcast.title)
+                    .lineLimit(2)
                 
                 (Text(podcast.duration.hoursMinutes) +
                  Text(" • ") +
                  Text(podcast.summary)
                     .foregroundStyle(.secondary)
                 )
-                .font(.subheadline)
-                .lineLimit(3)
+                    .font(.subheadline)
+                    .lineLimit(3)
             }
             
             Spacer()
