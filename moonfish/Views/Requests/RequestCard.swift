@@ -40,6 +40,7 @@ struct RequestCard: View {
                 Text(request.formattedStep)
                     .foregroundStyle(.secondary)
                     .font(.caption)
+                    .shimmer()
 
                 Spacer()
                 
