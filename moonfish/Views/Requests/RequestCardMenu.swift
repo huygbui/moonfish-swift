@@ -21,7 +21,6 @@ struct RequestCardMenu: View {
             Image(systemName: "ellipsis")
                 .font(.footnote)
                 .frame(width: 24, height: 24)
-                .background(Color(.tertiarySystemBackground), in: .circle)
         }
         .alert("Stop Request?", isPresented: $showingAlert) {
             Button("Don't Stop", role: .cancel) { }

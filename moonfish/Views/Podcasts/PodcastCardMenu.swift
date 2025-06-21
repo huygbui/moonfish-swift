@@ -44,7 +44,6 @@ struct PodcastCardMenu: View {
             Image(systemName: "ellipsis")
                 .font(.footnote)
                 .frame(width: 24, height: 24)
-                .background(Color(.tertiarySystemBackground), in: .circle)
         }
         .alert("Delete Episode", isPresented: $showingAlert) {
             Button("Cancel", role: .cancel) { }
