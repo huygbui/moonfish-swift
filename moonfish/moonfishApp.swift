@@ -11,14 +11,16 @@ import SwiftData
 @main
 struct moonfishApp: App {
     @State private var audioPlayer = AudioPlayer()
-    @State private var viewModel = PodcastViewModel()
-
+    @State private var podcastRootModel = PodcastViewModel()
+    @State private var requestRootModel = RequestViewModel()
+    
     var body: some Scene {
         WindowGroup {
             Root()
                 .modelContainer(SampleData.shared.modelContainer)
                 .environment(audioPlayer)
-                .environment(viewModel)
+                .environment(podcastRootModel)
+                .environment(requestRootModel)
         }
     }
     

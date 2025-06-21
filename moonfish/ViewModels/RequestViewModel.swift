@@ -15,16 +15,6 @@ class RequestViewModel {
     
     var requests = [PodcastRequest]()
     
-    var showingCreateSheet: Bool = false
-    var isLoading: Bool = false
-    
-    func load() async {
-        isLoading = true
-        defer { isLoading = false }
-//        try? await Task.sleep(nanoseconds: 3_000_000_000)
-        await refresh()
-    }
-    
     func refresh() async {
         do {
             let response = try await client.getOngoingPodcasts()
@@ -36,9 +26,21 @@ class RequestViewModel {
     
     func submitRequest(for config: PodcastConfig) async {
         do {
-            let _ = try await client.createPodcast(config: config)
+            let response = try await client.createPodcast(config: config)
+            let newRequest = PodcastRequest(from: response)
+            requests.append(newRequest)
         } catch {
-           print("Failed to create podcast: \(error)")
+            print("Failed to create podcast: \(error)")
+        }
+    }
+    
+    func cancel(_ request: PodcastRequest) async {
+        requests.removeAll { $0.id == request.id }
+        do {
+            try await client.cancelOngoingPodcast(id: request.id)
+        } catch {
+            requests.append(request)
+            print("Failed to cancel podcast: \(error)")
         }
     }
 }

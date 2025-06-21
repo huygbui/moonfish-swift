@@ -8,12 +8,14 @@
 import SwiftUI
 
 struct RequestsRoot: View {
-    @State private var rootModel = RequestViewModel()
+    @Environment(RequestViewModel.self) private var rootModel
+    @State private var showingCreateSheet: Bool = false
+    @State private var isLoading: Bool = false
     
     var body: some View {
         NavigationStack {
             ScrollView {
-                if rootModel.isLoading {
+                if isLoading {
                     RequestCardPlaceholder()
                 } else {
                     LazyVStack {
@@ -37,25 +39,24 @@ struct RequestsRoot: View {
             .navigationTitle("Requests")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button(action: { rootModel.showingCreateSheet = true }) {
-                        Label(
-                            "Create",
-                            systemImage: "plus"
-                        )
+                    Button(action: { showingCreateSheet = true }) {
+                        Label("Create", systemImage: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $rootModel.showingCreateSheet) {
-                CreateSheet(rootModel: rootModel)
+            .sheet(isPresented: $showingCreateSheet) {
+                CreateSheet()
             }
             .task {
-                await rootModel.load()
+                isLoading = true
+                defer { isLoading = false }
+//                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                await rootModel.refresh()
             }
         }
     }
 }
 
-#Preview {
+#Preview(traits: .audioPlayerTrait) {
     RequestsRoot()
-        .modelContainer(SampleData.shared.modelContainer)
 }

@@ -43,7 +43,8 @@ struct RequestCard: View {
 
                 Spacer()
                 
-                RequestCardMenu().foregroundStyle(.secondary)
+                RequestCardMenu(request: request)
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
@@ -53,4 +54,5 @@ struct RequestCard: View {
 
 #Preview {
     RequestCard(request: .preview)
+        .environment(RequestViewModel())
 }

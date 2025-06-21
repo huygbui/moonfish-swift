@@ -8,15 +8,17 @@
 import SwiftUI
 
 struct CreateSheet: View {
-    @Bindable var rootModel: RequestViewModel
+    @Environment(RequestViewModel.self) var rootModel
     @Environment(\.dismiss) var dismiss
     
-    @State var topic: String = ""
-    @State var length: PodcastLength = .short
-    @State var level: PodcastLevel = .beginner
-    @State var format: PodcastFormat = .narrative
-    @State var voice: PodcastVoice = .female
-    @State var instruction: String = ""
+    @State private var topic: String = ""
+    @State private var length: PodcastLength = .short
+    @State private var level: PodcastLevel = .beginner
+    @State private var format: PodcastFormat = .narrative
+    @State private var voice: PodcastVoice = .female
+    @State private var instruction: String = ""
+    
+    @State private var isSubmitting: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -65,18 +67,13 @@ struct CreateSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                       dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
+                    Button(action: { dismiss() }) {
+                        Label("Cancel", systemImage: "xmark")
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: submit) {
-                        Label(
-                            "Submit Request",
-                            systemImage: "arrow.up"
-                        )
+                        Label("Submit", systemImage: "arrow.up")
                     }
                 }
             }
@@ -84,8 +81,7 @@ struct CreateSheet: View {
     }
     
     func submit() {
-        Task {
-            let config = PodcastConfig(
+        let config = PodcastConfig(
                 topic: topic,
                 length: length,
                 level: level,
@@ -93,15 +89,15 @@ struct CreateSheet: View {
                 voice: voice,
                 instruction: instruction
             )
-            
+        
+        Task {
             await rootModel.submitRequest(for: config)
-            
             dismiss()
         }
     }
 }
 
 #Preview {
-    @Previewable @State var rootModel = RequestViewModel()
-    CreateSheet(rootModel: rootModel)
+    CreateSheet()
+        .environment(RequestViewModel())
 }

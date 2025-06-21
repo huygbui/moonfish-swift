@@ -180,4 +180,16 @@ final class BackendClient: Sendable {
             throw ClientError.networkError
         }
     }
+    
+    // MARK: - Cancel Podcast
+    func cancelOngoingPodcast(id: Int) async throws {
+        let request = try createRequest(for: "podcasts/\(id)/cancel", method: "POST")
+        
+        let (_, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 204
+        else {
+            throw ClientError.networkError
+        }
+    }
 }

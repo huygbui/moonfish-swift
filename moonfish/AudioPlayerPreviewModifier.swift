@@ -16,11 +16,13 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
     
     func body(content: Content, context: ModelContainer) -> some View {
         let audioPlayer = AudioPlayer() // Use the same instance
-        let viewModel = PodcastViewModel()
+        let podcastRootModel = PodcastViewModel()
+        let requestRootModel = RequestViewModel()
 
         return content
             .environment(audioPlayer)
-            .environment(viewModel)
+            .environment(podcastRootModel)
+            .environment(requestRootModel)
             .modelContainer(context)
             .task {
                 let podcast: Podcast = .preview
