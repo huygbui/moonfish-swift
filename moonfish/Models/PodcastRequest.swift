@@ -94,7 +94,21 @@ extension PodcastRequest {
             return ""
         }
     }
+    
+    var progress: Double {
+        switch step {
+        case "research":
+            return 0.125
+        case "compose":
+            return 0.25
+        case "voice":
+            return 0.50
+        default:
+            return 0
+        }
+    }
 }
+
 
 extension PodcastRequest {
     static let preview = PodcastRequest(
@@ -106,6 +120,7 @@ extension PodcastRequest {
         format: "conversational",
         voice: "female",
         status: "active",
+        step: "compose",
         
         createdAt: Date(),
         updatedAt: Date(),

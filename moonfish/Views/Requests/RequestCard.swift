@@ -34,7 +34,7 @@ struct RequestCard: View {
             
             // Card footer
             HStack {
-                ProgressView(value: 0)
+                ProgressView(value: request.progress)
                     .progressViewStyle(GaugeProgressStyle())
                     .frame(width: 32, height: 32)
                 Text(request.formattedStep)
