@@ -20,6 +20,11 @@ struct CreateSheet: View {
     
     @State private var isSubmitting: Bool = false
     
+    private var canSubmit: Bool {
+        !topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        !isSubmitting
+    }
+    
     var body: some View {
         NavigationStack {
             Form {
@@ -52,6 +57,7 @@ struct CreateSheet: View {
                             Text(voice.rawValue.localizedCapitalized).tag(voice)
                         }
                     }
+                    .disabled(format == .conversational)
                 }
                 Section(header: Text("Notes")) {
                     TextField(
@@ -62,6 +68,7 @@ struct CreateSheet: View {
                     .lineLimit(4, reservesSpace: true)
                 }
             }
+            .disabled(isSubmitting)
             .pickerStyle(.menu)
             .navigationTitle("New Podcast")
             .navigationBarTitleDisplayMode(.inline)
@@ -70,27 +77,34 @@ struct CreateSheet: View {
                     Button(action: { dismiss() }) {
                         Label("Cancel", systemImage: "xmark")
                     }
+                    .disabled(isSubmitting)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: submit) {
                         Label("Submit", systemImage: "arrow.up")
                     }
+                    .disabled(!canSubmit)
                 }
             }
         }
     }
     
     func submit() {
+        guard canSubmit else { return }
+        
+        isSubmitting = true
+
         let config = PodcastConfig(
-                topic: topic,
-                length: length,
-                level: level,
-                format: format,
-                voice: voice,
-                instruction: instruction
-            )
+            topic: topic,
+            length: length,
+            level: level,
+            format: format,
+            voice: voice,
+            instruction: instruction
+        )
         
         Task {
+            defer { isSubmitting = false }
             await rootModel.submitRequest(for: config)
             dismiss()
         }
