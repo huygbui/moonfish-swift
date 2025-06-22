@@ -115,9 +115,9 @@ extension Podcast {
         return Double(currentBytes) / Double(totalBytes)
     }
 
-    var isDownloadCompleted: Bool {
-        currentBytes == totalBytes && totalBytes > 0
-    }
+//    var isDownloadCompleted: Bool {
+//        currentBytes == totalBytes && totalBytes > 0
+//    }
 
     func update(currentBytes: Int64, totalBytes: Int64) {
         self.currentBytes = currentBytes

@@ -60,6 +60,8 @@ extension Download: URLSessionDownloadDelegate {
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
+        continuation.yield(.completed(url: location))
+        continuation.finish()
     }
     
     func urlSession(
@@ -69,5 +71,9 @@ extension Download: URLSessionDownloadDelegate {
         totalBytesWritten: Int64,
         totalBytesExpectedToWrite: Int64
     ) {
+        continuation.yield(
+            .progress(
+                currentBytes: totalBytesWritten,
+                totalBytes: totalBytesExpectedToWrite))
     }
 }

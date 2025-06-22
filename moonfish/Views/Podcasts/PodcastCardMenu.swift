@@ -71,17 +71,17 @@ struct PodcastCardMenu: View {
     }
     
     var downloadButtonImageName: String {
-        switch (podcast.isDownloadCompleted, podcast.downloadState) {
-        case (true, _): return "arrown.down.circle.fill"
-        case (false, .dowloading): return "pause.fill"
-        case (false, _): return "arrow.down.circle"
+        switch podcast.downloadState {
+        case .dowloading: return "pause.fill"
+        case .completed: return "arrow.down.circle.fill"
+        case .idle, .canceled: return "arrow.down.circle"
         }
     }
     
     var downloadButtonText: String {
         switch podcast.downloadState {
         case .dowloading: return "Stop Download"
-        case .completed: return "Remove Downlaod"
+        case .completed: return "Remove Download"
         case .idle, .canceled: return "Download Episode"
         }
     }

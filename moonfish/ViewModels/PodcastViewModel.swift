@@ -59,7 +59,7 @@ class PodcastViewModel {
     
     func download(_ podcast: Podcast) async throws {
         guard downloads[podcast.taskId] == nil,
-              !podcast.isDownloadCompleted
+              podcast.downloadState == .idle || podcast.downloadState == .canceled
         else { return }
         
         let request = try client.createRequest(for: "podcasts/\(podcast.taskId)/download")
@@ -71,8 +71,6 @@ class PodcastViewModel {
             Download(request: request)
         }
         
-        print("Start download")
-        
         downloads[podcast.taskId] = download
         download.start()
         podcast.downloadState = .dowloading
@@ -80,18 +78,15 @@ class PodcastViewModel {
             process(event, for: podcast)
         }
         
-        print("Complete download")
         downloads[podcast.taskId] = nil
     }
     
     func cancelDownload(for podcast: Podcast) {
-        print("Cancel download")
         downloads[podcast.taskId]?.cancel()
         podcast.downloadState = .idle
     }
     
     func process(_ event: Download.Event, for podcast: Podcast) {
-        print("Processing...")
         switch event {
         case let .progress(current, total):
             podcast.update(currentBytes: current, totalBytes: total)
