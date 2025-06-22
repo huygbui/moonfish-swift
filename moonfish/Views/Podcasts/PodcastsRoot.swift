@@ -10,7 +10,7 @@ import SwiftData
 
 struct PodcastsRoot: View {
     @Environment(PodcastViewModel.self) private var rootModel
-    @Environment(AudioPlayer.self) private var audioPlayer
+    @Environment(AudioController.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
     
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]

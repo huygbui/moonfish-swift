@@ -11,7 +11,7 @@ import SwiftData
 struct PlayerFull: View {
     var podcast: Podcast
     @Environment(PodcastViewModel.self) private var viewModel
-    @Environment(AudioPlayer.self) private var audioPlayer
+    @Environment(AudioController.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) private var dismiss
     @State private var isPresented: Bool = false

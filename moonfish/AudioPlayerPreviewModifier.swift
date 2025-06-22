@@ -15,7 +15,7 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
     }
     
     func body(content: Content, context: ModelContainer) -> some View {
-        let audioPlayer = AudioPlayer() // Use the same instance
+        let audioPlayer = AudioController() // Use the same instance
         let podcastRootModel = PodcastViewModel()
         let requestRootModel = RequestViewModel()
 

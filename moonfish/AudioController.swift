@@ -10,10 +10,12 @@ import AVFoundation
 
 @Observable
 @MainActor
-final class AudioPlayer {
+final class AudioController {
     var player: AVPlayer?
+    
     var currentPodcast: Podcast?
     var isPlaying = false
+    
     var currentTime: Double = 0
     var duration: Double = 0
     var playbackRate: Double = 1.0
@@ -21,9 +23,7 @@ final class AudioPlayer {
     
     private var timeObserverToken: Any?
 
-    init() {
-        setupAudioSession()
-    }
+    init() { setupAudioSession() }
     
     private func setupAudioSession() {
         do {
@@ -55,7 +55,7 @@ final class AudioPlayer {
         currentPodcast = podcast
         duration = Double(podcast.duration)
         
-        // Add time observer - THIS IS CRITICAL!
+        // Add time observer
         let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
         timeObserverToken = player?.addPeriodicTimeObserver(
             forInterval: interval,
@@ -64,7 +64,6 @@ final class AudioPlayer {
             MainActor.assumeIsolated {
                 self?.currentTime = time.seconds
             }
-            
         }
         
         player?.rate = Float(playbackRate)

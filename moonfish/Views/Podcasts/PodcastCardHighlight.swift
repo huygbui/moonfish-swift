@@ -12,7 +12,7 @@ struct PodcastCardHighlight: View {
     var podcast: Podcast
     
     @Environment(PodcastViewModel.self) private var rootModel
-    @Environment(AudioPlayer.self) private var audioPlayer
+    @Environment(AudioController.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
 
     var body: some View {
