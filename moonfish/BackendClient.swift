@@ -40,7 +40,7 @@ final class BackendClient: Sendable {
         self.encoder = JSONEncoder()
     }
     
-    private func createRequest(for endpoint: String, method: String = "GET") throws -> URLRequest {
+    func createRequest(for endpoint: String, method: String = "GET") throws -> URLRequest {
         guard let baseURL = URL(string: config.baseURL) else {
             throw ClientError.configurationError
         }

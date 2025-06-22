@@ -25,10 +25,14 @@ final class Podcast {
     var duration: Double
     var createdAt: Date
     var isFavorite: Bool
-    var isDownloaded: Bool
     
     var url: URL?
     var expiresAt: Date?
+    
+    var downloadState: DownloadState
+    var resumeData: Data?
+    private(set) var currentBytes: Int64 = 0
+    private(set) var totalBytes: Int64 = 0
     
     init(
         taskId: Int,
@@ -49,6 +53,8 @@ final class Podcast {
         isDownloaded: Bool = false,
         url: URL? = nil,
         expiresAt: Date? = nil,
+        
+        downloadState: DownloadState = .idle,
     ) {
         self.taskId = taskId
         
@@ -65,10 +71,11 @@ final class Podcast {
         self.duration = duration
         self.createdAt = createdAt
         self.isFavorite = isFavorite
-        self.isDownloaded = isDownloaded
         
         self.url = url
         self.expiresAt = expiresAt
+        
+        self.downloadState = downloadState
     }
     
     convenience init? (from podcastResponse: CompletedPodcastResponse) {
@@ -86,6 +93,35 @@ final class Podcast {
             duration: podcastResponse.duration,
             createdAt: podcastResponse.createdAt
         )
+    }
+}
+
+extension Podcast {
+    enum DownloadState: String, CaseIterable, Codable {
+        case idle = "idle"
+        case dowloading = "downloading"
+        case completed = "completed"
+        case canceled = "canceled"
+    }
+    
+    var fileURL: URL {
+        URL.documentsDirectory
+            .appending(path: "\(id)")
+            .appendingPathExtension(".mp3")
+    }
+    
+    var downloadProgress: Double {
+        guard totalBytes > 0 else { return 0 }
+        return Double(currentBytes) / Double(totalBytes)
+    }
+
+    var isDownloadCompleted: Bool {
+        currentBytes == totalBytes && totalBytes > 0
+    }
+
+    func update(currentBytes: Int64, totalBytes: Int64) {
+        self.currentBytes = currentBytes
+        self.totalBytes = totalBytes
     }
 }
 

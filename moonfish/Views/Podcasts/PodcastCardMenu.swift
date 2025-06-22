@@ -27,10 +27,10 @@ struct PodcastCardMenu: View {
                 )
             }
             
-            Button(action: {}) {
+            Button(action: toggleDownload) {
                 Label(
-                    podcast.isDownloaded ? "Remove Download" : "Download Episode",
-                    systemImage: podcast.isDownloaded ? "arrow.down.circle.fill" : "arrow.down.circle"
+                    downloadButtonText,
+                    systemImage: downloadButtonImageName
                 )
             }
             
@@ -59,6 +59,30 @@ struct PodcastCardMenu: View {
             }
         } message: {
             Text("This episode will be deleted forever.")
+        }
+    }
+    
+    func toggleDownload() {
+        if podcast.downloadState == .dowloading {
+            rootModel.cancelDownload(for: podcast)
+        } else {
+            Task { try? await rootModel.download(podcast) }
+        }
+    }
+    
+    var downloadButtonImageName: String {
+        switch (podcast.isDownloadCompleted, podcast.downloadState) {
+        case (true, _): return "arrown.down.circle.fill"
+        case (false, .dowloading): return "pause.fill"
+        case (false, _): return "arrow.down.circle"
+        }
+    }
+    
+    var downloadButtonText: String {
+        switch podcast.downloadState {
+        case .dowloading: return "Stop Download"
+        case .completed: return "Remove Downlaod"
+        case .idle, .canceled: return "Download Episode"
         }
     }
 }
