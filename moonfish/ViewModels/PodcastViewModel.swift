@@ -78,21 +78,17 @@ class PodcastViewModel {
     
     func download(_ podcast: Podcast) async throws {
         guard downloads[podcast.taskId] == nil,
-              podcast.downloadState == .idle || podcast.downloadState == .canceled
+              podcast.isDownloaded == false
         else { return }
         
         let request = try client.createRequest(for: "podcasts/\(podcast.taskId)/download")
         
-        let download = if podcast.downloadState == .canceled,
-                          let resumeData = podcast.resumeData {
-            Download(resumeData: resumeData)
-        } else {
-            Download(request: request)
-        }
+        let download = Download(request: request)
         
         downloads[podcast.taskId] = download
         download.start()
-        podcast.downloadState = .dowloading
+        podcast.downloadState = .downloading
+        print("downloading")
         for await event in download.events {
             process(event, for: podcast)
         }
@@ -100,15 +96,11 @@ class PodcastViewModel {
         downloads[podcast.taskId] = nil
     }
     
-    func cancelDownload(for podcast: Podcast) {
-        downloads[podcast.taskId]?.cancel()
-        podcast.downloadState = .idle
-    }
-    
     func removeDownload(for podcast: Podcast) {
+        downloads[podcast.taskId]?.cancel()
         try? FileManager.default.removeItem(at: podcast.fileURL)
         podcast.downloadState = .idle
-        podcast.resumeData = nil
+        podcast.isDownloaded = false
     }
 
     
@@ -116,17 +108,14 @@ class PodcastViewModel {
         switch event {
         case let .progress(current, total):
             podcast.update(currentBytes: current, totalBytes: total)
+            print(podcast.downloadProgress)
         case let .completed(url):
+            podcast.downloadState = .idle
             defer { try? FileManager.default.removeItem(at: url) } // Clean up temp file
             let didSave = saveFile(for: podcast, from: url)
-            podcast.downloadState = didSave ? .completed : .idle
-        case let .canceled(data):
-            if let data {
-                podcast.downloadState = .canceled
-                podcast.resumeData = data
-            } else {
-                podcast.downloadState = .idle
-            }
+            podcast.isDownloaded = didSave
+        case .canceled:
+            podcast.downloadState = .idle
         }
     }
     

@@ -36,7 +36,7 @@ final class AudioController {
     }
 
     func play(_ podcast: Podcast) {
-        let url = (podcast.downloadState == .completed &&
+        let url = (podcast.isDownloaded &&
                    FileManager.default.fileExists(atPath: podcast.fileURL.path))
                    ? podcast.fileURL
                    : podcast.url

@@ -26,7 +26,6 @@ extension Podcast {
                 duration: 620, // about 10 minutes
                 createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600), // Created an hour after the request
                 isFavorite: true,
-                isDownloaded: true
             ),
             
             Podcast(
