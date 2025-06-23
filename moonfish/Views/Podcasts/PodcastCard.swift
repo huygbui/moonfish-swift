@@ -75,6 +75,11 @@ struct PodcastCard: View {
                             EmptyView()
                         }
                     }
+                }
+                .foregroundStyle(.secondary)
+                .frame(width: 24, height: 24)
+                
+                PodcastCardMenu(podcast: podcast)
                     .foregroundStyle(.secondary)
                     .frame(width: 24, height: 24)
                     

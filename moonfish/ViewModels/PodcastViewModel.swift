@@ -88,6 +88,7 @@ class PodcastViewModel {
         downloads[podcast.taskId] = download
         download.start()
         podcast.downloadState = .downloading
+        print("downloading")
         for await event in download.events {
             process(event, for: podcast)
         }
@@ -107,6 +108,7 @@ class PodcastViewModel {
         switch event {
         case let .progress(current, total):
             podcast.update(currentBytes: current, totalBytes: total)
+            print(podcast.downloadProgress)
         case let .completed(url):
             podcast.downloadState = .idle
             defer { try? FileManager.default.removeItem(at: url) } // Clean up temp file
