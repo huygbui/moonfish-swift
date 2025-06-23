@@ -63,10 +63,13 @@ struct PodcastCardMenu: View {
     }
     
     func toggleDownload() {
-        if podcast.downloadState == .dowloading {
-            rootModel.cancelDownload(for: podcast)
-        } else {
+        switch podcast.downloadState {
+        case .idle, .canceled:
             Task { try? await rootModel.download(podcast) }
+        case .dowloading:
+            rootModel.cancelDownload(for: podcast)
+        case .completed:
+            rootModel.removeDownload(for: podcast)
         }
     }
     

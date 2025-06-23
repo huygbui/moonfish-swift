@@ -16,7 +16,7 @@ class PodcastViewModel {
     
     private let client = BackendClient()
     private var downloads: [Int:Download] = [:]
-
+    
     func refreshAudioURL(_ podcast: Podcast, modelContext: ModelContext) async {
         if podcast.expiresAt == nil || Date() > podcast.expiresAt! {
             do {
@@ -40,7 +40,7 @@ class PodcastViewModel {
             fetchDescriptor.propertiesToFetch = [\.taskId]
             let localPodcasts = try context.fetch(fetchDescriptor)
             let localIds = localPodcasts.map { $0.taskId }
-
+            
             // Find orphaned IDs
             let orphanedIds = Set(localIds).subtracting(serverIds)
             
@@ -82,7 +82,7 @@ class PodcastViewModel {
         else { return }
         
         let request = try client.createRequest(for: "podcasts/\(podcast.taskId)/download")
-
+        
         let download = if podcast.downloadState == .canceled,
                           let resumeData = podcast.resumeData {
             Download(resumeData: resumeData)
@@ -104,6 +104,13 @@ class PodcastViewModel {
         downloads[podcast.taskId]?.cancel()
         podcast.downloadState = .idle
     }
+    
+    func removeDownload(for podcast: Podcast) {
+        try? FileManager.default.removeItem(at: podcast.fileURL)
+        podcast.downloadState = .idle
+        podcast.resumeData = nil
+    }
+
     
     func process(_ event: Download.Event, for podcast: Podcast) {
         switch event {
