@@ -22,6 +22,7 @@ final class AudioController {
     var timer: Double = 0.0
     
     private var timeObserverToken: Any?
+    private var url: URL?
 
     init() { setupAudioSession() }
     
@@ -35,7 +36,12 @@ final class AudioController {
     }
 
     func play(_ podcast: Podcast) {
-        guard let url = podcast.url else { return }
+        let url = (podcast.downloadState == .completed &&
+                   FileManager.default.fileExists(atPath: podcast.fileURL.path))
+                   ? podcast.fileURL
+                   : podcast.url
+
+        guard let url else { return }
         
         if currentPodcast == podcast && player != nil {
             if !isPlaying {
@@ -44,7 +50,6 @@ final class AudioController {
             }
             return
         }
-        
         
         // Clean up previous observer
         if let token = timeObserverToken {

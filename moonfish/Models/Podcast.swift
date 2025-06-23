@@ -106,8 +106,8 @@ extension Podcast {
     
     var fileURL: URL {
         URL.documentsDirectory
-            .appending(path: "\(id)")
-            .appendingPathExtension(".mp3")
+            .appending(path: "\(self.taskId)")
+            .appendingPathExtension("mp3")
     }
     
     var downloadProgress: Double {

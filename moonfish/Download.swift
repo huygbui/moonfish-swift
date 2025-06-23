@@ -60,7 +60,14 @@ extension Download: URLSessionDownloadDelegate {
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
-        continuation.yield(.completed(url: location))
+        do {
+            let tempDirectory = FileManager.default.temporaryDirectory
+            let tempURL = tempDirectory.appendingPathComponent(UUID().uuidString)
+            try FileManager.default.copyItem(at: location, to: tempURL)
+            continuation.yield(.completed(url: tempURL))
+        } catch {
+            continuation.yield(.canceled(data: nil))
+        }
         continuation.finish()
     }
     

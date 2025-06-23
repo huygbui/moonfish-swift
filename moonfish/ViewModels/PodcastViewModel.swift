@@ -91,8 +91,9 @@ class PodcastViewModel {
         case let .progress(current, total):
             podcast.update(currentBytes: current, totalBytes: total)
         case let .completed(url):
-            saveFile(for: podcast, at: url)
-            podcast.downloadState = .completed
+            defer { try? FileManager.default.removeItem(at: url) } // Clean up temp file
+            let didSave = saveFile(for: podcast, from: url)
+            podcast.downloadState = didSave ? .completed : .idle
         case let .canceled(data):
             if let data {
                 podcast.downloadState = .canceled
@@ -103,12 +104,24 @@ class PodcastViewModel {
         }
     }
     
-    func saveFile(for podcast: Podcast, at url: URL) {
-        let filemanager = FileManager.default
+    func saveFile(for podcast: Podcast, from url: URL) -> Bool {
+        let fileManager = FileManager.default
+        let destinationURL = podcast.fileURL
         do {
-            try filemanager.moveItem(at: url, to: podcast.fileURL)
+            // Create intermediate directories if they don't exist
+            let destinationDirectory = destinationURL.deletingLastPathComponent()
+            try fileManager.createDirectory(at: destinationDirectory,
+                                            withIntermediateDirectories: true)
+            
+            // Remove existing file if it exists
+            try? fileManager.removeItem(at: destinationURL)
+
+            // Move the file
+            try fileManager.moveItem(at: url, to: destinationURL)
+            return true
         } catch {
             print("Failed to save podcast \(podcast.id): \(error)")
+            return false
         }
     }
 }
