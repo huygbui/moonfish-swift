@@ -31,9 +31,9 @@ struct PodcastCard: View {
                     \(podcast.level.localizedCapitalized)
                     """
                 )
-                    .font(.caption)
-                    .lineLimit(1)
-                    .foregroundStyle(.secondary)
+                .font(.caption)
+                .lineLimit(1)
+                .foregroundStyle(.secondary)
             }
             
             // Card footer
@@ -49,9 +49,9 @@ struct PodcastCard: View {
                     }
                 } label: {
                     Image(systemName: audioPlayer.isPlaying(podcast)
-                           ? "pause.circle.fill" : "play.circle.fill")
-                        .resizable()
-                        .frame(width: 32, height: 32)
+                          ? "pause.circle.fill" : "play.circle.fill")
+                    .resizable()
+                    .frame(width: 32, height: 32)
                 }
                 .foregroundStyle(.primary)
                 
@@ -82,17 +82,14 @@ struct PodcastCard: View {
                 PodcastCardMenu(podcast: podcast)
                     .foregroundStyle(.secondary)
                     .frame(width: 24, height: 24)
-                    
-                    PodcastCardMenu(podcast: podcast)
-                        .foregroundStyle(.secondary)
-                }
             }
-            .font(.caption)
         }
+        .font(.caption)
         .padding()
         .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 16))
     }
 }
+
 
 #Preview(traits: .audioPlayerTrait) {
     ZStack {
