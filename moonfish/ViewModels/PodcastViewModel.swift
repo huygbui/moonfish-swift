@@ -33,6 +33,23 @@ class PodcastViewModel {
     func refresh(_ context: ModelContext) async {
         do {
             let serverPodcasts = try await client.getCompletedPodcasts()
+            let serverIds = Set(serverPodcasts.map { $0.id })
+            
+            // Only fetch IDs from local, not full objects
+            var fetchDescriptor = FetchDescriptor<Podcast>()
+            fetchDescriptor.propertiesToFetch = [\.taskId]
+            let localPodcasts = try context.fetch(fetchDescriptor)
+            let localIds = localPodcasts.map { $0.taskId }
+
+            // Find orphaned IDs
+            let orphanedIds = Set(localIds).subtracting(serverIds)
+            
+            // Delete orphaned podcasts by ID
+            for orphanedId in orphanedIds {
+                try context.delete(model: Podcast.self, where: #Predicate { $0.taskId == orphanedId })
+            }
+            
+            // Upsert server podcasts
             for serverPodcast in serverPodcasts {
                 if let podcast = Podcast(from: serverPodcast) {
                     context.insert(podcast)
@@ -47,7 +64,9 @@ class PodcastViewModel {
     func delete(_ podcast: Podcast, context: ModelContext) async {
         do {
             try await client.deletePodcast(id: podcast.taskId)
+            try? FileManager.default.removeItem(at: podcast.fileURL)
             context.delete(podcast)
+            try context.save()
         } catch {
             print("Failed to delete podcast: \(error)")
         }
