@@ -10,7 +10,7 @@ import AVFoundation
 
 @Observable
 @MainActor
-final class AudioController {
+final class AudioManager {
     var player: AVPlayer?
     
     var currentPodcast: Podcast?

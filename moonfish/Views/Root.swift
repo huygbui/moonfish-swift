@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct Root: View {
-    @Environment(AudioController.self) private var audioPlayer
+    @Environment(AudioManager.self) private var audioPlayer
     @State private var selectedTab: TabItem = .podcasts
     
     var body: some View {

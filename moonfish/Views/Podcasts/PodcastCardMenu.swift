@@ -11,7 +11,7 @@ import SwiftData
 struct PodcastCardMenu: View {
     var podcast: Podcast
     
-    @Environment(AudioController.self) private var audioPlayer
+    @Environment(AudioManager.self) private var audioPlayer
     @Environment(PodcastViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) private var dismiss

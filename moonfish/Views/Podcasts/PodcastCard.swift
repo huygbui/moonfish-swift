@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct PodcastCard: View {
-    @Environment(AudioController.self) private var audioPlayer
+    @Environment(AudioManager.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(PodcastViewModel.self) private var rootModel
     var podcast: Podcast

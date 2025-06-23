@@ -10,7 +10,7 @@ import SwiftData
 
 @main
 struct moonfishApp: App {
-    @State private var audioPlayer = AudioController()
+    @State private var audioPlayer = AudioManager()
     @State private var podcastRootModel = PodcastViewModel()
     @State private var requestRootModel = RequestViewModel()
     
