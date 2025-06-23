@@ -19,7 +19,7 @@ struct GaugeProgress: View {
                 .trim(from: 0, to: fractionCompleted)
                 .stroke(style: StrokeStyle(lineWidth: strokeWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-                .foregroundStyle(.primary)
+                .foregroundStyle(.secondary)
         }
         .padding(strokeWidth/2)
     }

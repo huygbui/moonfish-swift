@@ -30,22 +30,30 @@ struct PodcastCardHighlight: View {
                     .font(.subheadline)
                     .lineLimit(3)
                 
-                ZStack {
-                    if podcast.isDownloaded {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.body)
-                    } else if podcast.downloadState == .downloading {
-                        GaugeProgress(
-                            fractionCompleted: podcast.downloadProgress,
-                            strokeWidth: 2
-                        )
-                        .frame(width: 16, height: 16)
-                    } else {
-                        EmptyView()
+                HStack(spacing: 12) {
+                    if podcast.isNew {
+                        Text("New").font(.footnote)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .foregroundStyle(.primary)
+                            .background(.primary, in: .capsule.stroke(lineWidth: 1))
                     }
+                    
+                    ZStack {
+                        if podcast.isDownloaded {
+                            Image(systemName: "checkmark.circle")
+                        } else if podcast.downloadState == .downloading {
+                            GaugeProgress(
+                                fractionCompleted: podcast.downloadProgress,
+                                strokeWidth: 1
+                            )
+                        } else {
+                            EmptyView()
+                        }
+                    }
+                    .frame(width: 16, height: 16)
+                    .foregroundStyle(.secondary)
                 }
-                .foregroundStyle(.secondary)
-                .frame(width: 24, height: 24)
             }
             
             Spacer()

@@ -56,35 +56,31 @@ struct PodcastCard: View {
                 .foregroundStyle(.primary)
                 
                 Text(podcast.duration.hoursMinutes)
+                    .font(.caption)
                 
                 Spacer()
                 
                 
-                HStack(spacing: 4) {
-                    ZStack {
-                        if podcast.isDownloaded {
-                            Image(systemName: "checkmark.circle.fill")
-                                .font(.body)
-                        } else if podcast.downloadState == .downloading {
-                            GaugeProgress(
-                                fractionCompleted: podcast.downloadProgress,
-                                strokeWidth: 2
-                            )
-                            .frame(width: 16, height: 16)
-                        } else {
-                            EmptyView()
-                        }
+                ZStack {
+                    if podcast.isDownloaded {
+                        Image(systemName: "checkmark.circle")
+                    } else if podcast.downloadState == .downloading {
+                        GaugeProgress(
+                            fractionCompleted: podcast.downloadProgress,
+                            strokeWidth: 1
+                        )
+                    } else {
+                        EmptyView()
                     }
                 }
+                .frame(width: 16, height: 16)
                 .foregroundStyle(.secondary)
-                .frame(width: 24, height: 24)
                 
                 PodcastCardMenu(podcast: podcast)
                     .foregroundStyle(.secondary)
                     .frame(width: 24, height: 24)
             }
         }
-        .font(.caption)
         .padding()
         .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 16))
     }

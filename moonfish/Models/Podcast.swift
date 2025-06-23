@@ -26,6 +26,7 @@ final class Podcast {
     var createdAt: Date
     var isFavorite: Bool
     var isDownloaded: Bool
+    var isNew: Bool
     
     var url: URL?
     var expiresAt: Date?
@@ -51,6 +52,7 @@ final class Podcast {
         createdAt: Date,
         isFavorite: Bool = false,
         isDownloaded: Bool = false,
+        isNew: Bool = true,
         
         url: URL? = nil,
         expiresAt: Date? = nil,
@@ -73,6 +75,7 @@ final class Podcast {
         self.createdAt = createdAt
         self.isFavorite = isFavorite
         self.isDownloaded = isDownloaded
+        self.isNew = isNew
         
         self.url = url
         self.expiresAt = expiresAt
@@ -137,7 +140,7 @@ extension Podcast {
         duration: 620, // about 10 minutes
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600), // Created an hour after the request
         isDownloaded: true,
-        downloadState: .idle
+        downloadState: .downloading
     )
 }
 

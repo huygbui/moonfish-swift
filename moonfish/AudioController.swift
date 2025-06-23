@@ -42,7 +42,10 @@ final class AudioController {
                    : podcast.url
 
         guard let url else { return }
-        
+       
+        if podcast.isNew { podcast.isNew = false }
+       
+        // Resume
         if currentPodcast == podcast && player != nil {
             if !isPlaying {
                 player?.play()

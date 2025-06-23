@@ -54,6 +54,7 @@ struct PodcastsRoot: View {
             }
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
+            .scrollIndicators(.hidden)
             .background(Color(.secondarySystemBackground))
             .navigationTitle("Podcasts")
             .toolbar {
