@@ -26,7 +26,7 @@ struct SearchRoot: View {
         case .all:
             filtered = podcasts
         case .downloaded:
-            filtered = podcasts.filter { $0.downloadState == .completed }
+            filtered = podcasts.filter { $0.isDownloaded }
         case .favorite:
             filtered = podcasts.filter { $0.isFavorite }
         }

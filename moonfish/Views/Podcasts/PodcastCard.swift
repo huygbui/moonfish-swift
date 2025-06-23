@@ -59,8 +59,28 @@ struct PodcastCard: View {
                 
                 Spacer()
                 
-                PodcastCardMenu(podcast: podcast)
+                
+                HStack(spacing: 4) {
+                    ZStack {
+                        if podcast.isDownloaded {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.body)
+                        } else if podcast.downloadState == .downloading {
+                            GaugeProgress(
+                                fractionCompleted: podcast.downloadProgress,
+                                strokeWidth: 2
+                            )
+                            .frame(width: 16, height: 16)
+                        } else {
+                            EmptyView()
+                        }
+                    }
                     .foregroundStyle(.secondary)
+                    .frame(width: 24, height: 24)
+                    
+                    PodcastCardMenu(podcast: podcast)
+                        .foregroundStyle(.secondary)
+                }
             }
             .font(.caption)
         }

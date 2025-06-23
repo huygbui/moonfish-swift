@@ -18,7 +18,7 @@ struct PodcastCardHighlight: View {
     var body: some View {
         VStack(alignment: .leading) {
             // Card header
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(podcast.title)
                     .lineLimit(2)
                 
@@ -29,6 +29,23 @@ struct PodcastCardHighlight: View {
                 )
                     .font(.subheadline)
                     .lineLimit(3)
+                
+                ZStack {
+                    if podcast.isDownloaded {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.body)
+                    } else if podcast.downloadState == .downloading {
+                        GaugeProgress(
+                            fractionCompleted: podcast.downloadProgress,
+                            strokeWidth: 2
+                        )
+                        .frame(width: 16, height: 16)
+                    } else {
+                        EmptyView()
+                    }
+                }
+                .foregroundStyle(.secondary)
+                .frame(width: 24, height: 24)
             }
             
             Spacer()

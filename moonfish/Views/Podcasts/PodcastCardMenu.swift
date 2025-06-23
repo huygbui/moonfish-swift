@@ -29,8 +29,8 @@ struct PodcastCardMenu: View {
             
             Button(action: toggleDownload) {
                 Label(
-                    downloadButtonText,
-                    systemImage: downloadButtonImageName
+                    podcast.isDownloaded ? "Remove Download" : "Download Episode",
+                    systemImage: podcast.isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle"
                 )
             }
             
@@ -63,29 +63,10 @@ struct PodcastCardMenu: View {
     }
     
     func toggleDownload() {
-        switch podcast.downloadState {
-        case .idle, .canceled:
-            Task { try? await rootModel.download(podcast) }
-        case .dowloading:
-            rootModel.cancelDownload(for: podcast)
-        case .completed:
+        if podcast.isDownloaded {
             rootModel.removeDownload(for: podcast)
-        }
-    }
-    
-    var downloadButtonImageName: String {
-        switch podcast.downloadState {
-        case .dowloading: return "pause.fill"
-        case .completed: return "arrow.down.circle.fill"
-        case .idle, .canceled: return "arrow.down.circle"
-        }
-    }
-    
-    var downloadButtonText: String {
-        switch podcast.downloadState {
-        case .dowloading: return "Stop Download"
-        case .completed: return "Remove Download"
-        case .idle, .canceled: return "Download Episode"
+        } else {
+            Task { try? await rootModel.download(podcast) }
         }
     }
 }

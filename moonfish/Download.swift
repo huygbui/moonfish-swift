@@ -15,7 +15,7 @@ final class Download: NSObject {
     enum Event {
         case progress(currentBytes: Int64, totalBytes: Int64)
         case completed(url: URL)
-        case canceled(data: Data?)
+        case canceled
     }
     
     convenience init(request: URLRequest) {
@@ -24,10 +24,6 @@ final class Download: NSObject {
     
     convenience init(url: URL) {
         self.init(task: URLSession.shared.downloadTask(with: url))
-    }
-    
-    convenience init(resumeData data: Data) {
-        self.init(task: URLSession.shared.downloadTask(withResumeData: data))
     }
     
     private init(task: URLSessionDownloadTask) {
@@ -47,8 +43,8 @@ final class Download: NSObject {
     }
     
     func cancel() {
-        task.cancel { data in
-            self.continuation.yield(.canceled(data: data))
+        task.cancel { _ in
+            self.continuation.yield(.canceled)
             self.continuation.finish()
         }
     }
@@ -66,7 +62,7 @@ extension Download: URLSessionDownloadDelegate {
             try FileManager.default.copyItem(at: location, to: tempURL)
             continuation.yield(.completed(url: tempURL))
         } catch {
-            continuation.yield(.canceled(data: nil))
+            continuation.yield(.canceled)
         }
         continuation.finish()
     }

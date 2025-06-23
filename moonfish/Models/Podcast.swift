@@ -25,14 +25,14 @@ final class Podcast {
     var duration: Double
     var createdAt: Date
     var isFavorite: Bool
+    var isDownloaded: Bool
     
     var url: URL?
     var expiresAt: Date?
     
-    var downloadState: DownloadState
-    var resumeData: Data?
-    private(set) var currentBytes: Int64 = 0
-    private(set) var totalBytes: Int64 = 0
+    @Attribute(.ephemeral) var downloadState: DownloadState
+    @Attribute(.ephemeral) private(set) var currentBytes: Int64 = 0
+    @Attribute(.ephemeral) private(set) var totalBytes: Int64 = 0
     
     init(
         taskId: Int,
@@ -51,10 +51,11 @@ final class Podcast {
         createdAt: Date,
         isFavorite: Bool = false,
         isDownloaded: Bool = false,
+        
         url: URL? = nil,
         expiresAt: Date? = nil,
         
-        downloadState: DownloadState = .idle,
+        downloadState: DownloadState = .idle
     ) {
         self.taskId = taskId
         
@@ -71,6 +72,7 @@ final class Podcast {
         self.duration = duration
         self.createdAt = createdAt
         self.isFavorite = isFavorite
+        self.isDownloaded = isDownloaded
         
         self.url = url
         self.expiresAt = expiresAt
@@ -99,9 +101,7 @@ final class Podcast {
 extension Podcast {
     enum DownloadState: String, CaseIterable, Codable {
         case idle = "idle"
-        case dowloading = "downloading"
-        case completed = "completed"
-        case canceled = "canceled"
+        case downloading = "downloading"
     }
     
     var fileURL: URL {
@@ -114,10 +114,6 @@ extension Podcast {
         guard totalBytes > 0 else { return 0 }
         return Double(currentBytes) / Double(totalBytes)
     }
-
-//    var isDownloadCompleted: Bool {
-//        currentBytes == totalBytes && totalBytes > 0
-//    }
 
     func update(currentBytes: Int64, totalBytes: Int64) {
         self.currentBytes = currentBytes
@@ -139,7 +135,9 @@ extension Podcast {
 //        transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
         fileName: "gardening_beginner.mp3",
         duration: 620, // about 10 minutes
-        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600) // Created an hour after the request
+        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600), // Created an hour after the request
+        isDownloaded: true,
+        downloadState: .idle
     )
 }
 
