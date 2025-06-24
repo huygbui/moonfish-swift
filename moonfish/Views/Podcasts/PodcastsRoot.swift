@@ -26,8 +26,10 @@ struct PodcastsRoot: View {
                             Text("Newly Added").font(.headline)
                             ScrollView(.horizontal) {
                                 LazyHStack {
-                                    ForEach(recentPodcasts) {
-                                        PodcastCardHighlight(podcast: $0)
+                                    ForEach(recentPodcasts) { podcast in
+                                        NavigationLink(value: podcast) {
+                                            PodcastCardHighlight(podcast: podcast)
+                                        }
                                     }
                                 }
                             }
@@ -38,8 +40,10 @@ struct PodcastsRoot: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Past Tracks").font(.headline)
                         LazyVStack(spacing: 8) {
-                            ForEach(pastPodcasts){
-                                PodcastCard(podcast: $0)
+                            ForEach(pastPodcasts){ podcast in
+                                NavigationLink(value: podcast) {
+                                    PodcastCard(podcast: podcast)
+                                }
                             }
                         }
                     }
@@ -57,6 +61,7 @@ struct PodcastsRoot: View {
             .scrollIndicators(.hidden)
             .background(Color(.secondarySystemBackground))
             .navigationTitle("Podcasts")
+            .navigationDestination(for: Podcast.self) { PodcastDetail(podcast: $0)}
             .toolbar {
                 ToolbarItem {
                     Button(action: { showingAccountSheet = true }) {
