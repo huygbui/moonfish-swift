@@ -72,11 +72,11 @@ struct PodcastsRoot: View {
         }
         
         var recentPodcasts: [Podcast] {
-            podcasts.filter { $0.createdAt.timeIntervalSinceNow > -3 * 24 * 60 * 60 }
+            podcasts.filter { $0.isRecent }
         }
         
         var pastPodcasts: [Podcast] {
-            podcasts.filter { $0.createdAt.timeIntervalSinceNow <= -3 * 24 * 60 * 60 }
+            podcasts.filter { !$0.isRecent }
         }
     }
 }

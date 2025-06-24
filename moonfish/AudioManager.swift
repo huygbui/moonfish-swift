@@ -43,8 +43,6 @@ final class AudioManager {
 
         guard let url else { return }
        
-        if podcast.isNew { podcast.isNew = false }
-       
         // Resume
         if currentPodcast == podcast && player != nil {
             if !isPlaying {

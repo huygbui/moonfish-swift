@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-import SwiftUI
-
 struct PodcastCover: View {
     let pattern: String
     let color: Color

@@ -26,7 +26,6 @@ final class Podcast {
     var createdAt: Date
     var isFavorite: Bool
     var isDownloaded: Bool
-    var isNew: Bool
     
     var url: URL?
     var expiresAt: Date?
@@ -75,7 +74,6 @@ final class Podcast {
         self.createdAt = createdAt
         self.isFavorite = isFavorite
         self.isDownloaded = isDownloaded
-        self.isNew = isNew
         
         self.url = url
         self.expiresAt = expiresAt
@@ -98,6 +96,16 @@ final class Podcast {
             duration: podcastResponse.duration,
             createdAt: podcastResponse.createdAt
         )
+    }
+}
+
+extension Podcast {
+    var isNew: Bool {
+        createdAt.timeIntervalSinceNow > -1 * 24 * 60 * 60
+    }
+    
+    var isRecent: Bool {
+        createdAt.timeIntervalSinceNow > -3 * 24 * 60 * 60
     }
 }
 
