@@ -8,17 +8,17 @@
 import SwiftUI
 
 struct PodcastCover: View {
-    let pattern: String
-    let color: Color
-    
-    var body: some View {
-        Text(attributedPattern)
-            .font(.system(size: 24, weight: .bold, design: .monospaced))
-            .minimumScaleFactor(0.25)
-            .padding(32)
-            .frame(width: 256, height: 256, alignment: .center)
-            .background(color, in: .rect(cornerRadius: 16))
-    }
+    var pattern: String = """
+0000000110000000
+0000000110000000
+0000001111000000
+0000011111100000
+0000111111111100
+0000011111111000
+0000001111110000
+0000000111100000
+"""
+    var color: Color = .green
     
     private var attributedPattern: AttributedString {
         var result = AttributedString("")
@@ -30,6 +30,15 @@ struct PodcastCover: View {
         }
         
         return result
+    }
+    
+    var body: some View {
+        Text(attributedPattern)
+            .font(.system(size: 24, weight: .bold, design: .monospaced))
+            .minimumScaleFactor(0.25)
+            .padding(32)
+            .frame(width: 256, height: 256, alignment: .center)
+            .background(color, in: .rect(cornerRadius: 16))
     }
 }
 
@@ -45,7 +54,7 @@ struct PodcastCover: View {
 0000000111100000
 """
     
-    let color = Color.accentColor
+    let color = Color.green
     
     PodcastCover(pattern: pattern, color: color)
 }

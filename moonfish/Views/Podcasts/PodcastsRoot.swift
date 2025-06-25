@@ -30,6 +30,7 @@ struct PodcastsRoot: View {
                                         NavigationLink(value: podcast) {
                                             PodcastCardHighlight(podcast: podcast)
                                         }
+                                        .buttonStyle(.plain)
                                     }
                                 }
                             }
@@ -44,6 +45,7 @@ struct PodcastsRoot: View {
                                 NavigationLink(value: podcast) {
                                     PodcastCard(podcast: podcast)
                                 }
+                                .buttonStyle(.plain)
                             }
                         }
                     }
