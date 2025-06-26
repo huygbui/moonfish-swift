@@ -15,6 +15,8 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
     }
     
     func body(content: Content, context: ModelContainer) -> some View {
+        var colorSchemePreference: ColorSchemePreference = .automatic
+    
         let audioPlayer = AudioManager() // Use the same instance
         let podcastRootModel = PodcastViewModel()
         let requestRootModel = RequestViewModel()
@@ -23,6 +25,8 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
             .environment(audioPlayer)
             .environment(podcastRootModel)
             .environment(requestRootModel)
+            .environment(AuthManager())
+            .preferredColorScheme(colorSchemePreference.colorScheme)
             .modelContainer(context)
             .task {
                 let podcast: Podcast = .preview

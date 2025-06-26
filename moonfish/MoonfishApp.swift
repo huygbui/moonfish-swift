@@ -10,6 +10,8 @@ import SwiftData
 
 @main
 struct MoonfishApp: App {
+    @AppStorage("colorSchemePreference") var colorSchemePreference: ColorSchemePreference = .automatic
+    
     @State private var audioManager = AudioManager()
     @State private var authManager = AuthManager()
     @State private var podcastRootModel = PodcastViewModel()
@@ -24,9 +26,11 @@ struct MoonfishApp: App {
                     .environment(authManager)
                     .environment(podcastRootModel)
                     .environment(requestRootModel)
+                    .preferredColorScheme(colorSchemePreference.colorScheme)
             } else {
                 SignInView()
                     .environment(authManager)
+                    .preferredColorScheme(colorSchemePreference.colorScheme)
             }
         }
     }

@@ -12,6 +12,7 @@ import SwiftUI
 @Observable
 final class AuthManager {
     private let tokenKey = "auth-token"
+    private let emailKey = "user-email"
     private let client = BackendClient()
     
     private(set) var isAuthenticated: Bool = false
@@ -29,6 +30,17 @@ final class AuthManager {
         }
     }
     
+    var email: String? {
+        get { KeychainHelper.retrieve(key: emailKey) }
+        set {
+            if let newValue {
+                _ = KeychainHelper.store(key: emailKey, value: newValue)
+            } else {
+                _ = KeychainHelper.delete(key: emailKey)
+            }
+        }
+    }
+    
     init() {
         // Check initial authentication state
         isAuthenticated = KeychainHelper.retrieve(key: tokenKey) != nil
@@ -40,10 +52,12 @@ final class AuthManager {
         
         // Store the token
         self.token = authResponse.token.accessToken
+        self.email = email
     }
     
     func signOut() {
         token = nil
+        email = nil
     }
 }
 
