@@ -22,9 +22,9 @@ final class AuthManager {
         get { KeychainHelper.retrieve(key: tokenKey) }
         set {
             if let newValue {
-                KeychainHelper.store(key: tokenKey, value: newValue)
+                _ = KeychainHelper.store(key: tokenKey, value: newValue)
             } else {
-                KeychainHelper.delete(key: tokenKey)
+                _ = KeychainHelper.delete(key: tokenKey)
             }
         }
     }

@@ -9,7 +9,10 @@ import Foundation
 import SwiftUI
 
 enum ClientError: Error {
+    case invalidResponse
+    case serverError
     case networkError
+    case unexpectedError
     case decodingError(String)
     case configurationError
     case unauthorized
@@ -83,7 +86,7 @@ final class BackendClient: Sendable {
         self.encoder = JSONEncoder()
     }
     
-    func createRequest(for endpoint: String, method: String = "GET") throws -> URLRequest {
+    func createRequest(for endpoint: String, method: String = "GET", authToken: String? = nil) throws -> URLRequest {
         guard let baseURL = URL(string: config.baseURL) else {
             throw ClientError.configurationError
         }
@@ -92,10 +95,14 @@ final class BackendClient: Sendable {
         var request = URLRequest(url: url)
         request.httpMethod = method
         
+        if let token = authToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
         return request
     }
     
-    // MARK: - Retrieve Token:
+    // MARK: - Retrieve Auth Token:
     func getAuthToken(for signInRequest: AppleSignInRequest) async throws -> AuthResponse {
         var request = try createRequest(for: "auth/apple", method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -117,142 +124,197 @@ final class BackendClient: Sendable {
     }
    
     // MARK: - Create Podcast
-    func createPodcast(config: PodcastConfig) async throws -> OngoingPodcastResponse {
-        var request = try createRequest(for: "podcasts", method: "POST")
+    func createPodcast(config: PodcastConfig, authToken: String) async throws -> OngoingPodcastResponse {
+        var request = try createRequest(for: "podcasts", method: "POST", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(config)
-
+        
         let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200
-        else {
-            throw ClientError.networkError
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
         }
         
-        do {
-            let result = try decoder.decode(OngoingPodcastResponse.self, from: data)
-            return result
-        } catch {
-            throw ClientError.decodingError(error.localizedDescription)
-        }
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode(OngoingPodcastResponse.self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
+        }    
     }
     
     // MARK: - Get Completed Podcasts
-    func getCompletedPodcasts() async throws -> [CompletedPodcastResponse] {
-        let request = try createRequest(for: "podcasts/completed")
-        
+    func getCompletedPodcasts(authToken: String) async throws -> [CompletedPodcastResponse] {
+        let request = try createRequest(for: "podcasts/completed", authToken: authToken)
         let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200
-        else {
-            throw ClientError.networkError
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
         }
         
-        do {
-            let result = try decoder.decode([CompletedPodcastResponse].self, from: data)
-            return result
-        } catch {
-            throw ClientError.decodingError(error.localizedDescription)
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode([CompletedPodcastResponse].self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
         }
     }
     
     // MARK: - Get Ongoing Podcasts
-    func getOngoingPodcasts() async throws -> [OngoingPodcastResponse] {
-        let request = try createRequest(for: "podcasts/ongoing")
-        
+    func getOngoingPodcasts(authToken: String) async throws -> [OngoingPodcastResponse] {
+        let request = try createRequest(for: "podcasts/ongoing", authToken: authToken)
         let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200
-        else {
-            throw ClientError.networkError
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
         }
         
-        do {
-            let result = try decoder.decode([OngoingPodcastResponse].self, from: data)
-            return result
-        } catch {
-            throw ClientError.decodingError(error.localizedDescription)
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode([OngoingPodcastResponse].self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
         }
     }
     
     // MARK: - Get Single Podcast
-    func getPodcast(id: Int) async throws -> CompletedPodcastResponse {
-        let request = try createRequest(for: "podcasts/\(id)")
-        
+    func getPodcast(id: Int, authToken: String) async throws -> CompletedPodcastResponse {
+        let request = try createRequest(for: "podcasts/\(id)", authToken: authToken)
         let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200
-        else {
-            throw ClientError.networkError
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
         }
         
-        do {
-            let result = try decoder.decode(CompletedPodcastResponse.self, from: data)
-            return result
-        } catch {
-            throw ClientError.decodingError(error.localizedDescription)
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode(CompletedPodcastResponse.self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
         }
     }
     
     // MARK: - Get Podcast Content
-    func getPodcastContent(id: Int) async throws -> PodcastContentResponse {
-        let request = try createRequest(for: "podcasts/\(id)/content")
-        
+    func getPodcastContent(id: Int, authToken: String) async throws -> PodcastContentResponse {
+        let request = try createRequest(for: "podcasts/\(id)/content", authToken: authToken)
         let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200
-        else {
-            throw ClientError.networkError
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
         }
         
-        do {
-            let result = try decoder.decode(PodcastContentResponse.self, from: data)
-            return result
-        } catch {
-            throw ClientError.decodingError(error.localizedDescription)
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode(PodcastContentResponse.self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
         }
     }
     
     // MARK: - Get Podcast Audio
-    func getPodcastAudio(id: Int) async throws -> PodcastAudioResponse {
-        let request = try createRequest(for: "podcasts/\(id)/audio")
-        
+    func getPodcastAudio(id: Int, authToken: String) async throws -> PodcastAudioResponse {
+        let request = try createRequest(for: "podcasts/\(id)/audio", authToken: authToken)
         let (data, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200
-        else {
-            throw ClientError.networkError
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
         }
         
-        do {
-            let result = try decoder.decode(PodcastAudioResponse.self, from: data)
-            return result
-        } catch {
-            throw ClientError.decodingError(error.localizedDescription)
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode(PodcastAudioResponse.self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
         }
     }
 
     // MARK: - Delete Podcast
-    func deletePodcast(id: Int) async throws {
-        let request = try createRequest(for: "podcasts/\(id)", method: "DELETE")
-        
+    func deletePodcast(id: Int, authToken: String) async throws {
+        let request = try createRequest(for: "podcasts/\(id)", method: "DELETE", authToken: authToken)
         let (_, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-                [200, 204].contains(httpResponse.statusCode)
-        else {
-            throw ClientError.networkError
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200, 204:
+            return
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
         }
     }
     
     // MARK: - Cancel Podcast
-    func cancelOngoingPodcast(id: Int) async throws {
-        let request = try createRequest(for: "podcasts/\(id)/cancel", method: "POST")
-        
+    func cancelOngoingPodcast(id: Int, authToken: String) async throws {
+        let request = try createRequest(for: "podcasts/\(id)/cancel", method: "POST", authToken: authToken)
         let (_, response) = try await session.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 204
-        else {
-            throw ClientError.networkError
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200, 204:
+            return
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
         }
     }
 }

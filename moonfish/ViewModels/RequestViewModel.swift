@@ -15,18 +15,22 @@ class RequestViewModel {
     
     var requests = [PodcastRequest]()
     
-    func refresh() async {
+    func refresh(authManager: AuthManager) async {
+        guard let token = authManager.token else { return }
+
         do {
-            let response = try await client.getOngoingPodcasts()
+            let response = try await client.getOngoingPodcasts(authToken: token)
             requests = response.map { PodcastRequest(from: $0) }
         } catch {
             print("Failed to fetch podcast requests: \(error)")
         }
     }
     
-    func submitRequest(for config: PodcastConfig) async {
+    func submitRequest(for config: PodcastConfig, authManager: AuthManager) async {
+        guard let token = authManager.token else { return }
+
         do {
-            let response = try await client.createPodcast(config: config)
+            let response = try await client.createPodcast(config: config, authToken: token)
             let newRequest = PodcastRequest(from: response)
             requests.append(newRequest)
         } catch {
@@ -34,10 +38,12 @@ class RequestViewModel {
         }
     }
     
-    func cancel(_ request: PodcastRequest) async {
+    func cancel(_ request: PodcastRequest, authManager: AuthManager) async {
+        guard let token = authManager.token else { return }
+
         requests.removeAll { $0.id == request.id }
         do {
-            try await client.cancelOngoingPodcast(id: request.id)
+            try await client.cancelOngoingPodcast(id: request.id, authToken: token)
         } catch {
             requests.append(request)
             print("Failed to cancel podcast: \(error)")

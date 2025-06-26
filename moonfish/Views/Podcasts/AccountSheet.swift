@@ -9,11 +9,15 @@ import SwiftUI
 
 struct AccountSheet: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(AuthManager.self) private var authManager
     
     var body: some View {
         NavigationStack {
             VStack {
                 Text("Account Sheet")
+                Button("Log Out") {
+                    authManager.signOut()
+                }
             }
             .navigationTitle("Account")
             .navigationBarTitleDisplayMode(.inline)
@@ -39,4 +43,5 @@ struct AccountSheet: View {
 
 #Preview {
     AccountSheet()
+        .environment(AuthManager())
 }

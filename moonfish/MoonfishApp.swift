@@ -10,23 +10,23 @@ import SwiftData
 
 @main
 struct MoonfishApp: App {
-    @AppStorage("userIdentifier") private var userIdentifier: String = ""
-    @State private var audioPlayer = AudioManager()
+    @State private var audioManager = AudioManager()
+    @State private var authManager = AuthManager()
     @State private var podcastRootModel = PodcastViewModel()
     @State private var requestRootModel = RequestViewModel()
 
-    private var isSignedIn: Bool { !userIdentifier.isEmpty }
-    
     var body: some Scene {
         WindowGroup {
-            if !isSignedIn {
-                SignInView(userIdentifier: $userIdentifier)
-            } else {
+            if authManager.isAuthenticated {
                 Root()
                     .modelContainer(SampleData.shared.modelContainer)
-                    .environment(audioPlayer)
+                    .environment(audioManager)
+                    .environment(authManager)
                     .environment(podcastRootModel)
                     .environment(requestRootModel)
+            } else {
+                SignInView()
+                    .environment(authManager)
             }
         }
     }

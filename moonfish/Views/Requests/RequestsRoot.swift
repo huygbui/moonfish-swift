@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RequestsRoot: View {
     @Environment(RequestViewModel.self) private var rootModel
+    @Environment(AuthManager.self) private var authManager
     @State private var showingCreateSheet: Bool = false
     @State private var isLoading: Bool = false
     
@@ -32,7 +33,7 @@ struct RequestsRoot: View {
                     }())
                 }
             }
-            .refreshable { await rootModel.refresh() }
+            .refreshable { await rootModel.refresh(authManager: authManager) }
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
             .background(Color(.secondarySystemBackground))
@@ -51,7 +52,7 @@ struct RequestsRoot: View {
                 isLoading = true
                 defer { isLoading = false }
 //                try? await Task.sleep(nanoseconds: 3_000_000_000)
-                await rootModel.refresh()
+                await rootModel.refresh(authManager: authManager)
             }
         }
     }

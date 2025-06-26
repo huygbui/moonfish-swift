@@ -10,7 +10,8 @@ import SwiftData
 
 struct PodcastDetail: View {
     var podcast: Podcast
-    @Environment(AudioManager.self) private var audioPlayer
+    @Environment(AudioManager.self) private var audioManager
+    @Environment(AuthManager.self) private var authManager
     @Environment(PodcastViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
 
@@ -61,12 +62,13 @@ struct PodcastDetail: View {
             Task {
                 await rootModel.refreshAudioURL(
                     podcast,
-                    modelContext: context
+                    modelContext: context,
+                    authManager: authManager
                 )
-                audioPlayer.toggle(podcast)
+                audioManager.toggle(podcast)
             }
         } label: {
-            Image(systemName: audioPlayer.isPlaying(podcast)
+            Image(systemName: audioManager.isPlaying(podcast)
                   ? "pause.fill" : "play.fill"
             )
                 .frame(width: playButtonWidth, height: playButtonHeight)
