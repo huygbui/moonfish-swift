@@ -11,6 +11,7 @@ import SwiftData
 struct PodcastsRoot: View {
     @Environment(PodcastViewModel.self) private var rootModel
     @Environment(AudioManager.self) private var audioPlayer
+    @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext
     
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
@@ -75,7 +76,7 @@ struct PodcastsRoot: View {
                 }
             }
             .sheet(isPresented: $showingAccountSheet) { AccountSheet() }
-            .task { await rootModel.refresh(context) }
+            .task { await rootModel.refresh(context, authManager: authManager) }
         }
         
         var recentPodcasts: [Podcast] {

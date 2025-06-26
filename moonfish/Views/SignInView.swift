@@ -2,40 +2,97 @@ import SwiftUI
 import AuthenticationServices
 
 struct SignInView: View {
-    @Binding var userIdentifier: String
+    @Environment(AuthManager.self) private var authManager
+    @State private var isSigningIn = false
+    @State private var errorMessage: String?
     
     var body: some View {
-        SignInWithAppleButton(
-            onRequest: { request in
-                request.requestedScopes = [.fullName, .email]
-            },
-            onCompletion: { result in
-                switch result {
-                case .success(let auth):
-                    if let credential = auth.credential as? ASAuthorizationAppleIDCredential {
-                        userIdentifier = credential.user
-                        
-                        // Optional: Get email/name (only provided first time)
-                        if let name = credential.fullName {
-                            print("Name: \(name)")
-                        }
-                        
-                        if let email = credential.email {
-                            print("Email: \(email)")
-                        }
+        VStack {
+            Spacer()
+            
+            // App logo/branding
+            VStack {
+                Text("Moonfish")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                
+                Text("Your Podcast Companion")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Spacer()
+            
+            // Sign in section
+            VStack(spacing: 16) {
+                SignInWithAppleButton(
+                    onRequest: { request in
+                        request.requestedScopes = [.fullName, .email]
+                    },
+                    onCompletion: { result in
+                        handleSignInResult(result)
                     }
-                case .failure(let error):
-                    print("Authorization failed: \(error)")
+                )
+                .frame(height: 48)
+                .clipShape(Capsule())
+                .disabled(isSigningIn)
+                
+               
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
                 }
             }
-        )
-        .frame(height: 48)
-        .clipShape(Capsule())
-        .padding()
+            .padding(.horizontal)
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func handleSignInResult(_ result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let auth):
+            guard let credential = auth.credential as? ASAuthorizationAppleIDCredential else {
+                errorMessage = "Invalid credential type"
+                return
+            }
+            
+            isSigningIn = true
+            errorMessage = nil
+            
+            // Extract user info (only provided on first sign in)
+            let email = credential.email
+            let fullName = credential.fullName.map { name in
+                [name.givenName, name.familyName]
+                    .compactMap { $0 }
+                    .joined(separator: " ")
+            }.flatMap { $0.isEmpty ? nil : $0 }
+            
+            Task {
+                do {
+                    try await authManager.signInWithApple(
+                        appleId: credential.user,
+                        email: email,
+                        fullName: fullName
+                    )
+                } catch {
+                    errorMessage = "Sign in failed. Please try again."
+                    isSigningIn = false
+                }
+            }
+            
+        case .failure(let error):
+            if (error as NSError).code != ASAuthorizationError.canceled.rawValue {
+                errorMessage = "Sign in failed: \(error.localizedDescription)"
+            }
+        }
     }
 }
 
 #Preview {
-    @Previewable @State var userIdentifier: String = ""
-    SignInView(userIdentifier: $userIdentifier)
+    SignInView()
+        .environment(AuthManager())
 }

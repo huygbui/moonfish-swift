@@ -17,10 +17,12 @@ class PodcastViewModel {
     private let client = BackendClient()
     private var downloads: [Int:Download] = [:]
     
-    func refreshAudioURL(_ podcast: Podcast, modelContext: ModelContext) async {
+    func refreshAudioURL(_ podcast: Podcast, modelContext: ModelContext, authManager: AuthManager) async {
+        guard let token = authManager.token else { return }
+
         if podcast.expiresAt == nil || Date() > podcast.expiresAt! {
             do {
-                let audio = try await client.getPodcastAudio(id: podcast.taskId)
+                let audio = try await client.getPodcastAudio(id: podcast.taskId, authToken: token)
                 podcast.url = audio.url
                 podcast.expiresAt = audio.expiresAt
                 try modelContext.save()
@@ -30,9 +32,11 @@ class PodcastViewModel {
         }
     }
     
-    func refresh(_ context: ModelContext) async {
+    func refresh(_ context: ModelContext, authManager: AuthManager) async {
+        guard let token = authManager.token else { return }
+        
         do {
-            let serverPodcasts = try await client.getCompletedPodcasts()
+            let serverPodcasts = try await client.getCompletedPodcasts(authToken: token)
             let serverIds = Set(serverPodcasts.map { $0.id })
             
             // Only fetch IDs from local, not full objects
@@ -61,9 +65,11 @@ class PodcastViewModel {
         }
     }
     
-    func delete(_ podcast: Podcast, context: ModelContext) async {
+    func delete(_ podcast: Podcast, context: ModelContext, authManager: AuthManager) async {
+        guard let token = authManager.token else { return }
+        
         do {
-            try await client.deletePodcast(id: podcast.taskId)
+            try await client.deletePodcast(id: podcast.taskId, authToken: token)
             try? FileManager.default.removeItem(at: podcast.fileURL)
             context.delete(podcast)
             try context.save()
@@ -76,7 +82,7 @@ class PodcastViewModel {
         podcast.isFavorite.toggle()
     }
     
-    func download(_ podcast: Podcast) async throws {
+    func download(_ podcast: Podcast, authManager: AuthManager) async throws {
         guard downloads[podcast.taskId] == nil,
               podcast.isDownloaded == false
         else { return }

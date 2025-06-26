@@ -14,21 +14,26 @@ final class AuthManager {
     private let tokenKey = "auth-token"
     private let client = BackendClient()
     
-    var isAuthenticated: Bool {
-        token != nil
-    }
-    
+    private(set) var isAuthenticated: Bool = false
+
     var token: String? {
         get { KeychainHelper.retrieve(key: tokenKey) }
         set {
             if let newValue {
-                KeychainHelper.store(key: tokenKey, value: newValue)
+                _ = KeychainHelper.store(key: tokenKey, value: newValue)
+                isAuthenticated = true
             } else {
-                KeychainHelper.delete(key: tokenKey)
+                _ = KeychainHelper.delete(key: tokenKey)
+                isAuthenticated = false
             }
         }
     }
     
+    init() {
+        // Check initial authentication state
+        isAuthenticated = KeychainHelper.retrieve(key: tokenKey) != nil
+    }
+
     func signInWithApple(appleId: String, email: String?, fullName: String?) async throws {
         let signInRequest = AppleSignInRequest(appleId: appleId, email: email, fullName: fullName)
         let authResponse = try await client.getAuthToken(for: signInRequest)

@@ -12,6 +12,7 @@ struct PodcastCardMenu: View {
     var podcast: Podcast
     
     @Environment(AudioManager.self) private var audioPlayer
+    @Environment(AuthManager.self) private var authManager
     @Environment(PodcastViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) private var dismiss
@@ -49,7 +50,7 @@ struct PodcastCardMenu: View {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
                 Task {
-                    await rootModel.delete(podcast, context: context)
+                    await rootModel.delete(podcast, context: context, authManager: authManager)
                     if podcast == audioPlayer.currentPodcast {
                         audioPlayer.pause()
                         audioPlayer.currentPodcast = nil
@@ -66,7 +67,7 @@ struct PodcastCardMenu: View {
         if podcast.isDownloaded {
             rootModel.removeDownload(for: podcast)
         } else {
-            Task { try? await rootModel.download(podcast) }
+            Task { try? await rootModel.download(podcast, authManager: authManager) }
         }
     }
 }

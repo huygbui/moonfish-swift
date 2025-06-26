@@ -9,7 +9,8 @@ import SwiftUI
 import SwiftData
 
 struct PodcastCard: View {
-    @Environment(AudioManager.self) private var audioPlayer
+    @Environment(AudioManager.self) private var audioManager
+    @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(PodcastViewModel.self) private var rootModel
     var podcast: Podcast
@@ -42,13 +43,14 @@ struct PodcastCard: View {
                     Task {
                         await rootModel.refreshAudioURL(
                             podcast,
-                            modelContext: context
+                            modelContext: context,
+                            authManager: authManager
                         )
                         
-                        audioPlayer.toggle(podcast)
+                        audioManager.toggle(podcast)
                     }
                 } label: {
-                    Image(systemName: audioPlayer.isPlaying(podcast)
+                    Image(systemName: audioManager.isPlaying(podcast)
                           ? "pause.circle.fill" : "play.circle.fill")
                     .resizable()
                     .frame(width: 32, height: 32)

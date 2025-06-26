@@ -10,6 +10,8 @@ import SwiftUI
 struct RequestCardMenu: View {
     var request : PodcastRequest
     @Environment(RequestViewModel.self) private var rootModel
+    @Environment(AuthManager.self) private var authManager
+
     @State private var showingAlert: Bool = false
     
     var body: some View {
@@ -26,7 +28,7 @@ struct RequestCardMenu: View {
             Button("Don't Stop", role: .cancel) { }
             Button("Stop", role: .destructive) {
                 Task {
-                    await rootModel.cancel(request)
+                    await rootModel.cancel(request, authManager: authManager)
                 }
             }
         } message: {

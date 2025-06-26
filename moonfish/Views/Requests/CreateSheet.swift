@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CreateSheet: View {
+    @Environment(AuthManager.self) var authManager
     @Environment(RequestViewModel.self) var rootModel
     @Environment(\.dismiss) var dismiss
     
@@ -105,7 +106,7 @@ struct CreateSheet: View {
         
         Task {
             defer { isSubmitting = false }
-            await rootModel.submitRequest(for: config)
+            await rootModel.submitRequest(for: config, authManager: authManager)
             dismiss()
         }
     }

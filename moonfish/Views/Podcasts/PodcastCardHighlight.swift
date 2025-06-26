@@ -12,6 +12,7 @@ struct PodcastCardHighlight: View {
     var podcast: Podcast
     
     @Environment(PodcastViewModel.self) private var rootModel
+    @Environment(AuthManager.self) private var authManager
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext
 
@@ -69,7 +70,8 @@ struct PodcastCardHighlight: View {
                     Task {
                         await rootModel.refreshAudioURL(
                             podcast,
-                            modelContext: context
+                            modelContext: context,
+                            authManager: authManager
                         )
                         audioPlayer.toggle(podcast)
                     }

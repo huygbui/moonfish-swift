@@ -12,6 +12,7 @@ struct PlayerMini: View {
     var podcast: Podcast
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(AudioManager.self) private var audioPlayer
+    @Environment(AuthManager.self) private var authManager
     @Environment(PodcastViewModel.self) private var viewModel
     
     @State private var isPresented = false
@@ -29,7 +30,8 @@ struct PlayerMini: View {
                 Task {
                     await viewModel.refreshAudioURL(
                         podcast,
-                        modelContext: context
+                        modelContext: context,
+                        authManager: authManager
                     )
                     audioPlayer.toggle(podcast)
                 }
