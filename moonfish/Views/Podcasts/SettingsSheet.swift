@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AccountSheet: View {
+struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AuthManager.self) private var authManager
     @AppStorage("colorSchemePreference") private var colorSchemePreference: ColorSchemePreference = .automatic
@@ -48,7 +48,7 @@ struct AccountSheet: View {
                 }
                 .foregroundStyle(.red)
             }
-            .navigationTitle("Account")
+            .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .preferredColorScheme(colorSchemePreference.colorScheme)
             .toolbar {
@@ -67,7 +67,7 @@ struct AccountSheet: View {
 #Preview {
     @Previewable @AppStorage("colorSchemePreference") var colorSchemePreference: ColorSchemePreference = .automatic
     
-    AccountSheet()
+    SettingsSheet()
         .environment(AuthManager())
         .preferredColorScheme(colorSchemePreference.colorScheme)
 }

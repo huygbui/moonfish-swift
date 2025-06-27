@@ -16,8 +16,9 @@ struct PodcastsRoot: View {
     
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
     
-    @State private var showingAccountSheet: Bool = false
-    
+    @State private var showingSettingsSheet: Bool = false
+    @State private var showingCreateSheet: Bool = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -40,7 +41,7 @@ struct PodcastsRoot: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Past Tracks").font(.headline)
+                        Text("Past Episodes").font(.headline)
                         LazyVStack(spacing: 8) {
                             ForEach(pastPodcasts){ podcast in
                                 NavigationLink(value: podcast) {
@@ -67,15 +68,21 @@ struct PodcastsRoot: View {
             .navigationDestination(for: Podcast.self) { PodcastDetail(podcast: $0)}
             .toolbar {
                 ToolbarItem {
-                    Button(action: { showingAccountSheet = true }) {
-                        Label(
-                            "Account",
-                            systemImage: "person"
-                        )
+                    Button(action: { showingSettingsSheet = true }) {
+                        Label("Setting", systemImage: "person")
+                    }
+                }
+                
+                if #available(iOS 26.0, *) { ToolbarSpacer() }
+                
+                ToolbarItem {
+                    Button(action: { showingCreateSheet = true }) {
+                        Label("Create", systemImage: "plus")
                     }
                 }
             }
-            .sheet(isPresented: $showingAccountSheet) { AccountSheet() }
+            .sheet(isPresented: $showingSettingsSheet) { SettingsSheet() }
+            .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
             .task { await rootModel.refresh(context, authManager: authManager) }
         }
         
