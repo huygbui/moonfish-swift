@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct PlayerFull: View {
-    var podcast: Podcast
+    var episode: Episode
     @Environment(EpisodeViewModel.self) private var viewModel
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(AuthManager.self) private var authManager
@@ -33,7 +33,7 @@ struct PlayerFull: View {
                 
                 // Track info
                 VStack(spacing: 8) {
-                    Text(audioPlayer.currentPodcast?.title ?? "")
+                    Text(audioPlayer.currentEpisode?.title ?? "")
                         .font(.title2)
                         .fontWeight(.semibold)
                         .multilineTextAlignment(.center)
@@ -75,14 +75,14 @@ struct PlayerFull: View {
                         Button{
                             Task {
                                 await viewModel.refreshAudioURL(
-                                    podcast,
+                                    episode,
                                     modelContext: context,
                                     authManager: authManager
                                 )
-                                audioPlayer.toggle(podcast)
+                                audioPlayer.toggle(episode)
                             }
                         } label: {
-                            Image(systemName: audioPlayer.isPlaying(podcast) ? "pause.circle.fill" : "play.circle.fill")
+                            Image(systemName: audioPlayer.isPlaying(episode) ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 64))
                         }
                         
@@ -143,7 +143,7 @@ struct PlayerFull: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    PodcastCardMenu(podcast: podcast)
+                    EpisodeMenu(podcast: episode)
                 }
             }
         }
@@ -167,5 +167,5 @@ private func formatTimer(_ time: Double) -> String {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PlayerFull(podcast: .preview)
+    PlayerFull(episode: .preview)
 }

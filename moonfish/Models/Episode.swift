@@ -81,7 +81,7 @@ final class Episode {
         self.downloadState = downloadState
     }
     
-    convenience init? (from podcastResponse: CompletedPodcastResponse) {
+    convenience init? (from podcastResponse: CompletedEpisodeResponse) {
         self.init(
             taskId: podcastResponse.id,
             topic: podcastResponse.topic,

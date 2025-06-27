@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct PlayerMini: View {
-    var podcast: Podcast
+    var episode: Episode
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(AuthManager.self) private var authManager
@@ -19,7 +19,7 @@ struct PlayerMini: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Text(podcast.title)
+            Text(episode.title)
                 .font(.footnote)
                 .fontWeight(.medium)
                 .lineLimit(1)
@@ -29,11 +29,11 @@ struct PlayerMini: View {
             Button {
                 Task {
                     await viewModel.refreshAudioURL(
-                        podcast,
+                        episode,
                         modelContext: context,
                         authManager: authManager
                     )
-                    audioPlayer.toggle(podcast)
+                    audioPlayer.toggle(episode)
                 }
             } label: {
                 Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
@@ -48,13 +48,13 @@ struct PlayerMini: View {
         .padding(.horizontal, 16)
         .onTapGesture { isPresented.toggle() }
         .sheet(isPresented: $isPresented) {
-            if let podcast = audioPlayer.currentPodcast {
-                PlayerFull(podcast: podcast)
+            if let episode = audioPlayer.currentEpisode {
+                PlayerFull(episode: episode)
             }
         }
     }
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PlayerMini(podcast: .preview)
+    PlayerMini(episode: .preview)
 }

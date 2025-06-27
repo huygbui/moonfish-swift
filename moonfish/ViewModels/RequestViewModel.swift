@@ -13,32 +13,32 @@ import SwiftData
 class RequestViewModel {
     private let client = BackendClient()
     
-    var requests = [PodcastRequest]()
+    var requests = [EpisodeRequest]()
     
     func refresh(authManager: AuthManager) async {
         guard let token = authManager.token else { return }
 
         do {
             let response = try await client.getOngoingPodcasts(authToken: token)
-            requests = response.map { PodcastRequest(from: $0) }
+            requests = response.map { EpisodeRequest(from: $0) }
         } catch {
             print("Failed to fetch podcast requests: \(error)")
         }
     }
     
-    func submitRequest(for config: PodcastConfig, authManager: AuthManager) async {
+    func submitRequest(for config: EpisodeConfig, authManager: AuthManager) async {
         guard let token = authManager.token else { return }
 
         do {
             let response = try await client.createPodcast(config: config, authToken: token)
-            let newRequest = PodcastRequest(from: response)
+            let newRequest = EpisodeRequest(from: response)
             requests.append(newRequest)
         } catch {
             print("Failed to create podcast: \(error)")
         }
     }
     
-    func cancel(_ request: PodcastRequest, authManager: AuthManager) async {
+    func cancel(_ request: EpisodeRequest, authManager: AuthManager) async {
         guard let token = authManager.token else { return }
 
         requests.removeAll { $0.id == request.id }

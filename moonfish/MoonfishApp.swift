@@ -14,7 +14,7 @@ struct MoonfishApp: App {
     
     @State private var audioManager = AudioManager()
     @State private var authManager = AuthManager()
-    @State private var podcastRootModel = EpisodeViewModel()
+    @State private var epísodeRootModel = EpisodeViewModel()
     @State private var requestRootModel = RequestViewModel()
 
     var body: some Scene {
@@ -24,7 +24,7 @@ struct MoonfishApp: App {
                     .modelContainer(SampleData.shared.modelContainer)
                     .environment(audioManager)
                     .environment(authManager)
-                    .environment(podcastRootModel)
+                    .environment(epísodeRootModel)
                     .environment(requestRootModel)
                     .preferredColorScheme(colorSchemePreference.colorScheme)
             } else {

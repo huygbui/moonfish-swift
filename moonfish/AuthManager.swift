@@ -49,7 +49,7 @@ final class AuthManager {
     
     init() {
         #if DEBUG
-        if let token = APIConfig.shared.apiToken {
+        if APIConfig.shared.apiToken != nil {
             isAuthenticated = true
         }
         #else

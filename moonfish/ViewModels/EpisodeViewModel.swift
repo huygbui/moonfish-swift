@@ -17,14 +17,14 @@ class EpisodeViewModel {
     private let client = BackendClient()
     private var downloads: [Int:Download] = [:]
     
-    func refreshAudioURL(_ podcast: Podcast, modelContext: ModelContext, authManager: AuthManager) async {
+    func refreshAudioURL(_ episode: Episode, modelContext: ModelContext, authManager: AuthManager) async {
         guard let token = authManager.token else { return }
 
-        if podcast.expiresAt == nil || Date() > podcast.expiresAt! {
+        if episode.expiresAt == nil || Date() > episode.expiresAt! {
             do {
-                let audio = try await client.getPodcastAudio(id: podcast.taskId, authToken: token)
-                podcast.url = audio.url
-                podcast.expiresAt = audio.expiresAt
+                let audio = try await client.getPodcastAudio(id: episode.taskId, authToken: token)
+                episode.url = audio.url
+                episode.expiresAt = audio.expiresAt
                 try modelContext.save()
             } catch {
                 print("Failed to fetch podcast audio: \(error)")
@@ -55,7 +55,7 @@ class EpisodeViewModel {
             
             // Upsert server podcasts
             for serverPodcast in serverPodcasts {
-                if let podcast = Podcast(from: serverPodcast) {
+                if let podcast = Episode(from: serverPodcast) {
                     context.insert(podcast)
                 }
             }
@@ -65,44 +65,44 @@ class EpisodeViewModel {
         }
     }
     
-    func delete(_ podcast: Podcast, context: ModelContext, authManager: AuthManager) async {
+    func delete(_ episode: Episode, context: ModelContext, authManager: AuthManager) async {
         guard let token = authManager.token else { return }
         
         do {
-            try await client.deletePodcast(id: podcast.taskId, authToken: token)
-            try? FileManager.default.removeItem(at: podcast.fileURL)
-            context.delete(podcast)
+            try await client.deletePodcast(id: episode.taskId, authToken: token)
+            try? FileManager.default.removeItem(at: episode.fileURL)
+            context.delete(episode)
             try context.save()
         } catch {
             print("Failed to delete podcast: \(error)")
         }
     }
     
-    func toggleFavorite(_ podcast: Podcast) {
+    func toggleFavorite(_ podcast: Episode) {
         podcast.isFavorite.toggle()
     }
     
-    func download(_ podcast: Podcast, authManager: AuthManager) async throws {
-        guard downloads[podcast.taskId] == nil,
-              podcast.isDownloaded == false
+    func download(_ episode: Episode, authManager: AuthManager) async throws {
+        guard downloads[episode.taskId] == nil,
+              episode.isDownloaded == false
         else { return }
         
-        let request = try client.createRequest(for: "podcasts/\(podcast.taskId)/download")
+        let request = try client.createRequest(for: "podcasts/\(episode.taskId)/download")
         
         let download = Download(request: request)
         
-        downloads[podcast.taskId] = download
+        downloads[episode.taskId] = download
         download.start()
-        podcast.downloadState = .downloading
+        episode.downloadState = .downloading
         print("downloading")
         for await event in download.events {
-            process(event, for: podcast)
+            process(event, for: episode)
         }
         
-        downloads[podcast.taskId] = nil
+        downloads[episode.taskId] = nil
     }
     
-    func removeDownload(for podcast: Podcast) {
+    func removeDownload(for podcast: Episode) {
         downloads[podcast.taskId]?.cancel()
         try? FileManager.default.removeItem(at: podcast.fileURL)
         podcast.downloadState = .idle
@@ -110,24 +110,24 @@ class EpisodeViewModel {
     }
 
     
-    func process(_ event: Download.Event, for podcast: Podcast) {
+    func process(_ event: Download.Event, for episode: Episode) {
         switch event {
         case let .progress(current, total):
-            podcast.update(currentBytes: current, totalBytes: total)
-            print(podcast.downloadProgress)
+            episode.update(currentBytes: current, totalBytes: total)
+            print(episode.downloadProgress)
         case let .completed(url):
-            podcast.downloadState = .idle
+            episode.downloadState = .idle
             defer { try? FileManager.default.removeItem(at: url) } // Clean up temp file
-            let didSave = saveFile(for: podcast, from: url)
-            podcast.isDownloaded = didSave
+            let didSave = save(episode, from: url)
+            episode.isDownloaded = didSave
         case .canceled:
-            podcast.downloadState = .idle
+            episode.downloadState = .idle
         }
     }
     
-    func saveFile(for podcast: Podcast, from url: URL) -> Bool {
+    func save(_ episode: Episode, from url: URL) -> Bool {
         let fileManager = FileManager.default
-        let destinationURL = podcast.fileURL
+        let destinationURL = episode.fileURL
         do {
             // Create intermediate directories if they don't exist
             let destinationDirectory = destinationURL.deletingLastPathComponent()
@@ -141,7 +141,7 @@ class EpisodeViewModel {
             try fileManager.moveItem(at: url, to: destinationURL)
             return true
         } catch {
-            print("Failed to save podcast \(podcast.id): \(error)")
+            print("Failed to save podcast \(episode.id): \(error)")
             return false
         }
     }

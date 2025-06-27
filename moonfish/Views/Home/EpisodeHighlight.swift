@@ -8,8 +8,8 @@
 import SwiftUI
 import SwiftData
 
-struct PodcastCardHighlight: View {
-    var podcast: Podcast
+struct EpisodeHighlight: View {
+    var episode: Episode
     
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(AuthManager.self) private var authManager
@@ -20,19 +20,19 @@ struct PodcastCardHighlight: View {
         VStack(alignment: .leading) {
             // Card header
             VStack(alignment: .leading, spacing: 8) {
-                Text(podcast.title)
+                Text(episode.title)
                     .lineLimit(2)
                 
-                (Text(podcast.duration.hoursMinutes) +
+                (Text(episode.duration.hoursMinutes) +
                  Text(" • ") +
-                 Text(podcast.summary)
+                 Text(episode.summary)
                     .foregroundStyle(.secondary)
                 )
                     .font(.subheadline)
                     .lineLimit(3)
                 
                 HStack(spacing: 12) {
-                    if podcast.isNew {
+                    if episode.isNew {
                         Text("New").font(.footnote)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 2)
@@ -41,11 +41,11 @@ struct PodcastCardHighlight: View {
                     }
                     
                     ZStack {
-                        if podcast.isDownloaded {
+                        if episode.isDownloaded {
                             Image(systemName: "checkmark.circle")
-                        } else if podcast.downloadState == .downloading {
+                        } else if episode.downloadState == .downloading {
                             GaugeProgress(
-                                fractionCompleted: podcast.downloadProgress,
+                                fractionCompleted: episode.downloadProgress,
                                 strokeWidth: 1
                             )
                         } else {
@@ -63,20 +63,20 @@ struct PodcastCardHighlight: View {
             HStack(spacing: 16) {
                 Spacer()
                 
-                PodcastCardMenu(podcast: podcast)
+                EpisodeMenu(podcast: episode)
                     .foregroundStyle(.secondary)
                 
                 Button {
                     Task {
                         await rootModel.refreshAudioURL(
-                            podcast,
+                            episode,
                             modelContext: context,
                             authManager: authManager
                         )
-                        audioPlayer.toggle(podcast)
+                        audioPlayer.toggle(episode)
                     }
                 } label: {
-                    Image(systemName: audioPlayer.isPlaying(podcast)
+                    Image(systemName: audioPlayer.isPlaying(episode)
                           ? "pause.circle.fill" : "play.circle.fill")
                     .resizable()
                     .frame(width: 32, height: 32)
@@ -94,7 +94,7 @@ struct PodcastCardHighlight: View {
     ZStack {
         Color(.secondarySystemBackground)
         
-        PodcastCardHighlight(podcast: .preview)
+        EpisodeHighlight(episode: .preview)
     }
     .ignoresSafeArea()
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PodcastRequest: Codable, Identifiable {
+struct EpisodeRequest: Codable, Identifiable {
     var id: Int
     
     var topic: String
@@ -50,8 +50,8 @@ struct PodcastRequest: Codable, Identifiable {
     }
 }
 
-extension PodcastRequest {
-    init(from response: OngoingPodcastResponse) {
+extension EpisodeRequest {
+    init(from response: OngoingEpisodeResponse) {
         self.id = response.id
         self.topic = response.topic
         self.length = response.length
@@ -66,7 +66,7 @@ extension PodcastRequest {
     }
 }
  
-extension PodcastRequest {
+extension EpisodeRequest {
     var formattedStatus: String {
         switch status {
         case "pending":
@@ -110,8 +110,8 @@ extension PodcastRequest {
 }
 
 
-extension PodcastRequest {
-    static let preview = PodcastRequest(
+extension EpisodeRequest {
+    static let preview = EpisodeRequest(
         id: 0,
         
         topic: "Sustainable Urban Gardening",

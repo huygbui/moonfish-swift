@@ -13,10 +13,10 @@ struct CreateSheet: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var topic: String = ""
-    @State private var length: PodcastLength = .short
-    @State private var level: PodcastLevel = .beginner
-    @State private var format: PodcastFormat = .narrative
-    @State private var voice: PodcastVoice = .female
+    @State private var length: EpisodeLength = .short
+    @State private var level: EpisodeLevel = .beginner
+    @State private var format: EpisodeFormat = .narrative
+    @State private var voice: EpisodeVoice = .female
     @State private var instruction: String = ""
     
     @State private var isSubmitting: Bool = false
@@ -37,24 +37,24 @@ struct CreateSheet: View {
                 }
                 Section(header: Text("Content")) {
                     Picker("Length", selection: $length) {
-                        ForEach(PodcastLength.allCases) { length in
+                        ForEach(EpisodeLength.allCases) { length in
                             Text(length.rawValue.localizedCapitalized).tag(length)
                         }
                     }
                     Picker("Level", selection: $level) {
-                        ForEach(PodcastLevel.allCases) { level in
+                        ForEach(EpisodeLevel.allCases) { level in
                             Text(level.rawValue.localizedCapitalized).tag(level)
                         }
                     }
                 }
                 Section(header: Text("Delivery")) {
                     Picker("Format", selection: $format) {
-                        ForEach(PodcastFormat.allCases) { format in
+                        ForEach(EpisodeFormat.allCases) { format in
                             Text(format.rawValue.localizedCapitalized).tag(format)
                         }
                     }
                     Picker("Voice", selection: $voice) {
-                        ForEach(PodcastVoice.allCases) { voice in
+                        ForEach(EpisodeVoice.allCases) { voice in
                             Text(voice.rawValue.localizedCapitalized).tag(voice)
                         }
                     }
@@ -95,7 +95,7 @@ struct CreateSheet: View {
         
         isSubmitting = true
 
-        let config = PodcastConfig(
+        let config = EpisodeConfig(
             topic: topic,
             length: length,
             level: level,

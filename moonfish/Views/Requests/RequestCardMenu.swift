@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RequestCardMenu: View {
-    var request : PodcastRequest
+    var request : EpisodeRequest
     @Environment(RequestViewModel.self) private var rootModel
     @Environment(AuthManager.self) private var authManager
 

@@ -14,7 +14,7 @@ struct HomeRoot: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext
     
-    @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
+    @Query(sort: \Episode.createdAt, order: .reverse) private var episodes: [Episode]
     
     @State private var showingSettingsSheet: Bool = false
     @State private var showingCreateSheet: Bool = false
@@ -23,14 +23,14 @@ struct HomeRoot: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 32) {
-                    if !recentPodcasts.isEmpty {
+                    if !recentEpisodes.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Newly Added").font(.headline)
                             ScrollView(.horizontal) {
                                 LazyHStack {
-                                    ForEach(recentPodcasts) { podcast in
-                                        NavigationLink(value: podcast) {
-                                            PodcastCardHighlight(podcast: podcast)
+                                    ForEach(recentEpisodes) { episode in
+                                        NavigationLink(value: episode) {
+                                            EpisodeHighlight(episode: episode)
                                         }
                                         .buttonStyle(.plain)
                                     }
@@ -43,9 +43,9 @@ struct HomeRoot: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Past Episodes").font(.headline)
                         LazyVStack(spacing: 8) {
-                            ForEach(pastPodcasts){ podcast in
-                                NavigationLink(value: podcast) {
-                                    PodcastCard(podcast: podcast)
+                            ForEach(pastEpisodes){ episode in
+                                NavigationLink(value: episode) {
+                                    EpisodeCard(episode: episode)
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -65,7 +65,7 @@ struct HomeRoot: View {
             .scrollIndicators(.hidden)
             .background(Color(.secondarySystemBackground))
             .navigationTitle("Home")
-            .navigationDestination(for: Podcast.self) { PodcastDetail(podcast: $0)}
+            .navigationDestination(for: Episode.self) { EpisodeDetail(episode: $0)}
             .toolbar {
                 ToolbarItem {
                     Button(action: { showingSettingsSheet = true }) {
@@ -78,12 +78,12 @@ struct HomeRoot: View {
             .task { await rootModel.refresh(context, authManager: authManager) }
         }
         
-        var recentPodcasts: [Podcast] {
-            podcasts.filter { $0.isRecent }
+        var recentEpisodes: [Episode] {
+            episodes.filter { $0.isRecent }
         }
         
-        var pastPodcasts: [Podcast] {
-            podcasts.filter { !$0.isRecent }
+        var pastEpisodes: [Episode] {
+            episodes.filter { !$0.isRecent }
         }
     }
 }

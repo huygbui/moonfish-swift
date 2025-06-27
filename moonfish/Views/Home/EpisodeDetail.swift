@@ -8,8 +8,8 @@
 import SwiftUI
 import SwiftData
 
-struct PodcastDetail: View {
-    var podcast: Podcast
+struct EpisodeDetail: View {
+    var episode: Episode
     @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
     @Environment(EpisodeViewModel.self) private var rootModel
@@ -31,7 +31,7 @@ struct PodcastDetail: View {
                 details
             }
             .toolbar {
-                ToolbarItem { PodcastCardMenu(podcast: podcast) }
+                ToolbarItem { EpisodeMenu(podcast: episode) }
             }
         }
         .safeAreaPadding(.horizontal)
@@ -46,11 +46,11 @@ struct PodcastDetail: View {
     
     private var title: some View {
         VStack(spacing: 0) {
-            Text("\(podcast.createdAt.compact) • \(podcast.duration.hoursMinutes)")
+            Text("\(episode.createdAt.compact) • \(episode.duration.hoursMinutes)")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
-            Text(podcast.title)
+            Text(episode.title)
                 .font(.title)
                 .fixedSize(horizontal: false, vertical: true)
                 .multilineTextAlignment(.center)
@@ -61,14 +61,14 @@ struct PodcastDetail: View {
         Button {
             Task {
                 await rootModel.refreshAudioURL(
-                    podcast,
+                    episode,
                     modelContext: context,
                     authManager: authManager
                 )
-                audioManager.toggle(podcast)
+                audioManager.toggle(episode)
             }
         } label: {
-            Image(systemName: audioManager.isPlaying(podcast)
+            Image(systemName: audioManager.isPlaying(episode)
                   ? "pause.fill" : "play.fill"
             )
                 .frame(width: playButtonWidth, height: playButtonHeight)
@@ -79,22 +79,22 @@ struct PodcastDetail: View {
     }
     
     private var summary: some View {
-        Text(podcast.summary)
+        Text(episode.summary)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var details: some View {
         VStack(alignment: .leading) {
-            LabeledContent("Format", value: podcast.format.localizedCapitalized)
+            LabeledContent("Format", value: episode.format.localizedCapitalized)
             Divider()
-            LabeledContent("Length", value: podcast.length.localizedCapitalized)
+            LabeledContent("Length", value: episode.length.localizedCapitalized)
             Divider()
-            LabeledContent("Level", value: podcast.level.localizedCapitalized)
+            LabeledContent("Level", value: episode.level.localizedCapitalized)
         }
     }
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PodcastDetail(podcast: .preview)
+    EpisodeDetail(episode: .preview)
 }

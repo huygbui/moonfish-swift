@@ -15,25 +15,25 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
     }
     
     func body(content: Content, context: ModelContainer) -> some View {
-        var colorSchemePreference: ColorSchemePreference = .automatic
+        let colorSchemePreference: ColorSchemePreference = .automatic
     
         let audioPlayer = AudioManager() // Use the same instance
-        let podcastRootModel = EpisodeViewModel()
+        let episodeRootModel = EpisodeViewModel()
         let requestRootModel = RequestViewModel()
 
         return content
             .environment(audioPlayer)
-            .environment(podcastRootModel)
+            .environment(episodeRootModel)
             .environment(requestRootModel)
             .environment(AuthManager())
             .preferredColorScheme(colorSchemePreference.colorScheme)
             .modelContainer(context)
             .task {
-                let podcast: Podcast = .preview
+                let episode: Episode = .preview
                 
                 await MainActor.run {
-                    audioPlayer.currentPodcast = podcast
-                    audioPlayer.duration = podcast.duration
+                    audioPlayer.currentEpisode = episode
+                    audioPlayer.duration = episode.duration
                     audioPlayer.isPlaying = true
                     audioPlayer.currentTime = 45 // Start partway through
                 }

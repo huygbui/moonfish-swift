@@ -12,23 +12,23 @@ struct SearchRoot: View {
     @Environment(EpisodeViewModel.self) private var viewModel
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(\.modelContext) private var modelContext: ModelContext
-    @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
+    @Query(sort: \Episode.createdAt, order: .reverse) private var episodes: [Episode]
     
-    @State private var apiPodcasts: [CompletedPodcastResponse] = []
+    @State private var apiPodcasts: [CompletedEpisodeResponse] = []
     @State private var searchText: String = ""
     @State private var selectedFilter: FilterItem = .all
     
-    var filteredPodcasts: [Podcast] {
-        var filtered = podcasts
+    var filteredPodcasts: [Episode] {
+        var filtered = episodes
         
         // Apply tab filter
         switch selectedFilter {
         case .all:
-            filtered = podcasts
+            filtered = episodes
         case .downloaded:
-            filtered = podcasts.filter { $0.isDownloaded }
+            filtered = episodes.filter { $0.isDownloaded }
         case .favorite:
-            filtered = podcasts.filter { $0.isFavorite }
+            filtered = episodes.filter { $0.isFavorite }
         }
         
         // Apply search filter if search text is not empty
@@ -54,8 +54,8 @@ struct SearchRoot: View {
                     .controlSize(.large)
                     
                     LazyVStack(alignment: .leading) {
-                        ForEach(filteredPodcasts) { podcast in
-                            PodcastCard(podcast: podcast)
+                        ForEach(filteredPodcasts) { episode in
+                            EpisodeCard(episode: episode)
                         }
                     }
                 }

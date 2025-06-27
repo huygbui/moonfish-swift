@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RequestCard: View {
-    var request: PodcastRequest
+    var request: EpisodeRequest
 
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {

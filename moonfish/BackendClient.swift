@@ -124,7 +124,7 @@ final class BackendClient: Sendable {
     }
    
     // MARK: - Create Podcast
-    func createPodcast(config: PodcastConfig, authToken: String) async throws -> OngoingPodcastResponse {
+    func createPodcast(config: EpisodeConfig, authToken: String) async throws -> OngoingEpisodeResponse {
         var request = try createRequest(for: "podcasts", method: "POST", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(config)
@@ -138,7 +138,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(OngoingPodcastResponse.self, from: data)
+                return try decoder.decode(OngoingEpisodeResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -152,7 +152,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get Completed Podcasts
-    func getCompletedPodcasts(authToken: String) async throws -> [CompletedPodcastResponse] {
+    func getCompletedPodcasts(authToken: String) async throws -> [CompletedEpisodeResponse] {
         let request = try createRequest(for: "podcasts/completed", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
@@ -163,7 +163,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode([CompletedPodcastResponse].self, from: data)
+                return try decoder.decode([CompletedEpisodeResponse].self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -177,7 +177,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get Ongoing Podcasts
-    func getOngoingPodcasts(authToken: String) async throws -> [OngoingPodcastResponse] {
+    func getOngoingPodcasts(authToken: String) async throws -> [OngoingEpisodeResponse] {
         let request = try createRequest(for: "podcasts/ongoing", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
@@ -188,7 +188,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode([OngoingPodcastResponse].self, from: data)
+                return try decoder.decode([OngoingEpisodeResponse].self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -202,7 +202,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get Single Podcast
-    func getPodcast(id: Int, authToken: String) async throws -> CompletedPodcastResponse {
+    func getPodcast(id: Int, authToken: String) async throws -> CompletedEpisodeResponse {
         let request = try createRequest(for: "podcasts/\(id)", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
@@ -213,7 +213,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(CompletedPodcastResponse.self, from: data)
+                return try decoder.decode(CompletedEpisodeResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -227,7 +227,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get Podcast Content
-    func getPodcastContent(id: Int, authToken: String) async throws -> PodcastContentResponse {
+    func getPodcastContent(id: Int, authToken: String) async throws -> EpisodeContentResponse {
         let request = try createRequest(for: "podcasts/\(id)/content", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
@@ -238,7 +238,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(PodcastContentResponse.self, from: data)
+                return try decoder.decode(EpisodeContentResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -252,7 +252,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get Podcast Audio
-    func getPodcastAudio(id: Int, authToken: String) async throws -> PodcastAudioResponse {
+    func getPodcastAudio(id: Int, authToken: String) async throws -> EpisodeAudioResponse {
         let request = try createRequest(for: "podcasts/\(id)/audio", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
@@ -263,7 +263,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(PodcastAudioResponse.self, from: data)
+                return try decoder.decode(EpisodeAudioResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }

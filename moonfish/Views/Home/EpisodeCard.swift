@@ -8,28 +8,28 @@
 import SwiftUI
 import SwiftData
 
-struct PodcastCard: View {
+struct EpisodeCard: View {
     @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(EpisodeViewModel.self) private var rootModel
-    var podcast: Podcast
+    var episode: Episode
     
     var body: some View {
         VStack(alignment: .leading, spacing: 32) {
             // Card header
             VStack(alignment: .leading, spacing: 0) {
                 // Card title
-                Text(podcast.title)
+                Text(episode.title)
                     .font(.body)
                     .lineLimit(1)
                 
                 // Card subtitle
                 Text("""
-                    \(podcast.createdAt.compact) • \
-                    \(podcast.length.localizedCapitalized), \
-                    \(podcast.format.localizedCapitalized), \
-                    \(podcast.level.localizedCapitalized)
+                    \(episode.createdAt.compact) • \
+                    \(episode.length.localizedCapitalized), \
+                    \(episode.format.localizedCapitalized), \
+                    \(episode.level.localizedCapitalized)
                     """
                 )
                 .font(.caption)
@@ -42,33 +42,33 @@ struct PodcastCard: View {
                 Button {
                     Task {
                         await rootModel.refreshAudioURL(
-                            podcast,
+                            episode,
                             modelContext: context,
                             authManager: authManager
                         )
                         
-                        audioManager.toggle(podcast)
+                        audioManager.toggle(episode)
                     }
                 } label: {
-                    Image(systemName: audioManager.isPlaying(podcast)
+                    Image(systemName: audioManager.isPlaying(episode)
                           ? "pause.circle.fill" : "play.circle.fill")
                     .resizable()
                     .frame(width: 32, height: 32)
                 }
                 .foregroundStyle(.primary)
                 
-                Text(podcast.duration.hoursMinutes)
+                Text(episode.duration.hoursMinutes)
                     .font(.caption)
                 
                 Spacer()
                 
                 
                 ZStack {
-                    if podcast.isDownloaded {
+                    if episode.isDownloaded {
                         Image(systemName: "checkmark.circle")
-                    } else if podcast.downloadState == .downloading {
+                    } else if episode.downloadState == .downloading {
                         GaugeProgress(
-                            fractionCompleted: podcast.downloadProgress,
+                            fractionCompleted: episode.downloadProgress,
                             strokeWidth: 1
                         )
                     } else {
@@ -78,7 +78,7 @@ struct PodcastCard: View {
                 .frame(width: 16, height: 16)
                 .foregroundStyle(.secondary)
                 
-                PodcastCardMenu(podcast: podcast)
+                EpisodeMenu(podcast: episode)
                     .foregroundStyle(.secondary)
                     .frame(width: 24, height: 24)
             }
@@ -92,7 +92,7 @@ struct PodcastCard: View {
 #Preview(traits: .audioPlayerTrait) {
     ZStack {
         Color(.secondarySystemBackground)
-        PodcastCard(podcast: .preview)
+        EpisodeCard(episode: .preview)
     }
     .ignoresSafeArea()
 }

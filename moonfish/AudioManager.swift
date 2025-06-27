@@ -13,7 +13,7 @@ import AVFoundation
 final class AudioManager {
     var player: AVPlayer?
     
-    var currentPodcast: Podcast?
+    var currentEpisode: Episode?
     var isPlaying = false
     
     var currentTime: Double = 0
@@ -35,16 +35,16 @@ final class AudioManager {
         }
     }
 
-    func play(_ podcast: Podcast) {
-        let url = (podcast.isDownloaded &&
-                   FileManager.default.fileExists(atPath: podcast.fileURL.path))
-                   ? podcast.fileURL
-                   : podcast.url
+    func play(_ episode: Episode) {
+        let url = (episode.isDownloaded &&
+                   FileManager.default.fileExists(atPath: episode.fileURL.path))
+                   ? episode.fileURL
+                   : episode.url
 
         guard let url else { return }
        
         // Resume
-        if currentPodcast == podcast && player != nil {
+        if currentEpisode == episode && player != nil {
             if !isPlaying {
                 player?.play()
                 isPlaying = true
@@ -58,8 +58,8 @@ final class AudioManager {
         }
         
         player = AVPlayer(url: url)
-        currentPodcast = podcast
-        duration = Double(podcast.duration)
+        currentEpisode = episode
+        duration = Double(episode.duration)
         
         // Add time observer
         let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
@@ -82,17 +82,17 @@ final class AudioManager {
         isPlaying = false
     }
     
-    func toggle(_ podcast: Podcast) {
-        if isPlaying && currentPodcast == podcast {
+    func toggle(_ episode: Episode) {
+        if isPlaying && currentEpisode == episode {
             pause()
         } else {
-            play(podcast)
+            play(episode)
         }
     }
     
     func togglePlayback() {
-        if let podcast = currentPodcast {
-            toggle(podcast)
+        if let episode = currentEpisode {
+            toggle(episode)
         }
     }
     
@@ -119,7 +119,7 @@ final class AudioManager {
         }
     }
     
-    func isPlaying(_ podcast: Podcast) -> Bool {
-        currentPodcast == podcast && isPlaying
+    func isPlaying(_ episode: Episode) -> Bool {
+        currentEpisode == episode && isPlaying
     }
 }

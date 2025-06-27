@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CompletedPodcastResponse: Codable, Identifiable {
+struct CompletedEpisodeResponse: Codable, Identifiable {
     var id: Int
     
     var topic: String
@@ -34,7 +34,7 @@ struct CompletedPodcastResponse: Codable, Identifiable {
     }
 }
 
-struct OngoingPodcastResponse: Codable, Identifiable {
+struct OngoingEpisodeResponse: Codable, Identifiable {
     var id: Int
     
     var topic: String
@@ -57,7 +57,7 @@ struct OngoingPodcastResponse: Codable, Identifiable {
     }
 }
 
-struct PodcastContentResponse: Codable {
+struct EpisodeContentResponse: Codable {
     var id: Int
     var title: String
     var summary: String
@@ -71,7 +71,7 @@ struct PodcastContentResponse: Codable {
     }
 }
 
-struct PodcastAudioResponse: Codable {
+struct EpisodeAudioResponse: Codable {
     var url: URL
     var expiresAt: Date
     

@@ -14,9 +14,9 @@ struct PodcastCreateSheet: View {
     @Environment(\.dismiss) var dismiss
     
     @State private var title: String = ""
-    @State private var format: PodcastFormat = .narrative
-    @State private var voice1: PodcastVoice = .male
-    @State private var voice2: PodcastVoice = .female
+    @State private var format: EpisodeFormat = .narrative
+    @State private var voice1: EpisodeVoice = .male
+    @State private var voice2: EpisodeVoice = .female
     @State private var name1: String = ""
     @State private var name2: String = ""
     @State private var description: String = ""
@@ -51,7 +51,7 @@ struct PodcastCreateSheet: View {
                     
                 Section("Delivery") {
                     Picker("Format", selection: $format) {
-                        ForEach(PodcastFormat.allCases) { format in
+                        ForEach(EpisodeFormat.allCases) { format in
                             Text(format.rawValue.localizedCapitalized).tag(format)
                         }
                     }
@@ -60,7 +60,7 @@ struct PodcastCreateSheet: View {
                 Section("Host 1") {
                     TextField("Sam", text: $name1)
                     Picker("Voice", selection: $voice1) {
-                        ForEach(PodcastVoice.allCases) { voice in
+                        ForEach(EpisodeVoice.allCases) { voice in
                             Text(voice.rawValue.localizedCapitalized).tag(voice)
                         }
                     }
@@ -70,7 +70,7 @@ struct PodcastCreateSheet: View {
                     Section("Host 2") {
                         TextField("Alex", text: $name2)
                         Picker("Voice", selection: $voice2) {
-                            ForEach(PodcastVoice.allCases) { voice in
+                            ForEach(EpisodeVoice.allCases) { voice in
                                 Text(voice.rawValue.localizedCapitalized).tag(voice)
                             }
                         }

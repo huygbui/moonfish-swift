@@ -8,8 +8,8 @@
 import SwiftUI
 import SwiftData
 
-struct PodcastCardMenu: View {
-    var podcast: Podcast
+struct EpisodeMenu: View {
+    var podcast: Episode
     
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(AuthManager.self) private var authManager
@@ -51,9 +51,9 @@ struct PodcastCardMenu: View {
             Button("Delete", role: .destructive) {
                 Task {
                     await rootModel.delete(podcast, context: context, authManager: authManager)
-                    if podcast == audioPlayer.currentPodcast {
+                    if podcast == audioPlayer.currentEpisode {
                         audioPlayer.pause()
-                        audioPlayer.currentPodcast = nil
+                        audioPlayer.currentEpisode = nil
                     }
                     dismiss()
                 }
@@ -73,5 +73,5 @@ struct PodcastCardMenu: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PodcastCardMenu(podcast: .preview)
+    EpisodeMenu(podcast: .preview)
 }
