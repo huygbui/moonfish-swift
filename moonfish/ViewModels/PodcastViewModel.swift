@@ -39,19 +39,19 @@ class PodcastViewModel {
             let serverPodcasts = try await client.getCompletedPodcasts(authToken: token)
             let serverIds = Set(serverPodcasts.map { $0.id })
             
-            // Only fetch IDs from local, not full objects
-            var fetchDescriptor = FetchDescriptor<Podcast>()
-            fetchDescriptor.propertiesToFetch = [\.taskId]
-            let localPodcasts = try context.fetch(fetchDescriptor)
-            let localIds = localPodcasts.map { $0.taskId }
-            
-            // Find orphaned IDs
-            let orphanedIds = Set(localIds).subtracting(serverIds)
-            
-            // Delete orphaned podcasts by ID
-            for orphanedId in orphanedIds {
-                try context.delete(model: Podcast.self, where: #Predicate { $0.taskId == orphanedId })
-            }
+//            // Only fetch IDs from local, not full objects
+//            var fetchDescriptor = FetchDescriptor<Podcast>()
+//            fetchDescriptor.propertiesToFetch = [\.taskId]
+//            let localPodcasts = try context.fetch(fetchDescriptor)
+//            let localIds = localPodcasts.map { $0.taskId }
+//            
+//            // Find orphaned IDs
+//            let orphanedIds = Set(localIds).subtracting(serverIds)
+//            
+//            // Delete orphaned podcasts by ID
+//            for orphanedId in orphanedIds {
+//                try context.delete(model: Podcast.self, where: #Predicate { $0.taskId == orphanedId })
+//            }
             
             // Upsert server podcasts
             for serverPodcast in serverPodcasts {
