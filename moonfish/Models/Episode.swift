@@ -10,13 +10,11 @@ import SwiftData
 
 @Model
 final class Episode {
-    @Attribute(.unique) var taskId: Int
+    @Attribute(.unique) var serverId: Int
     
     var topic: String
     var length: String
     var level: String
-    var format: String
-    var voice: String
     var instruction: String
     
     var title: String
@@ -24,24 +22,25 @@ final class Episode {
     var fileName: String
     var duration: Double
     var createdAt: Date
+    
     var isFavorite: Bool
     var isDownloaded: Bool
     
-    var url: URL?
+    var audioURL: URL?
     var expiresAt: Date?
     
     @Attribute(.ephemeral) var downloadState: DownloadState
     @Attribute(.ephemeral) private(set) var currentBytes: Int64 = 0
     @Attribute(.ephemeral) private(set) var totalBytes: Int64 = 0
     
+    var podcast: Podcast
+
     init(
-        taskId: Int,
+        serverId: Int,
         
         topic: String,
         length: String,
         level: String,
-        format: String,
-        voice: String,
         instruction: String = "",
         
         title: String,
@@ -49,22 +48,22 @@ final class Episode {
         fileName: String,
         duration: Double,
         createdAt: Date,
+        
         isFavorite: Bool = false,
         isDownloaded: Bool = false,
-        isNew: Bool = true,
         
         url: URL? = nil,
         expiresAt: Date? = nil,
         
-        downloadState: DownloadState = .idle
+        downloadState: DownloadState = .idle,
+        
+        podcast: Podcast,
     ) {
-        self.taskId = taskId
+        self.serverId = serverId
         
         self.topic = topic
         self.length = length
         self.level = level
-        self.format = format
-        self.voice = voice
         self.instruction = instruction
 
         self.title = title
@@ -75,26 +74,27 @@ final class Episode {
         self.isFavorite = isFavorite
         self.isDownloaded = isDownloaded
         
-        self.url = url
+        self.audioURL = url
         self.expiresAt = expiresAt
         
         self.downloadState = downloadState
+        
+        self.podcast = podcast
     }
     
-    convenience init? (from podcastResponse: CompletedEpisodeResponse) {
+    convenience init? (from podcastResponse: CompletedEpisodeResponse, for podcast: Podcast) {
         self.init(
-            taskId: podcastResponse.id,
+            serverId: podcastResponse.id,
             topic: podcastResponse.topic,
             length: podcastResponse.length,
             level: podcastResponse.level,
-            format: podcastResponse.format,
-            voice: podcastResponse.voice,
             instruction: podcastResponse.instruction,
             title: podcastResponse.title,
             summary: podcastResponse.summary,
             fileName: podcastResponse.fileName,
             duration: podcastResponse.duration,
-            createdAt: podcastResponse.createdAt
+            createdAt: podcastResponse.createdAt,
+            podcast: podcast
         )
     }
 }
@@ -117,7 +117,7 @@ extension Episode {
     
     var fileURL: URL {
         URL.documentsDirectory
-            .appending(path: "\(self.taskId)")
+            .appending(path: "\(self.serverId)")
             .appendingPathExtension("mp3")
     }
     
@@ -135,12 +135,10 @@ extension Episode {
 extension Episode {
     @MainActor
     static var preview = Episode(
-        taskId: 0,
+        serverId: 0,
         topic: "Sustainable Urban Gardening",
         length: "short",
         level: "beginner",
-        format: "conversational",
-        voice: "female",
         title: "Beginner's Guide to Gardening in the Far East",
         summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
 //        transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
@@ -148,7 +146,9 @@ extension Episode {
         duration: 620, // about 10 minutes
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600), // Created an hour after the request
         isDownloaded: true,
-        downloadState: .downloading
+        downloadState: .downloading,
+        
+        podcast: Podcast.preview
     )
 }
 

@@ -86,7 +86,7 @@ struct EpisodeDetail: View {
     
     private var details: some View {
         VStack(alignment: .leading) {
-            LabeledContent("Format", value: episode.format.localizedCapitalized)
+            LabeledContent("Format", value: episode.podcast.format.localizedCapitalized)
             Divider()
             LabeledContent("Length", value: episode.length.localizedCapitalized)
             Divider()

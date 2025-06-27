@@ -28,7 +28,7 @@ struct EpisodeCard: View {
                 Text("""
                     \(episode.createdAt.compact) • \
                     \(episode.length.localizedCapitalized), \
-                    \(episode.format.localizedCapitalized), \
+                    \(episode.podcast.format.localizedCapitalized), \
                     \(episode.level.localizedCapitalized)
                     """
                 )

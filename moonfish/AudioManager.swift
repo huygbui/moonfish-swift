@@ -39,7 +39,7 @@ final class AudioManager {
         let url = (episode.isDownloaded &&
                    FileManager.default.fileExists(atPath: episode.fileURL.path))
                    ? episode.fileURL
-                   : episode.url
+                   : episode.audioURL
 
         guard let url else { return }
        

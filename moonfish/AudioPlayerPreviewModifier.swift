@@ -20,11 +20,13 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
         let audioPlayer = AudioManager() // Use the same instance
         let episodeRootModel = EpisodeViewModel()
         let requestRootModel = RequestViewModel()
+        let podcastRootModel = PodcastViewModel()
 
         return content
             .environment(audioPlayer)
             .environment(episodeRootModel)
             .environment(requestRootModel)
+            .environment(podcastRootModel)
             .environment(AuthManager())
             .preferredColorScheme(colorSchemePreference.colorScheme)
             .modelContainer(context)

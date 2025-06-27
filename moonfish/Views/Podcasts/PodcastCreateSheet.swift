@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 import PhotosUI
 
 struct PodcastCreateSheet: View {
     @Environment(AuthManager.self) var authManager
-    @Environment(EpisodeViewModel.self) var rootModel
+    @Environment(PodcastViewModel.self) var rootModel
+    @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) var dismiss
     
     @State private var title: String = ""
@@ -23,10 +25,10 @@ struct PodcastCreateSheet: View {
     
     // Photo picker states
     @State private var selectedPhoto: PhotosPickerItem?
+    @State private var podcastCoverModel = PodcastCoverModel()
     @State private var coverImage: Image?
     
     @State private var isSubmitting: Bool = false
-    @State private var podcastCoverModel = PodcastCoverModel()
     
     private var canSubmit: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
@@ -87,7 +89,6 @@ struct PodcastCreateSheet: View {
                 }
             }
             .disabled(isSubmitting)
-            .pickerStyle(.menu)
             .navigationTitle("New Podcast")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -109,8 +110,25 @@ struct PodcastCreateSheet: View {
     
     func submit() {
         guard canSubmit else { return }
-        
         isSubmitting = true
+        
+        Task {
+            defer { isSubmitting = false }
+            await rootModel.submit(
+                PodcastCreateRequest(
+                    title: title,
+                    about: description,
+                    format: format,
+                    name1: name1,
+                    voice1: voice1,
+                    name2: name2,
+                    voice2: voice2
+                ),
+                authManager: authManager,
+                context: context
+            )
+            dismiss()
+        }
     }
 }
 

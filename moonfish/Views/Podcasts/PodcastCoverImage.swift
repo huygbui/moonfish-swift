@@ -17,7 +17,7 @@ struct PodcastCoverImage: View {
             image.resizable()
         case .loading, .empty, .failure:
             RoundedRectangle(cornerRadius: 16)
-                .fill(.quaternary)
+                .fill(Color(.secondarySystemFill))
         }
     }
 }
@@ -44,7 +44,7 @@ struct EditablePodcastCoverImage: View {
                 {
                     Image(systemName: "camera.circle.fill")
                         .font(.largeTitle)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.tertiary)
                 }
                 .buttonStyle(.plain)
             }
@@ -54,5 +54,10 @@ struct EditablePodcastCoverImage: View {
 
 #Preview {
     @Previewable @State var viewModel = PodcastCoverModel()
-    EditablePodcastCoverImage(viewModel: viewModel)
+    ZStack {
+        Color(.secondarySystemBackground)
+        
+        EditablePodcastCoverImage(viewModel: viewModel)
+    }
+    .ignoresSafeArea()
 }

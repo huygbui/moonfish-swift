@@ -122,9 +122,37 @@ final class BackendClient: Sendable {
             throw ClientError.decodingError(error.localizedDescription)
         }
     }
-   
+    
     // MARK: - Create Podcast
-    func createPodcast(config: EpisodeConfig, authToken: String) async throws -> OngoingEpisodeResponse {
+    func createPodcast(from podcastCreateRequest: PodcastCreateRequest, authToken: String) async throws -> PodcastCreateResponse {
+        var request = try createRequest(for: "podcasts", method: "POST", authToken: authToken)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try encoder.encode(podcastCreateRequest)
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode(PodcastCreateResponse.self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
+        }    
+    }
+   
+    // MARK: - Create Episode
+    func createEpisode(config: EpisodeCreateRequest, authToken: String) async throws -> OngoingEpisodeResponse {
         var request = try createRequest(for: "podcasts", method: "POST", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(config)

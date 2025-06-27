@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EpisodeConfig: Codable {
+struct EpisodeCreateRequest: Codable {
     var topic: String
     var length: EpisodeLength
     var level: EpisodeLevel

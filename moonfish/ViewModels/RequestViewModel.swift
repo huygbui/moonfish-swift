@@ -26,11 +26,11 @@ class RequestViewModel {
         }
     }
     
-    func submitRequest(for config: EpisodeConfig, authManager: AuthManager) async {
+    func submitRequest(for config: EpisodeCreateRequest, authManager: AuthManager) async {
         guard let token = authManager.token else { return }
 
         do {
-            let response = try await client.createPodcast(config: config, authToken: token)
+            let response = try await client.createEpisode(config: config, authToken: token)
             let newRequest = EpisodeRequest(from: response)
             requests.append(newRequest)
         } catch {

@@ -19,7 +19,7 @@ class SampleData {
     }
     
     private init() {
-        let schema = Schema([Episode.self])
+        let schema = Schema([Podcast.self])
         
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         
@@ -35,8 +35,8 @@ class SampleData {
     }
     
     private func insertSampleData() {
-        for request in Episode.sampleData {
-            context.insert(request)
+        for podcast in Podcast.sampleData {
+            context.insert(podcast)
         }
     }
 }

@@ -95,7 +95,7 @@ struct CreateSheet: View {
         
         isSubmitting = true
 
-        let config = EpisodeConfig(
+        let config = EpisodeCreateRequest(
             topic: topic,
             length: length,
             level: level,

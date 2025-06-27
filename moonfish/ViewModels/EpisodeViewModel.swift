@@ -22,8 +22,8 @@ class EpisodeViewModel {
 
         if episode.expiresAt == nil || Date() > episode.expiresAt! {
             do {
-                let audio = try await client.getPodcastAudio(id: episode.taskId, authToken: token)
-                episode.url = audio.url
+                let audio = try await client.getPodcastAudio(id: episode.serverId, authToken: token)
+                episode.audioURL = audio.url
                 episode.expiresAt = audio.expiresAt
                 try modelContext.save()
             } catch {
@@ -37,7 +37,7 @@ class EpisodeViewModel {
         
         do {
             let serverPodcasts = try await client.getCompletedPodcasts(authToken: token)
-            let serverIds = Set(serverPodcasts.map { $0.id })
+//            let serverIds = Set(serverPodcasts.map { $0.id })
             
 //            // Only fetch IDs from local, not full objects
 //            var fetchDescriptor = FetchDescriptor<Podcast>()
@@ -54,11 +54,11 @@ class EpisodeViewModel {
 //            }
             
             // Upsert server podcasts
-            for serverPodcast in serverPodcasts {
-                if let podcast = Episode(from: serverPodcast) {
-                    context.insert(podcast)
-                }
-            }
+//            for serverPodcast in serverPodcasts {
+//                if let podcast = Episode(from: serverPodcast) {
+//                    context.insert(podcast)
+//                }
+//            }
             try context.save()
         } catch {
             print("Failed to fetch podcasts: \(error)")
@@ -69,7 +69,7 @@ class EpisodeViewModel {
         guard let token = authManager.token else { return }
         
         do {
-            try await client.deletePodcast(id: episode.taskId, authToken: token)
+            try await client.deletePodcast(id: episode.serverId, authToken: token)
             try? FileManager.default.removeItem(at: episode.fileURL)
             context.delete(episode)
             try context.save()
@@ -83,15 +83,15 @@ class EpisodeViewModel {
     }
     
     func download(_ episode: Episode, authManager: AuthManager) async throws {
-        guard downloads[episode.taskId] == nil,
+        guard downloads[episode.serverId] == nil,
               episode.isDownloaded == false
         else { return }
         
-        let request = try client.createRequest(for: "podcasts/\(episode.taskId)/download")
+        let request = try client.createRequest(for: "podcasts/\(episode.serverId)/download")
         
         let download = Download(request: request)
         
-        downloads[episode.taskId] = download
+        downloads[episode.serverId] = download
         download.start()
         episode.downloadState = .downloading
         print("downloading")
@@ -99,11 +99,11 @@ class EpisodeViewModel {
             process(event, for: episode)
         }
         
-        downloads[episode.taskId] = nil
+        downloads[episode.serverId] = nil
     }
     
     func removeDownload(for podcast: Episode) {
-        downloads[podcast.taskId]?.cancel()
+        downloads[podcast.serverId]?.cancel()
         try? FileManager.default.removeItem(at: podcast.fileURL)
         podcast.downloadState = .idle
         podcast.isDownloaded = false
