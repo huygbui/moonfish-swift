@@ -15,9 +15,7 @@ struct PodcastCoverImage: View {
         switch imageState {
         case .success(let image):
             image.resizable()
-        case .loading:
-            ProgressView()
-        case .empty, .failure:
+        case .loading, .empty, .failure:
             RoundedRectangle(cornerRadius: 16)
                 .fill(.quaternary)
         }
@@ -31,7 +29,6 @@ struct RectangleCoverImage: View {
         PodcastCoverImage(imageState: imageState)
             .scaledToFill()
             .frame(width: 128, height: 128)
-
     }
 }
 
@@ -46,9 +43,8 @@ struct EditablePodcastCoverImage: View {
                              photoLibrary: .shared())
                 {
                     Image(systemName: "camera.circle.fill")
-                        .symbolRenderingMode(.multicolor)
-                        .font(.system(size: 48))
-                        .foregroundStyle(.tertiary)
+                        .font(.largeTitle)
+                        .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
             }

@@ -17,6 +17,8 @@ struct PodcastCreateSheet: View {
     @State private var format: PodcastFormat = .narrative
     @State private var voice1: PodcastVoice = .male
     @State private var voice2: PodcastVoice = .female
+    @State private var name1: String = ""
+    @State private var name2: String = ""
     @State private var description: String = ""
     
     // Photo picker states
@@ -34,13 +36,47 @@ struct PodcastCreateSheet: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    EditablePodcastCoverImage(viewModel: podcastCoverModel)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .listRowBackground(Color.clear)
+
                 Section("Title") {
                     TextField(
-                        "Give your podcast a title",
+                        "Name your podcast",
                         text: $title
                     )
                 }
                     
+                Section("Delivery") {
+                    Picker("Format", selection: $format) {
+                        ForEach(PodcastFormat.allCases) { format in
+                            Text(format.rawValue.localizedCapitalized).tag(format)
+                        }
+                    }
+                }
+                
+                Section("Host 1") {
+                    TextField("Sam", text: $name1)
+                    Picker("Voice", selection: $voice1) {
+                        ForEach(PodcastVoice.allCases) { voice in
+                            Text(voice.rawValue.localizedCapitalized).tag(voice)
+                        }
+                    }
+                }
+                
+                if format == .conversational {
+                    Section("Host 2") {
+                        TextField("Alex", text: $name2)
+                        Picker("Voice", selection: $voice2) {
+                            ForEach(PodcastVoice.allCases) { voice in
+                                Text(voice.rawValue.localizedCapitalized).tag(voice)
+                            }
+                        }
+                    }
+                }
+                
                 Section("Description") {
                     TextField(
                         "Add a brief description of your podcast",
@@ -48,34 +84,6 @@ struct PodcastCreateSheet: View {
                         axis: .vertical
                     )
                     .lineLimit(4, reservesSpace: true)
-                }
-                
-                Section("Delivery") {
-                    Picker("Format", selection: $format) {
-                        ForEach(PodcastFormat.allCases) { format in
-                            Text(format.rawValue.localizedCapitalized).tag(format)
-                        }
-                    }
-                    
-                    if format == .conversational {
-                        Picker("Host 1", selection: $voice1) {
-                            ForEach(PodcastVoice.allCases) { voice in
-                                Text(voice.rawValue.localizedCapitalized).tag(voice)
-                            }
-                        }
-                        
-                        Picker("Host 2", selection: $voice2) {
-                            ForEach(PodcastVoice.allCases) { voice in
-                                Text(voice.rawValue.localizedCapitalized).tag(voice)
-                            }
-                        }
-                    } else {
-                        Picker("Host", selection: $voice1) {
-                            ForEach(PodcastVoice.allCases) { voice in
-                                Text(voice.rawValue.localizedCapitalized).tag(voice)
-                            }
-                        }
-                    }
                 }
             }
             .disabled(isSubmitting)

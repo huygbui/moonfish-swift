@@ -81,6 +81,7 @@ struct PodcastDetail: View {
     private var summary: some View {
         Text(podcast.summary)
             .foregroundStyle(.secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var details: some View {
