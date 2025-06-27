@@ -112,7 +112,6 @@ struct CreateSheet: View {
     }
 }
 
-#Preview {
+#Preview(traits: .audioPlayerTrait) {
     CreateSheet()
-        .environment(RequestViewModel())
 }
