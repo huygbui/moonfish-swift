@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 @Model
-final class Podcast {
+final class Episode {
     @Attribute(.unique) var taskId: Int
     
     var topic: String
@@ -99,7 +99,7 @@ final class Podcast {
     }
 }
 
-extension Podcast {
+extension Episode {
     var isNew: Bool {
         createdAt.timeIntervalSinceNow > -1 * 24 * 60 * 60
     }
@@ -109,7 +109,7 @@ extension Podcast {
     }
 }
 
-extension Podcast {
+extension Episode {
     enum DownloadState: String, CaseIterable, Codable {
         case idle = "idle"
         case downloading = "downloading"
@@ -132,9 +132,9 @@ extension Podcast {
     }
 }
 
-extension Podcast {
+extension Episode {
     @MainActor
-    static var preview = Podcast(
+    static var preview = Episode(
         taskId: 0,
         topic: "Sustainable Urban Gardening",
         length: "short",
