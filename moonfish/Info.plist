@@ -4,5 +4,7 @@
 <dict>
 	<key>BackendURL</key>
 	<string>http://$(BACKEND_URL)</string>
+	<key>ApiToken</key>
+	<string>$(API_TOKEN)</string>
 </dict>
 </plist>

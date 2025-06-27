@@ -18,7 +18,13 @@ final class AuthManager {
     private(set) var isAuthenticated: Bool = false
 
     var token: String? {
-        get { KeychainHelper.retrieve(key: tokenKey) }
+        get {
+            #if DEBUG
+            return APIConfig.shared.apiToken
+            #else
+            KeychainHelper.retrieve(key: tokenKey)
+            #endif
+        }
         set {
             if let newValue {
                 _ = KeychainHelper.store(key: tokenKey, value: newValue)
@@ -42,8 +48,14 @@ final class AuthManager {
     }
     
     init() {
+        #if DEBUG
+        if let token = APIConfig.shared.apiToken {
+            isAuthenticated = true
+        }
+        #else
         // Check initial authentication state
         isAuthenticated = KeychainHelper.retrieve(key: tokenKey) != nil
+        #endif
     }
 
     func signInWithApple(appleId: String, email: String?, fullName: String?) async throws {

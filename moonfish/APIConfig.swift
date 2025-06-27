@@ -15,4 +15,10 @@ final class APIConfig: Sendable {
     var baseURL: String {
         return Bundle.main.object(forInfoDictionaryKey: "BackendURL") as? String ?? ""
     }
+    
+#if DEBUG
+    var apiToken: String? {
+        return Bundle.main.object(forInfoDictionaryKey: "ApiToken") as? String
+    }
+#endif
 }
