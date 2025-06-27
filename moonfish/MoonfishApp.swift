@@ -14,7 +14,7 @@ struct MoonfishApp: App {
     
     @State private var audioManager = AudioManager()
     @State private var authManager = AuthManager()
-    @State private var podcastRootModel = PodcastViewModel()
+    @State private var podcastRootModel = EpisodeViewModel()
     @State private var requestRootModel = RequestViewModel()
 
     var body: some Scene {

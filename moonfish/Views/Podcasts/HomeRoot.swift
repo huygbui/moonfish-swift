@@ -8,8 +8,8 @@
 import SwiftUI
 import SwiftData
 
-struct PodcastsRoot: View {
-    @Environment(PodcastViewModel.self) private var rootModel
+struct HomeRoot: View {
+    @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext
@@ -64,20 +64,12 @@ struct PodcastsRoot: View {
             .safeAreaPadding(.horizontal, 16)
             .scrollIndicators(.hidden)
             .background(Color(.secondarySystemBackground))
-            .navigationTitle("Podcasts")
+            .navigationTitle("Home")
             .navigationDestination(for: Podcast.self) { PodcastDetail(podcast: $0)}
             .toolbar {
                 ToolbarItem {
                     Button(action: { showingSettingsSheet = true }) {
                         Label("Setting", systemImage: "person")
-                    }
-                }
-                
-                if #available(iOS 26.0, *) { ToolbarSpacer() }
-                
-                ToolbarItem {
-                    Button(action: { showingCreateSheet = true }) {
-                        Label("Create", systemImage: "plus")
                     }
                 }
             }
@@ -97,5 +89,5 @@ struct PodcastsRoot: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PodcastsRoot()
+    HomeRoot()
 }

@@ -13,7 +13,7 @@ struct PlayerMini: View {
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(AuthManager.self) private var authManager
-    @Environment(PodcastViewModel.self) private var viewModel
+    @Environment(EpisodeViewModel.self) private var viewModel
     
     @State private var isPresented = false
     

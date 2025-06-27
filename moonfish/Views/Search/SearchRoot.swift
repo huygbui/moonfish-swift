@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct SearchRoot: View {
-    @Environment(PodcastViewModel.self) private var viewModel
+    @Environment(EpisodeViewModel.self) private var viewModel
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(\.modelContext) private var modelContext: ModelContext
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]

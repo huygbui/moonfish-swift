@@ -37,7 +37,7 @@ enum TabItem:  String, CaseIterable, @MainActor Identifiable, View {
     var body: some View {
         switch self {
         case .podcasts:
-            PodcastsRoot()
+            HomeRoot()
         case .requests:
             RequestsRoot()
         case .search:

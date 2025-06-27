@@ -10,7 +10,7 @@ import SwiftData
 
 struct PlayerFull: View {
     var podcast: Podcast
-    @Environment(PodcastViewModel.self) private var viewModel
+    @Environment(EpisodeViewModel.self) private var viewModel
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext

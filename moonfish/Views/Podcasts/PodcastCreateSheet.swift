@@ -10,7 +10,7 @@ import PhotosUI
 
 struct PodcastCreateSheet: View {
     @Environment(AuthManager.self) var authManager
-    @Environment(PodcastViewModel.self) var rootModel
+    @Environment(EpisodeViewModel.self) var rootModel
     @Environment(\.dismiss) var dismiss
     
     @State private var title: String = ""

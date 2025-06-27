@@ -11,7 +11,7 @@ import SwiftData
 struct PodcastCardHighlight: View {
     var podcast: Podcast
     
-    @Environment(PodcastViewModel.self) private var rootModel
+    @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(AuthManager.self) private var authManager
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(\.modelContext) private var context: ModelContext

@@ -10,7 +10,7 @@ import SwiftData
 
 @MainActor
 @Observable
-class PodcastViewModel {
+class EpisodeViewModel {
     let playbackRateOptions: [Double] = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0]
     let timerOptions: [Double] = [0, 5, 10, 15, -1]
     

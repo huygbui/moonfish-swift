@@ -18,7 +18,7 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
         var colorSchemePreference: ColorSchemePreference = .automatic
     
         let audioPlayer = AudioManager() // Use the same instance
-        let podcastRootModel = PodcastViewModel()
+        let podcastRootModel = EpisodeViewModel()
         let requestRootModel = RequestViewModel()
 
         return content

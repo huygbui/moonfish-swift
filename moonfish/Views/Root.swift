@@ -15,7 +15,9 @@ struct Root: View {
     var body: some View {
         if #available(iOS 26.0, *) {
             TabView {
-                Tab("Podcasts", systemImage: "play.square.stack") { PodcastsRoot() }
+                Tab("Home", systemImage: "house") { HomeRoot() }
+                Tab("Podcasts", systemImage: "play.square.stack") { HomeRoot() }
+
 //                Tab("Requests", systemImage: "tray") { RequestsRoot()}
                 Tab(role: .search) { SearchRoot() }
             }

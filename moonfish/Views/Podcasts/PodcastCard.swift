@@ -12,7 +12,7 @@ struct PodcastCard: View {
     @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext
-    @Environment(PodcastViewModel.self) private var rootModel
+    @Environment(EpisodeViewModel.self) private var rootModel
     var podcast: Podcast
     
     var body: some View {
