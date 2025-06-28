@@ -23,46 +23,27 @@ struct PodcastRoot: View {
             ScrollView {
                 LazyVGrid(columns: columns) {
                     ForEach(podcasts) { podcast in
-                        VStack {
-                            AsyncImage(url: podcast.imageURL) { image in
-                                image
-                                    .resizable()
-                                    .aspectRatio(1, contentMode: .fill)
-                            } placeholder: {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color(.tertiarySystemFill))
-                                    .aspectRatio(1, contentMode: .fit)
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            
-                            Text(podcast.title)
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .multilineTextAlignment(.leading)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                        NavigationLink(value: podcast) {
+                            PodcastCard(podcast: podcast)
                         }
+                        .buttonStyle(.plain)
                     }
                 }
-                .safeAreaPadding(.horizontal)
-                .scrollIndicators(.hidden)
-                .navigationTitle("Podcasts")
-                .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        Button(action: { showingCreateSheet = true }) {
-                            Label("Create", systemImage: "plus")
-                        }
+            }
+            .safeAreaPadding(.horizontal)
+            .scrollIndicators(.hidden)
+            .navigationTitle("Podcasts")
+            .navigationDestination(for: Podcast.self) { PodcastDetail(podcast: $0) }
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button(action: { showingCreateSheet = true }) {
+                        Label("Create", systemImage: "plus")
                     }
                 }
-                .sheet(isPresented: $showingCreateSheet) {
-                    PodcastCreateSheet()
-                }
             }
-            .refreshable {
-                await rootModel.refresh(authManager: authManager, context: context)
-            }
-            .task {
-                await rootModel.refresh(authManager: authManager, context: context)
-            }
+            .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
+            .refreshable { await rootModel.refresh(authManager: authManager, context: context) }
+            .task { await rootModel.refresh(authManager: authManager, context: context) }
         }
     }
 }

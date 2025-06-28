@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CreateSheet: View {
+struct EpisodeCreate: View {
     @Environment(AuthManager.self) var authManager
     @Environment(RequestViewModel.self) var rootModel
     @Environment(\.dismiss) var dismiss
@@ -15,8 +15,6 @@ struct CreateSheet: View {
     @State private var topic: String = ""
     @State private var length: EpisodeLength = .short
     @State private var level: EpisodeLevel = .beginner
-    @State private var format: EpisodeFormat = .narrative
-    @State private var voice: EpisodeVoice = .female
     @State private var instruction: String = ""
     
     @State private var isSubmitting: Bool = false
@@ -46,19 +44,6 @@ struct CreateSheet: View {
                             Text(level.rawValue.localizedCapitalized).tag(level)
                         }
                     }
-                }
-                Section(header: Text("Delivery")) {
-                    Picker("Format", selection: $format) {
-                        ForEach(EpisodeFormat.allCases) { format in
-                            Text(format.rawValue.localizedCapitalized).tag(format)
-                        }
-                    }
-                    Picker("Voice", selection: $voice) {
-                        ForEach(EpisodeVoice.allCases) { voice in
-                            Text(voice.rawValue.localizedCapitalized).tag(voice)
-                        }
-                    }
-                    .disabled(format == .conversational)
                 }
                 Section(header: Text("Notes")) {
                     TextField(
@@ -99,8 +84,6 @@ struct CreateSheet: View {
             topic: topic,
             length: length,
             level: level,
-            format: format,
-            voice: voice,
             instruction: instruction
         )
         
@@ -117,5 +100,5 @@ struct CreateSheet: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    CreateSheet()
+    EpisodeCreate()
 }

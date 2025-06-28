@@ -11,8 +11,6 @@ struct EpisodeCreateRequest: Codable {
     var topic: String
     var length: EpisodeLength
     var level: EpisodeLevel
-    var format: EpisodeFormat
-    var voice: EpisodeVoice
     var instruction: String
 }
 
