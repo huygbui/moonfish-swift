@@ -31,10 +31,13 @@ struct PodcastCreateResponse: Codable, Identifiable {
     var createdAt: Date
     var updatedAt: Date
     
+    var imageURL: URL?
+    
     enum CodingKeys: String, CodingKey {
         case id, title, format, name1, voice1, name2, voice2, description
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+        case imageURL = "image_url"
     }
 }
 

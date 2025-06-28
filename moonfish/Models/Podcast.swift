@@ -18,13 +18,14 @@ final class Podcast {
     var voice1: String
     var name2: String?
     var voice2: String?
-    var imageURL: URL?
     
     var createdAt: Date
     var updatedAt: Date
 
     @Relationship(deleteRule: .cascade, inverse: \Episode.podcast)
     var episodes = [Episode]()
+    
+    @Attribute(.ephemeral) var imageURL: URL?
    
     init(
         serverId: Int,
@@ -35,9 +36,9 @@ final class Podcast {
         voice1: String,
         name2: String? = nil,
         voice2: String? = nil,
-        imageURL: URL? = nil,
         createdAt: Date,
-        updatedAt: Date
+        updatedAt: Date,
+        imageURL: URL? = nil
     ) {
         self.serverId = serverId
         self.title = title
@@ -47,9 +48,9 @@ final class Podcast {
         self.voice1 = voice1
         self.name2 = name2
         self.voice2 = voice2
-        self.imageURL = imageURL
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.imageURL = imageURL
     }
     
     convenience init(from createResponse: PodcastCreateResponse) {
@@ -64,6 +65,7 @@ final class Podcast {
             voice2: createResponse.voice2,
             createdAt: createResponse.createdAt,
             updatedAt: createResponse.updatedAt,
+            imageURL: createResponse.imageURL
         )
     }
 }
