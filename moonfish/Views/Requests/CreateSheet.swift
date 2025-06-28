@@ -104,11 +104,15 @@ struct CreateSheet: View {
             instruction: instruction
         )
         
-        Task {
-            defer { isSubmitting = false }
-            await rootModel.submitRequest(for: config, authManager: authManager)
-            dismiss()
-        }
+//        Task {
+//            defer { isSubmitting = false }
+//            await rootModel.submitRequest(
+//                for: config,
+//                podcastId: podcast.serverId,
+//                authManager: authManager
+//            )
+//            dismiss()
+//        }
     }
 }
 

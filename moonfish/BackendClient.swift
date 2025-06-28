@@ -150,12 +150,40 @@ final class BackendClient: Sendable {
             throw ClientError.unexpectedError
         }    
     }
+    
+    // MARK: - Create Podcast
+    func getAllPodcasts(authToken: String) async throws -> [PodcastCreateResponse] {
+        var request = try createRequest(for: "podcasts", method: "GET", authToken: authToken)
+        request.setValue("application//json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode([PodcastCreateResponse].self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
+        }
+    }
+
    
     // MARK: - Create Episode
-    func createEpisode(config: EpisodeCreateRequest, authToken: String) async throws -> OngoingEpisodeResponse {
-        var request = try createRequest(for: "podcasts", method: "POST", authToken: authToken)
+    func createEpisode(for episodeRequest: EpisodeCreateRequest, podcastId: Int, authToken: String) async throws -> OngoingEpisodeResponse {
+        var request = try createRequest(for: "podcasts/\(podcastId)/episodes", method: "POST", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try encoder.encode(config)
+        request.httpBody = try encoder.encode(episodeRequest)
         
         let (data, response) = try await session.data(for: request)
         

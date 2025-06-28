@@ -10,7 +10,10 @@ import SwiftData
 
 struct PodcastRoot: View {
     @State private var showingCreateSheet: Bool = false
-    
+    @Environment(PodcastViewModel.self) private var rootModel: PodcastViewModel
+    @Environment(AuthManager.self) private var authManager: AuthManager
+    @Environment(\.modelContext) private var context: ModelContext
+
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
 
     var body: some View {
@@ -32,6 +35,9 @@ struct PodcastRoot: View {
                 .sheet(isPresented: $showingCreateSheet) {
                     PodcastCreateSheet()
                 }
+            }
+            .refreshable {
+                await rootModel.refresh(authManager: authManager, context: context)
             }
         }
     }
