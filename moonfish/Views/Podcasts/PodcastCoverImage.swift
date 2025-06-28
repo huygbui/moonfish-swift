@@ -13,8 +13,10 @@ struct PodcastCoverImage: View {
     
     var body: some View {
         switch imageState {
-        case .success(let image):
-            image.resizable()
+        case .success(let image, _):
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
         case .loading, .empty, .failure:
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color(.secondarySystemFill))
@@ -27,8 +29,8 @@ struct RectangleCoverImage: View {
     
     var body: some View {
         PodcastCoverImage(imageState: imageState)
-            .scaledToFill()
             .frame(width: 128, height: 128)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }
 

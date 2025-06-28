@@ -39,6 +39,9 @@ struct PodcastRoot: View {
             .refreshable {
                 await rootModel.refresh(authManager: authManager, context: context)
             }
+            .task {
+                await rootModel.refresh(authManager: authManager, context: context)
+            }
         }
     }
 }

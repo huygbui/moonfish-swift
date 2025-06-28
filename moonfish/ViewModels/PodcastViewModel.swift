@@ -13,19 +13,51 @@ import SwiftData
 class PodcastViewModel {
     private let client = BackendClient()
     
-    func submit(_ podcastCreateRequest: PodcastCreateRequest, authManager: AuthManager, context: ModelContext) async {
+    func submit(
+        _ podcastCreateRequest: PodcastCreateRequest,
+        coverModel: PodcastCoverModel, // Pass the model as parameter
+        authManager: AuthManager,
+        context: ModelContext
+    ) async {
         guard let token = authManager.token else { return }
         
         do {
-            let response = try await client.createPodcast(from: podcastCreateRequest, authToken: token)
+            // 1. Create podcast
+            let response = try await client.createPodcast(
+                from: podcastCreateRequest,
+                authToken: token
+            )
+            
+            // 2. Upload image if available
+            if let imageData = coverModel.imageData { // Use coverModel parameter
+                do {
+                    let uploadURLResponse = try await client.createPodcastImageUploadURL(
+                        podcastId: response.id,
+                        authToken: token
+                    )
+                    
+                    var request = URLRequest(url: uploadURLResponse.url)
+                    request.httpMethod = "PUT"
+                    request.httpBody = imageData
+                    request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+                    
+                    let (_, _) = try await URLSession.shared.data(for: request)
+                } catch {
+                    // Log but don't fail podcast creation
+                    print("Image upload failed: \(error)")
+                }
+            }
+            
+            // 3. Save podcast locally
             let podcast = Podcast(from: response)
             context.insert(podcast)
             try context.save()
+            
         } catch {
             print("Failed to create podcast: \(error)")
         }
     }
-    
+
     func refresh(authManager: AuthManager, context: ModelContext) async {
         guard let token = authManager.token else { return }
         

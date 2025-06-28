@@ -1,5 +1,5 @@
 //
-//  PodcastCoverImageViewModel.swift
+//  PodcastCoverModel.swift
 //  moonfish
 //
 //  Created by Huy Bui on 27/6/25.
@@ -14,36 +14,12 @@ final class PodcastCoverModel {
     enum ImageState {
         case empty
         case loading(Progress)
-        case success(Image)
+        case success(Image, Data)
         case failure(Error)
     }
     
     enum TransferError: Error {
         case importFailed
-    }
-    
-    struct ProfileImage: Transferable {
-        let image: Image
-        
-        static var transferRepresentation: some TransferRepresentation {
-            DataRepresentation(importedContentType: .image) { data in
-            #if canImport(AppKit)
-                guard let nsImage = NSImage(data: data) else {
-                    throw TransferError.importFailed
-                }
-                let image = Image(nsImage: nsImage)
-                return ProfileImage(image: image)
-            #elseif canImport(UIKit)
-                guard let uiImage = UIImage(data: data) else {
-                    throw TransferError.importFailed
-                }
-                let image = Image(uiImage: uiImage)
-                return ProfileImage(image: image)
-            #else
-                throw TransferError.importFailed
-            #endif
-            }
-        }
     }
     
     private(set) var imageState: ImageState = .empty
@@ -59,16 +35,44 @@ final class PodcastCoverModel {
         }
     }
     
+    // Add computed property to get image data
+    var imageData: Data? {
+        if case .success(_, let data) = imageState {
+            return data
+        }
+        return nil
+    }
+    
+    // Add computed property to check if has image
+    var hasImage: Bool {
+        if case .success = imageState {
+            return true
+        }
+        return false
+    }
+    
     private func loadTransferable(from imageSelection: PhotosPickerItem) -> Progress {
-        return imageSelection.loadTransferable(type: ProfileImage.self) { result in
-            DispatchQueue.main.async {
+        return imageSelection.loadTransferable(type: Data.self) { result in
+            Task { @MainActor in
                 guard imageSelection == self.imageSelection else {
                     print("Failed to get the selected item.")
                     return
                 }
+                
                 switch result {
-                case .success(let profileImage?):
-                    self.imageState = .success(profileImage.image)
+                case .success(let data?):
+                    #if canImport(UIKit)
+                    if let uiImage = UIImage(data: data) {
+                        // Compress to JPEG
+                        let compressedData = uiImage.jpegData(compressionQuality: 0.8) ?? data
+                        let image = Image(uiImage: uiImage)
+                        self.imageState = .success(image, compressedData)
+                    } else {
+                        self.imageState = .failure(TransferError.importFailed)
+                    }
+                    #else
+                    self.imageState = .failure(TransferError.importFailed)
+                    #endif
                 case .success(nil):
                     self.imageState = .empty
                 case .failure(let error):

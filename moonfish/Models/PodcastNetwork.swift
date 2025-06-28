@@ -37,3 +37,15 @@ struct PodcastCreateResponse: Codable, Identifiable {
         case updatedAt = "updated_at"
     }
 }
+
+struct PodcastImageUploadURLRequest: Codable {
+    var podcastId: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case podcastId = "podcast_id"
+    }
+}
+
+struct PodcastImageUploadURLResponse: Codable {
+    var url: URL
+}

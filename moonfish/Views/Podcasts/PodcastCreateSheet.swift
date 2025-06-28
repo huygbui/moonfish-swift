@@ -124,6 +124,7 @@ struct PodcastCreateSheet: View {
                     voice2: voice2,
                     description: description
                 ),
+                coverModel: podcastCoverModel,
                 authManager: authManager,
                 context: context
             )
