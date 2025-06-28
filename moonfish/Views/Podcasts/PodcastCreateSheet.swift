@@ -117,12 +117,12 @@ struct PodcastCreateSheet: View {
             await rootModel.submit(
                 PodcastCreateRequest(
                     title: title,
-                    about: description,
                     format: format,
                     name1: name1,
                     voice1: voice1,
                     name2: name2,
-                    voice2: voice2
+                    voice2: voice2,
+                    description: description
                 ),
                 authManager: authManager,
                 context: context

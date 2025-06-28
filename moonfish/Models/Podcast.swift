@@ -56,7 +56,7 @@ final class Podcast {
         self.init(
             serverId: createResponse.id,
             title: createResponse.title,
-            about: createResponse.about,
+            about: createResponse.description,
             format: createResponse.format,
             name1: createResponse.name1,
             voice1: createResponse.voice1,

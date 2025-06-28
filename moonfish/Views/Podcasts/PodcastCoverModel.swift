@@ -59,8 +59,6 @@ final class PodcastCoverModel {
         }
     }
     
-    // MARK: - Private Methods
-    
     private func loadTransferable(from imageSelection: PhotosPickerItem) -> Progress {
         return imageSelection.loadTransferable(type: ProfileImage.self) { result in
             DispatchQueue.main.async {
