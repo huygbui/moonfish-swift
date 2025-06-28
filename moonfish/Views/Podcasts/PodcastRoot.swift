@@ -16,30 +16,34 @@ struct PodcastRoot: View {
 
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
 
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+    
     var body: some View {
         NavigationStack{
             ScrollView {
-                LazyVStack {
+                LazyVGrid(columns: columns) {
                     ForEach(podcasts) { podcast in
-                        HStack {
+                        VStack {
                             AsyncImage(url: podcast.imageURL) { image in
                                 image
                                     .resizable()
-                                    .aspectRatio(contentMode: .fill)
+                                    .aspectRatio(1, contentMode: .fill)
                             } placeholder: {
-                                Color(.tertiarySystemFill)
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(Color(.tertiarySystemFill))
+                                    .aspectRatio(1, contentMode: .fit)
                             }
-                            .frame(width: 64, height: 64)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                             
                             Text(podcast.title)
-                                .font(.headline)
-                            
-                            Spacer()
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .multilineTextAlignment(.leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .padding()
                     }
                 }
+                .safeAreaPadding(.horizontal)
                 .scrollIndicators(.hidden)
                 .navigationTitle("Podcasts")
                 .toolbar {
