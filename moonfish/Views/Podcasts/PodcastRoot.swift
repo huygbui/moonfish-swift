@@ -20,10 +20,27 @@ struct PodcastRoot: View {
         NavigationStack{
             ScrollView {
                 LazyVStack {
-                    ForEach(podcasts) {
-                        Text($0.title)
+                    ForEach(podcasts) { podcast in
+                        HStack {
+                            AsyncImage(url: podcast.imageURL) { image in
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                            } placeholder: {
+                                Color(.tertiarySystemFill)
+                            }
+                            .frame(width: 64, height: 64)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            
+                            Text(podcast.title)
+                                .font(.headline)
+                            
+                            Spacer()
+                        }
+                        .padding()
                     }
                 }
+                .scrollIndicators(.hidden)
                 .navigationTitle("Podcasts")
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {

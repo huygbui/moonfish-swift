@@ -188,7 +188,7 @@ final class BackendClient: Sendable {
     // MARK: - Create Podcast
     func getAllPodcasts(authToken: String) async throws -> [PodcastCreateResponse] {
         var request = try createRequest(for: "podcasts", method: "GET", authToken: authToken)
-        request.setValue("application//json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let (data, response) = try await session.data(for: request)
         
