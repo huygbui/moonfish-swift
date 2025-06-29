@@ -15,7 +15,7 @@ final class Episode {
     var topic: String
     var length: String
     var level: String
-    var instruction: String
+    var instruction: String?
     
     var format: String
     var voice1: String
@@ -47,7 +47,7 @@ final class Episode {
         topic: String,
         length: String,
         level: String,
-        instruction: String = "",
+        instruction: String? = nil,
         
         format: String,
         voice1: String,
@@ -107,7 +107,7 @@ final class Episode {
             topic: response.topic,
             length: response.length,
             level: response.level,
-            instruction: response.instruction ?? "",
+            instruction: response.instruction,
             
             format: response.format,
             voice1: response.voice1,

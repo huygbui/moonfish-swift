@@ -23,7 +23,7 @@ struct EpisodeDetail: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 32) {
+            VStack(spacing: 16) {
                 cover
                 title
                 play

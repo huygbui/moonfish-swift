@@ -17,7 +17,7 @@ struct EpisodeMenu: View {
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) private var dismiss
     
-    @State private var showingAlert = false
+    @State private var showingDeleteConfirmation = false
     
     var body: some View {
         Menu {
@@ -35,19 +35,18 @@ struct EpisodeMenu: View {
                 )
             }
             
-            Button(role: .destructive, action: { showingAlert = true } ) {
-                Label(
-                    "Delete Episode",
-                    systemImage: "trash"
-                )
+            Button("Delete Episode", systemImage: "trash", role: .destructive) {
+                showingDeleteConfirmation = true
             }
         } label: {
             Image(systemName: "ellipsis")
                 .font(.footnote)
-                .frame(width: 24, height: 24)
         }
-        .alert("Delete Episode", isPresented: $showingAlert) {
-            Button("Cancel", role: .cancel) { }
+        .confirmationDialog(
+            "Delete Episode",
+            isPresented: $showingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
             Button("Delete", role: .destructive) {
                 Task {
                     await rootModel.delete(episode, context: context, authManager: authManager)
@@ -55,8 +54,9 @@ struct EpisodeMenu: View {
                     dismiss()
                 }
             }
+            Button("Cancel", role: .cancel) { }
         } message: {
-            Text("This episode will be deleted forever.")
+            Text("This episode will be deleted permanently.")
         }
     }
     

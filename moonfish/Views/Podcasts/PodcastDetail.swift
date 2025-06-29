@@ -14,7 +14,8 @@ struct PodcastDetail: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(PodcastViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context
-
+    @Environment(\.dismiss) private var dismiss
+    
     @State private var showingEpisodeCreate: Bool = false
     @State private var showingPodcastUpdate: Bool = false
 
@@ -27,8 +28,8 @@ struct PodcastDetail: View {
             VStack(spacing: 16) {
                 cover
                 title
-                about
                 addButton
+                about
                 episodeList
             }
         }
@@ -38,7 +39,10 @@ struct PodcastDetail: View {
             ToolbarItem {
                 PodcastMenu(
                     onEdit: { showingPodcastUpdate = true },
-                    onDelete: { await rootModel.delete(podcast, authManager: authManager, context: context) }
+                    onDelete: {
+                        await rootModel.delete(podcast, authManager: authManager, context: context)
+                        dismiss()
+                    }
                 )
             }
         }
@@ -84,21 +88,25 @@ struct PodcastDetail: View {
         podcast.about.map {
             Text($0)
                 .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .multilineTextAlignment(.center)
         }
     }
 
     private var episodeList: some View {
-        LazyVStack {
+        LazyVStack(spacing: 8) {
             ForEach(podcast.episodes) { episode in
-                NavigationLink(destination: EpisodeDetail(episode: episode)) {
-                    EpisodeRow(episode: episode)
+                Group {
+                    NavigationLink(destination: EpisodeDetail(episode: episode)) {
+                        EpisodeRow(episode: episode)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Divider()
                 }
-                .buttonStyle(.plain)
-                
-                Divider()
             }
         }
+        .padding(.top, 16)
     }
 }
 

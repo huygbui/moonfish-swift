@@ -17,25 +17,34 @@ struct EpisodeRow: View {
     @Environment(\.modelContext) private var context: ModelContext
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 32) {
+        VStack(alignment: .leading, spacing: 16) {
             // Card header
-            VStack(alignment: .leading, spacing: 0) {
-                // Card title
-                Text(episode.title ?? "")
-                    .font(.body)
-                    .lineLimit(1)
-                
-                // Card subtitle
-                Text("""
+            HStack(alignment: .top, spacing: 16) {
+                VStack(alignment: .leading, spacing: 0) {
+                    // Card subtitle
+                    Text("""
                     \(episode.createdAt.compact) • \
-                    \(episode.length.localizedCapitalized), \
                     \(episode.level.localizedCapitalized)
                     """
-                )
-                .font(.caption)
-                .lineLimit(1)
-                .foregroundStyle(.secondary)
+                    )
+                    .font(.caption)
+                    .lineLimit(1)
+                    .foregroundStyle(.secondary)
+                    
+                    // Card title
+                    Text(episode.title ?? "")
+                        .font(.body)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                
+                Spacer()
+                
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(.tertiarySystemFill))
+                    .frame(width: 80, height: 80)
             }
+            
             
             // Card footer
             HStack {
@@ -91,6 +100,7 @@ struct EpisodeRow: View {
     ZStack {
         Color(.secondarySystemBackground)
         EpisodeRow(episode: .preview)
+            .padding()
     }
     .ignoresSafeArea()
 }
