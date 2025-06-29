@@ -74,6 +74,18 @@ class PodcastViewModel {
             print("Failed to create episode: \(error)")
         }
     }
+    
+    func delete(_ podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
+        guard let token = authManager.token else { return }
+        
+        do {
+            try await client.deletePodcast(with: podcast.serverId, authToken: token)
+            context.delete(podcast)
+            try context.save()
+        } catch {
+            print("Failed to delete podcast: \(error)")
+        }
+    }
 
     func refresh(authManager: AuthManager, context: ModelContext) async {
         guard let token = authManager.token else { return }

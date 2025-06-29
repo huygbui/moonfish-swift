@@ -212,6 +212,27 @@ final class BackendClient: Sendable {
         }
     }
     
+    // MARK: - Delete Podcast
+    func deletePodcast(with id: Int, authToken: String) async throws {
+        let request = try createRequest(for: "podcasts/\(id)", method: "DELETE", authToken: authToken)
+        let (_, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200, 204:
+            return
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
+        }
+    }
+    
     // MARK: - Get Episodes Podcasts
     func getAllEpisodes(for podcastId: Int, authToken: String) async throws -> [EpisodeResponse] {
         let request = try createRequest(for: "podcasts/\(podcastId)/episodes", authToken: authToken)

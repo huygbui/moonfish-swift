@@ -5,37 +5,30 @@
 //  Created by Huy Bui on 28/6/25.
 //
 
-//
-//  PodcastDetail.swift
-//  moonfish
-//
-//  Created by Huy Bui on 24/6/25.
-//
-
 import SwiftUI
 import SwiftData
 
 struct PodcastDetail: View {
-    var podcast: Podcast
+    let podcast: Podcast
     @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
     @Environment(PodcastViewModel.self) private var rootModel
-    @Environment(\.modelContext) private var context: ModelContext
+    @Environment(\.modelContext) private var context
 
     @State private var showingEpisodeCreate: Bool = false
     @State private var showingPodcastUpdate: Bool = false
 
-    private let imageDimension: CGFloat = 256
+    private let imageDimension: CGFloat = 160
     private let playButtonWidth: CGFloat = 128
     private let playButtonHeight: CGFloat = 48
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 32) {
+            VStack(spacing: 16) {
                 cover
                 title
-                //                about
-                add
+                about
+                addButton
                 episodeList
             }
         }
@@ -43,9 +36,10 @@ struct PodcastDetail: View {
         .scrollIndicators(.hidden)
         .toolbar {
             ToolbarItem {
-                Button(action: {showingPodcastUpdate = true}) {
-                    Label("Edit", systemImage: "pencil")
-                }
+                PodcastMenu(
+                    onEdit: { showingPodcastUpdate = true },
+                    onDelete: { await rootModel.delete(podcast, authManager: authManager, context: context) }
+                )
             }
         }
         .sheet(isPresented: $showingEpisodeCreate) { EpisodeCreateSheet(podcast: podcast) }
@@ -61,9 +55,7 @@ struct PodcastDetail: View {
                 .resizable()
                 .aspectRatio(1, contentMode: .fill)
         } placeholder: {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.tertiarySystemFill))
-                .aspectRatio(1, contentMode: .fit)
+            Color(.tertiarySystemFill)
         }
         .frame(width: imageDimension, height: imageDimension)
         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -76,7 +68,7 @@ struct PodcastDetail: View {
             .multilineTextAlignment(.center)
     }
     
-    private var add: some View {
+    private var addButton: some View {
         Button {
            showingEpisodeCreate = true
         } label: {
@@ -89,21 +81,33 @@ struct PodcastDetail: View {
     }
     
     private var about: some View {
-        Text(podcast.about ?? "")
-            .foregroundStyle(.secondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        podcast.about.map {
+            Text($0)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
     }
 
     private var episodeList: some View {
-        ForEach(podcast.episodes) { episode in
-            NavigationLink(destination: EpisodeDetail(episode: episode)) {
-                EpisodeCard(episode: episode)
+        LazyVStack {
+            ForEach(podcast.episodes) { episode in
+                NavigationLink(destination: EpisodeDetail(episode: episode)) {
+                    EpisodeRow(episode: episode)
+                }
+                .buttonStyle(.plain)
+                
+                Divider()
             }
-            .buttonStyle(.plain)
         }
     }
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PodcastDetail(podcast: .preview)
+    NavigationStack {
+        ZStack {
+            Color(.secondarySystemBackground)
+                .ignoresSafeArea()
+            PodcastDetail(podcast: .preview)
+        }
+    }
 }
