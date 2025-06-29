@@ -11,74 +11,47 @@ import AVFoundation
 @Observable
 @MainActor
 final class AudioManager {
-    var player: AVPlayer?
+    private(set) var timer: Double = 0.0
+    private(set) var playbackRate: Double = 1.0
+    private(set) var currentEpisode: Episode?
+    private(set) var isPlaying = false
+    private(set) var currentTime: Double = 0.0
+    private(set) var duration: Double = 0.0
     
-    var currentEpisode: Episode?
-    var isPlaying = false
+    private let player = AVPlayer()
+    private var timeObserver: Any?
     
-    var currentTime: Double = 0
-    var duration: Double = 0
-    var playbackRate: Double = 1.0
-    var timer: Double = 0.0
-    
-    private var timeObserverToken: Any?
-    private var url: URL?
-
-    init() { setupAudioSession() }
-    
-    private func setupAudioSession() {
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .spokenAudio)
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print("Failed to setup audio session: \(error)")
-        }
+    init() {
+        setupAudioSession()
+        addPeriodicTimeObserver()
     }
-
+    
     func play(_ episode: Episode) {
-        let url = (episode.isDownloaded &&
-                   FileManager.default.fileExists(atPath: episode.fileURL.path))
-                   ? episode.fileURL
-                   : episode.audioURL
-
-        guard let url else { return }
+        guard let url = episode.playbackURL else { return }
        
         // Resume
-        if currentEpisode == episode && player != nil {
+        if currentEpisode == episode {
             if !isPlaying {
-                player?.play()
+                player.play()
                 isPlaying = true
             }
             return
         }
         
-        // Clean up previous observer
-        if let token = timeObserverToken {
-            player?.removeTimeObserver(token)
-        }
+        currentTime = 0.0
+        duration = 0.0
         
-        player = AVPlayer(url: url)
+        let playerItem = AVPlayerItem(url: url)
+        player.replaceCurrentItem(with: playerItem)
         currentEpisode = episode
-        duration = Double(episode.duration)
-        
-        // Add time observer
-        let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
-        timeObserverToken = player?.addPeriodicTimeObserver(
-            forInterval: interval,
-            queue: .main
-        ) { [weak self] time in
-            MainActor.assumeIsolated {
-                self?.currentTime = time.seconds
-            }
-        }
-        
-        player?.rate = Float(playbackRate)
-        player?.play()
+
+        player.rate = Float(playbackRate)
+        player.play()
         isPlaying = true
     }
 
     func pause() {
-        player?.pause()
+        player.pause()
         isPlaying = false
     }
     
@@ -90,15 +63,9 @@ final class AudioManager {
         }
     }
     
-    func togglePlayback() {
-        if let episode = currentEpisode {
-            toggle(episode)
-        }
-    }
-    
     func seek(to time: Double) {
         let cmTime = CMTime(seconds: time, preferredTimescale: 600)
-        player?.seek(to: cmTime)
+        player.seek(to: cmTime)
         currentTime = time
     }
     
@@ -114,12 +81,56 @@ final class AudioManager {
     
     func setPlaybackRate(_ rate: Double) {
         playbackRate = rate
-        if isPlaying {
-            player?.rate = Float(rate)
-        }
+        player.rate = Float(rate)
     }
     
     func isPlaying(_ episode: Episode) -> Bool {
         currentEpisode == episode && isPlaying
+    }
+    
+    func handleDeletion(of episode: Episode) {
+        guard episode == currentEpisode else { return }
+        resetPlayer()
+    }
+    
+    private func setupAudioSession() {
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.playback, mode: .spokenAudio)
+            try session.setActive(true)
+        } catch {
+            print("Failed to setup audio session: \(error)")
+        }
+    }
+    
+    private func addPeriodicTimeObserver() {
+        let interval = CMTime(seconds: 0.1, preferredTimescale: 600)
+        timeObserver = player.addPeriodicTimeObserver(
+            forInterval: interval,
+            queue: .main
+        ) { [weak self] time in
+            guard let self else { return }
+            
+            MainActor.assumeIsolated {
+                currentTime = time.seconds
+                duration = player.currentItem?.duration.seconds ?? 0.0
+            }
+        }
+    }
+    
+    private func removePeriodicTimeObserver() {
+        guard let timeObserver else { return }
+        player.removeTimeObserver(timeObserver)
+        self.timeObserver = nil
+    }
+    
+    private func resetPlayer() {
+        player.pause()
+        player.replaceCurrentItem(with: nil)
+        
+        currentEpisode = nil
+        isPlaying = false
+        currentTime = 0.0
+        duration = 0.0
     }
 }

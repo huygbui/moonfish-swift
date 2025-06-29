@@ -19,7 +19,7 @@ struct PodcastDetail: View {
     var podcast: Podcast
     @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
-    @Environment(EpisodeViewModel.self) private var rootModel
+    @Environment(PodcastViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
 
     @State private var showingEpisodeCreate: Bool = false
@@ -34,8 +34,8 @@ struct PodcastDetail: View {
             VStack(spacing: 32) {
                 cover
                 title
-                play
-                summary
+//                about
+                add
             }
         }
         .safeAreaPadding(.horizontal)
@@ -49,6 +49,9 @@ struct PodcastDetail: View {
         }
         .sheet(isPresented: $showingEpisodeCreate) { EpisodeCreate() }
         .sheet(isPresented: $showingPodcastUpdate) { PodcastUpdateSheet(podcast: podcast) }
+        .task {
+            await rootModel.fetchEpisodes(for: podcast, authManager: authManager, context: context)
+        }
     }
     
     private var cover: some View {
@@ -72,7 +75,7 @@ struct PodcastDetail: View {
             .multilineTextAlignment(.center)
     }
     
-    private var play: some View {
+    private var add: some View {
         Button {
            showingEpisodeCreate = true
         } label: {
@@ -84,10 +87,16 @@ struct PodcastDetail: View {
         .buttonStyle(.plain)
     }
     
-    private var summary: some View {
+    private var about: some View {
         Text(podcast.about ?? "")
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var episodeList: some View {
+        ForEach(podcast.episodes) {
+            EpisodeCard(episode: $0)
+        }
     }
 }
 

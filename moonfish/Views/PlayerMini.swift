@@ -19,7 +19,7 @@ struct PlayerMini: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Text(episode.title)
+            Text(episode.title ?? "")
                 .font(.footnote)
                 .fontWeight(.medium)
                 .lineLimit(1)

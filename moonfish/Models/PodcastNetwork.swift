@@ -52,3 +52,4 @@ struct PodcastImageUploadURLRequest: Codable {
 struct PodcastImageUploadURLResponse: Codable {
     var url: URL
 }
+

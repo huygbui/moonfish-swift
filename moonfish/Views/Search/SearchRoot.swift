@@ -34,7 +34,8 @@ struct SearchRoot: View {
         // Apply search filter if search text is not empty
         if !searchText.isEmpty {
             filtered = filtered.filter {
-                $0.title.localizedCaseInsensitiveContains(searchText)
+                guard let title = $0.title else { return false }
+                return title.localizedCaseInsensitiveContains(searchText)
             }
         }
         

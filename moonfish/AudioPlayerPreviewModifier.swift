@@ -34,10 +34,7 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
                 let episode: Episode = .preview
                 
                 await MainActor.run {
-                    audioPlayer.currentEpisode = episode
-                    audioPlayer.duration = episode.duration
-                    audioPlayer.isPlaying = true
-                    audioPlayer.currentTime = 45 // Start partway through
+                    audioPlayer.play(episode)
                 }
             }
     }

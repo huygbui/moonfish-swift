@@ -20,12 +20,12 @@ struct EpisodeHighlight: View {
         VStack(alignment: .leading) {
             // Card header
             VStack(alignment: .leading, spacing: 8) {
-                Text(episode.title)
+                Text(episode.title ?? "")
                     .lineLimit(2)
                 
-                (Text(episode.duration.hoursMinutes) +
+                (Text(episode.duration?.hoursMinutes ?? "") +
                  Text(" • ") +
-                 Text(episode.summary)
+                 Text(episode.summary ?? "")
                     .foregroundStyle(.secondary)
                 )
                     .font(.subheadline)
@@ -63,7 +63,7 @@ struct EpisodeHighlight: View {
             HStack(spacing: 16) {
                 Spacer()
                 
-                EpisodeMenu(podcast: episode)
+                EpisodeMenu(episode: episode)
                     .foregroundStyle(.secondary)
                 
                 Button {

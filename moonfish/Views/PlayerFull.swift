@@ -143,7 +143,7 @@ struct PlayerFull: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    EpisodeMenu(podcast: episode)
+                    EpisodeMenu(episode: episode)
                 }
             }
         }

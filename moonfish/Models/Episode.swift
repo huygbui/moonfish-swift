@@ -17,10 +17,10 @@ final class Episode {
     var level: String
     var instruction: String
     
-    var title: String
-    var summary: String
-    var fileName: String
-    var duration: Double
+    var title: String?
+    var summary: String?
+    var fileName: String?
+    var duration: Double?
     var createdAt: Date
     
     var isFavorite: Bool
@@ -43,10 +43,10 @@ final class Episode {
         level: String,
         instruction: String = "",
         
-        title: String,
-        summary: String,
-        fileName: String,
-        duration: Double,
+        title: String? = nil,
+        summary: String? = nil,
+        fileName: String? = nil,
+        duration: Double? = nil,
         createdAt: Date,
         
         isFavorite: Bool = false,
@@ -82,18 +82,21 @@ final class Episode {
         self.podcast = podcast
     }
     
-    convenience init? (from podcastResponse: CompletedEpisodeResponse, for podcast: Podcast) {
+    convenience init? (from response: EpisodeResponse, for podcast: Podcast) {
         self.init(
-            serverId: podcastResponse.id,
-            topic: podcastResponse.topic,
-            length: podcastResponse.length,
-            level: podcastResponse.level,
-            instruction: podcastResponse.instruction,
-            title: podcastResponse.title,
-            summary: podcastResponse.summary,
-            fileName: podcastResponse.fileName,
-            duration: podcastResponse.duration,
-            createdAt: podcastResponse.createdAt,
+            serverId: response.id,
+            
+            topic: response.topic,
+            length: response.length,
+            level: response.level,
+            instruction: response.instruction,
+            
+            title: response.title,
+            summary: response.summary,
+            fileName: response.fileName,
+            duration: response.duration,
+            createdAt: response.createdAt,
+            
             podcast: podcast
         )
     }
@@ -115,12 +118,6 @@ extension Episode {
         case downloading = "downloading"
     }
     
-    var fileURL: URL {
-        URL.documentsDirectory
-            .appending(path: "\(self.serverId)")
-            .appendingPathExtension("mp3")
-    }
-    
     var downloadProgress: Double {
         guard totalBytes > 0 else { return 0 }
         return Double(currentBytes) / Double(totalBytes)
@@ -129,6 +126,18 @@ extension Episode {
     func update(currentBytes: Int64, totalBytes: Int64) {
         self.currentBytes = currentBytes
         self.totalBytes = totalBytes
+    }
+    
+    var fileURL: URL {
+        URL.documentsDirectory
+            .appending(path: "\(self.serverId)")
+            .appendingPathExtension("mp3")
+    }
+    
+    var playbackURL: URL? {
+        isDownloaded && FileManager.default.fileExists(atPath: fileURL.path)
+            ? fileURL
+            : audioURL
     }
 }
 
@@ -141,15 +150,12 @@ extension Episode {
         level: "beginner",
         title: "Beginner's Guide to Gardening in the Far East",
         summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
-//        transcript: "Welcome to your first step into gardening! This podcast, made just for you, will cover the basics...",
         fileName: "gardening_beginner.mp3",
         duration: 620, // about 10 minutes
-        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600), // Created an hour after the request
+        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600),
         isDownloaded: true,
         downloadState: .downloading,
         
         podcast: Podcast.preview
     )
 }
-
-

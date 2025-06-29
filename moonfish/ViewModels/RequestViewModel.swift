@@ -43,7 +43,7 @@ class RequestViewModel {
 
         requests.removeAll { $0.id == request.id }
         do {
-            try await client.cancelOngoingPodcast(id: request.id, authToken: token)
+            try await client.cancelOngoingEpisode(id: request.id, authToken: token)
         } catch {
             requests.append(request)
             print("Failed to cancel podcast: \(error)")

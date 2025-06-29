@@ -73,5 +73,22 @@ class PodcastViewModel {
            print("Failed to refresh podcasts: \(error)")
         }
     }
+    
+    func fetchEpisodes(for podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
+        guard let token = authManager.token else { return }
+        
+        do {
+            let response = try await client.getAllEpisodes(for: podcast.serverId, authToken: token)
+            
+            for episodeResponse in response {
+                if let episode = Episode(from: episodeResponse, for: podcast) {
+                    context.insert(episode)
+                }
+            }
+            try context.save()
+        } catch {
+            print("Failed to refresh podcasts: \(error)")
+        }
+    }
 }
  

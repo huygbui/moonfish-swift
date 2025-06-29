@@ -20,7 +20,7 @@ struct EpisodeCard: View {
             // Card header
             VStack(alignment: .leading, spacing: 0) {
                 // Card title
-                Text(episode.title)
+                Text(episode.title ?? "")
                     .font(.body)
                     .lineLimit(1)
                 
@@ -57,7 +57,7 @@ struct EpisodeCard: View {
                 }
                 .foregroundStyle(.primary)
                 
-                Text(episode.duration.hoursMinutes)
+                Text(episode.duration?.hoursMinutes ?? "")
                     .font(.caption)
                 
                 Spacer()
@@ -78,7 +78,7 @@ struct EpisodeCard: View {
                 .frame(width: 16, height: 16)
                 .foregroundStyle(.secondary)
                 
-                EpisodeMenu(podcast: episode)
+                EpisodeMenu(episode: episode)
                     .foregroundStyle(.secondary)
                     .frame(width: 24, height: 24)
             }

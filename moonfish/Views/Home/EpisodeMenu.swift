@@ -9,9 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct EpisodeMenu: View {
-    var podcast: Episode
+    var episode: Episode
     
-    @Environment(AudioManager.self) private var audioPlayer
+    @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
@@ -21,17 +21,17 @@ struct EpisodeMenu: View {
     
     var body: some View {
         Menu {
-            Button(action: { rootModel.toggleFavorite(podcast) }) {
+            Button(action: { rootModel.toggleFavorite(episode) }) {
                 Label(
-                    podcast.isFavorite ? "Remove Favorite" : "Add to Favorites",
-                    systemImage: podcast.isFavorite ? "heart.fill" : "heart"
+                    episode.isFavorite ? "Remove Favorite" : "Add to Favorites",
+                    systemImage: episode.isFavorite ? "heart.fill" : "heart"
                 )
             }
             
             Button(action: toggleDownload) {
                 Label(
-                    podcast.isDownloaded ? "Remove Download" : "Download Episode",
-                    systemImage: podcast.isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle"
+                    episode.isDownloaded ? "Remove Download" : "Download Episode",
+                    systemImage: episode.isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle"
                 )
             }
             
@@ -50,11 +50,8 @@ struct EpisodeMenu: View {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
                 Task {
-                    await rootModel.delete(podcast, context: context, authManager: authManager)
-                    if podcast == audioPlayer.currentEpisode {
-                        audioPlayer.pause()
-                        audioPlayer.currentEpisode = nil
-                    }
+                    await rootModel.delete(episode, context: context, authManager: authManager)
+                    audioManager.handleDeletion(of: episode)
                     dismiss()
                 }
             }
@@ -64,14 +61,14 @@ struct EpisodeMenu: View {
     }
     
     func toggleDownload() {
-        if podcast.isDownloaded {
-            rootModel.removeDownload(for: podcast)
+        if episode.isDownloaded {
+            rootModel.removeDownload(for: episode)
         } else {
-            Task { try? await rootModel.download(podcast, authManager: authManager) }
+            Task { try? await rootModel.download(episode, authManager: authManager) }
         }
     }
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    EpisodeMenu(podcast: .preview)
+    EpisodeMenu(episode: .preview)
 }

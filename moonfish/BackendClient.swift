@@ -185,7 +185,7 @@ final class BackendClient: Sendable {
         }    
     }
     
-    // MARK: - Create Podcast
+    // MARK: - Get All Podcasts
     func getAllPodcasts(authToken: String) async throws -> [PodcastCreateResponse] {
         var request = try createRequest(for: "podcasts", method: "GET", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -211,10 +211,35 @@ final class BackendClient: Sendable {
             throw ClientError.unexpectedError
         }
     }
+    
+    // MARK: - Get Episodes Podcasts
+    func getAllEpisodes(for podcastId: Int, authToken: String) async throws -> [EpisodeResponse] {
+        let request = try createRequest(for: "podcasts/\(podcastId)/episodes", authToken: authToken)
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode([EpisodeResponse].self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
+        }
+    }
 
    
     // MARK: - Create Episode
-    func createEpisode(for episodeRequest: EpisodeCreateRequest, podcastId: Int, authToken: String) async throws -> OngoingEpisodeResponse {
+    func createEpisode(for episodeRequest: EpisodeCreateRequest, podcastId: Int, authToken: String) async throws -> EpisodeResponse {
         var request = try createRequest(for: "podcasts/\(podcastId)/episodes", method: "POST", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(episodeRequest)
@@ -228,7 +253,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(OngoingEpisodeResponse.self, from: data)
+                return try decoder.decode(EpisodeResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -241,9 +266,9 @@ final class BackendClient: Sendable {
         }    
     }
     
-    // MARK: - Get Completed Podcasts
-    func getCompletedPodcasts(authToken: String) async throws -> [CompletedEpisodeResponse] {
-        let request = try createRequest(for: "podcasts/completed", authToken: authToken)
+    // MARK: - Get Completed Episodes
+    func getCompletedEpisodes(authToken: String) async throws -> [EpisodeResponse] {
+        let request = try createRequest(for: "episodes/completed", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -253,7 +278,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode([CompletedEpisodeResponse].self, from: data)
+                return try decoder.decode([EpisodeResponse].self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -266,9 +291,9 @@ final class BackendClient: Sendable {
         }
     }
     
-    // MARK: - Get Ongoing Podcasts
-    func getOngoingPodcasts(authToken: String) async throws -> [OngoingEpisodeResponse] {
-        let request = try createRequest(for: "podcasts/ongoing", authToken: authToken)
+    // MARK: - Get Ongoing Episodes
+    func getOngoingPodcasts(authToken: String) async throws -> [EpisodeResponse] {
+        let request = try createRequest(for: "episodes/ongoing", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -278,7 +303,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode([OngoingEpisodeResponse].self, from: data)
+                return try decoder.decode([EpisodeResponse].self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -291,9 +316,9 @@ final class BackendClient: Sendable {
         }
     }
     
-    // MARK: - Get Single Podcast
-    func getPodcast(id: Int, authToken: String) async throws -> CompletedEpisodeResponse {
-        let request = try createRequest(for: "podcasts/\(id)", authToken: authToken)
+    // MARK: - Get Single Episode
+    func getEpisode(id: Int, authToken: String) async throws -> EpisodeResponse {
+        let request = try createRequest(for: "episodes/\(id)", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -303,7 +328,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(CompletedEpisodeResponse.self, from: data)
+                return try decoder.decode(EpisodeResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -316,9 +341,9 @@ final class BackendClient: Sendable {
         }
     }
     
-    // MARK: - Get Podcast Content
-    func getPodcastContent(id: Int, authToken: String) async throws -> EpisodeContentResponse {
-        let request = try createRequest(for: "podcasts/\(id)/content", authToken: authToken)
+    // MARK: - Get Episode Content
+    func getEpisodeContent(id: Int, authToken: String) async throws -> EpisodeContentResponse {
+        let request = try createRequest(for: "episodes/\(id)/content", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -341,9 +366,9 @@ final class BackendClient: Sendable {
         }
     }
     
-    // MARK: - Get Podcast Audio
-    func getPodcastAudio(id: Int, authToken: String) async throws -> EpisodeAudioResponse {
-        let request = try createRequest(for: "podcasts/\(id)/audio", authToken: authToken)
+    // MARK: - Get Episode Audio
+    func getEpisodeAudio(id: Int, authToken: String) async throws -> EpisodeAudioResponse {
+        let request = try createRequest(for: "episodes/\(id)/audio", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -366,9 +391,9 @@ final class BackendClient: Sendable {
         }
     }
 
-    // MARK: - Delete Podcast
-    func deletePodcast(id: Int, authToken: String) async throws {
-        let request = try createRequest(for: "podcasts/\(id)", method: "DELETE", authToken: authToken)
+    // MARK: - Delete Episode
+    func deleteEpisode(id: Int, authToken: String) async throws {
+        let request = try createRequest(for: "episodes/\(id)", method: "DELETE", authToken: authToken)
         let (_, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {
@@ -387,9 +412,9 @@ final class BackendClient: Sendable {
         }
     }
     
-    // MARK: - Cancel Podcast
-    func cancelOngoingPodcast(id: Int, authToken: String) async throws {
-        let request = try createRequest(for: "podcasts/\(id)/cancel", method: "POST", authToken: authToken)
+    // MARK: - Cancel Episode
+    func cancelOngoingEpisode(id: Int, authToken: String) async throws {
+        let request = try createRequest(for: "episodes/\(id)/cancel", method: "POST", authToken: authToken)
         let (_, response) = try await session.data(for: request)
         
         guard let httpResponse = response as? HTTPURLResponse else {

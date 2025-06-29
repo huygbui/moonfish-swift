@@ -31,7 +31,7 @@ struct EpisodeDetail: View {
                 details
             }
             .toolbar {
-                ToolbarItem { EpisodeMenu(podcast: episode) }
+                ToolbarItem { EpisodeMenu(episode: episode) }
             }
         }
         .safeAreaPadding(.horizontal)
@@ -46,11 +46,11 @@ struct EpisodeDetail: View {
     
     private var title: some View {
         VStack(spacing: 0) {
-            Text("\(episode.createdAt.compact) • \(episode.duration.hoursMinutes)")
+            Text("\(episode.createdAt.compact) • \(episode.duration?.hoursMinutes ?? "")")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
-            Text(episode.title)
+            Text(episode.title ?? "")
                 .font(.title)
                 .fixedSize(horizontal: false, vertical: true)
                 .multilineTextAlignment(.center)
@@ -79,7 +79,7 @@ struct EpisodeDetail: View {
     }
     
     private var summary: some View {
-        Text(episode.summary)
+        Text(episode.summary ?? "")
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
     }

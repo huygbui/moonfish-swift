@@ -22,7 +22,7 @@ class EpisodeViewModel {
 
         if episode.expiresAt == nil || Date() > episode.expiresAt! {
             do {
-                let audio = try await client.getPodcastAudio(id: episode.serverId, authToken: token)
+                let audio = try await client.getEpisodeAudio(id: episode.serverId, authToken: token)
                 episode.audioURL = audio.url
                 episode.expiresAt = audio.expiresAt
                 try modelContext.save()
@@ -36,29 +36,29 @@ class EpisodeViewModel {
         guard let token = authManager.token else { return }
         
         do {
-            let serverPodcasts = try await client.getCompletedPodcasts(authToken: token)
-//            let serverIds = Set(serverPodcasts.map { $0.id })
+            let serverEpisodes = try await client.getCompletedEpisodes(authToken: token)
+            let serverIds = Set(serverEpisodes.map { $0.id })
             
-//            // Only fetch IDs from local, not full objects
-//            var fetchDescriptor = FetchDescriptor<Podcast>()
-//            fetchDescriptor.propertiesToFetch = [\.taskId]
-//            let localPodcasts = try context.fetch(fetchDescriptor)
-//            let localIds = localPodcasts.map { $0.taskId }
-//            
-//            // Find orphaned IDs
-//            let orphanedIds = Set(localIds).subtracting(serverIds)
-//            
-//            // Delete orphaned podcasts by ID
-//            for orphanedId in orphanedIds {
-//                try context.delete(model: Podcast.self, where: #Predicate { $0.taskId == orphanedId })
-//            }
+            // Only fetch IDs from local, not full objects
+            var fetchDescriptor = FetchDescriptor<Episode>()
+            fetchDescriptor.propertiesToFetch = [\.serverId]
+            let localPodcasts = try context.fetch(fetchDescriptor)
+            let localIds = localPodcasts.map { $0.serverId }
             
-            // Upsert server podcasts
-//            for serverPodcast in serverPodcasts {
-//                if let podcast = Episode(from: serverPodcast) {
-//                    context.insert(podcast)
-//                }
-//            }
+            // Find orphaned IDs
+            let orphanedIds = Set(localIds).subtracting(serverIds)
+            
+            // Delete orphaned podcasts by ID
+            for orphanedId in orphanedIds {
+                try context.delete(model: Podcast.self, where: #Predicate { $0.serverId == orphanedId })
+            }
+            
+            // Upsert server episodes
+            for response in serverEpisodes {
+                if let episode = Episode(from: response, for: podcast) {
+                    context.insert(episode)
+                }
+            }
             try context.save()
         } catch {
             print("Failed to fetch podcasts: \(error)")
@@ -69,7 +69,7 @@ class EpisodeViewModel {
         guard let token = authManager.token else { return }
         
         do {
-            try await client.deletePodcast(id: episode.serverId, authToken: token)
+            try await client.deleteEpisode(id: episode.serverId, authToken: token)
             try? FileManager.default.removeItem(at: episode.fileURL)
             context.delete(episode)
             try context.save()
