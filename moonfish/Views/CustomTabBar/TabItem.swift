@@ -8,18 +8,18 @@
 import SwiftUI
 
 enum TabItem:  String, CaseIterable, @MainActor Identifiable, View {
+    case home = "Home"
     case podcasts = "Podcasts"
-    case requests = "Requests"
     case search = "Search"
     
     var id: Self { self }
     
     var systemImage: String {
         switch self {
+        case .home:
+            return "house"
         case .podcasts:
             return "play.square.stack.fill"
-        case .requests:
-            return "tray.fill"
         case .search:
             return "magnifyingglass"
         }
@@ -36,10 +36,10 @@ enum TabItem:  String, CaseIterable, @MainActor Identifiable, View {
     
     var body: some View {
         switch self {
-        case .podcasts:
+        case .home:
             HomeRoot()
-        case .requests:
-            RequestsRoot()
+        case .podcasts:
+            PodcastRoot()
         case .search:
             SearchRoot()
         }

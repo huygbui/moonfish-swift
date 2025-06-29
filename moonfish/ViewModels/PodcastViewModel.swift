@@ -67,14 +67,17 @@ class PodcastViewModel {
             for podcastResponse in response {
                 let podcast = Podcast(from: podcastResponse)
                 context.insert(podcast)
+               
+                try context.save()
+                
+                await refreshEpisodes(for: podcast, authManager: authManager, context: context)
             }
-            try context.save()
         } catch {
            print("Failed to refresh podcasts: \(error)")
         }
     }
     
-    func fetchEpisodes(for podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
+    func refreshEpisodes(for podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
         guard let token = authManager.token else { return }
         
         do {

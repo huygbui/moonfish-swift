@@ -9,7 +9,6 @@ import SwiftUI
 
 struct EpisodeCreate: View {
     @Environment(AuthManager.self) var authManager
-    @Environment(RequestViewModel.self) var rootModel
     @Environment(\.dismiss) var dismiss
     
     @State private var topic: String = ""

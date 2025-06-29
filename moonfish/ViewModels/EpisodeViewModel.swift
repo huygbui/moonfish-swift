@@ -32,39 +32,6 @@ class EpisodeViewModel {
         }
     }
     
-    func refresh(_ context: ModelContext, authManager: AuthManager) async {
-        guard let token = authManager.token else { return }
-        
-        do {
-            let serverEpisodes = try await client.getCompletedEpisodes(authToken: token)
-            let serverIds = Set(serverEpisodes.map { $0.id })
-            
-            // Only fetch IDs from local, not full objects
-            var fetchDescriptor = FetchDescriptor<Episode>()
-            fetchDescriptor.propertiesToFetch = [\.serverId]
-            let localPodcasts = try context.fetch(fetchDescriptor)
-            let localIds = localPodcasts.map { $0.serverId }
-            
-            // Find orphaned IDs
-            let orphanedIds = Set(localIds).subtracting(serverIds)
-            
-            // Delete orphaned podcasts by ID
-            for orphanedId in orphanedIds {
-                try context.delete(model: Podcast.self, where: #Predicate { $0.serverId == orphanedId })
-            }
-            
-            // Upsert server episodes
-            for response in serverEpisodes {
-                if let episode = Episode(from: response, for: podcast) {
-                    context.insert(episode)
-                }
-            }
-            try context.save()
-        } catch {
-            print("Failed to fetch podcasts: \(error)")
-        }
-    }
-    
     func delete(_ episode: Episode, context: ModelContext, authManager: AuthManager) async {
         guard let token = authManager.token else { return }
         
@@ -94,7 +61,6 @@ class EpisodeViewModel {
         downloads[episode.serverId] = download
         download.start()
         episode.downloadState = .downloading
-        print("downloading")
         for await event in download.events {
             process(event, for: episode)
         }

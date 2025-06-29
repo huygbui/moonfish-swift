@@ -14,7 +14,7 @@ struct SearchRoot: View {
     @Environment(\.modelContext) private var modelContext: ModelContext
     @Query(sort: \Episode.createdAt, order: .reverse) private var episodes: [Episode]
     
-    @State private var apiPodcasts: [CompletedEpisodeResponse] = []
+    @State private var apiPodcasts: [EpisodeResponse] = []
     @State private var searchText: String = ""
     @State private var selectedFilter: FilterItem = .all
     

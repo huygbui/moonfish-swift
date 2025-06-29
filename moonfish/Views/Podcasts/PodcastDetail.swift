@@ -50,7 +50,7 @@ struct PodcastDetail: View {
         .sheet(isPresented: $showingEpisodeCreate) { EpisodeCreate() }
         .sheet(isPresented: $showingPodcastUpdate) { PodcastUpdateSheet(podcast: podcast) }
         .task {
-            await rootModel.fetchEpisodes(for: podcast, authManager: authManager, context: context)
+            await rootModel.refreshEpisodes(for: podcast, authManager: authManager, context: context)
         }
     }
     

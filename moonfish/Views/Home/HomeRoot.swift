@@ -10,6 +10,7 @@ import SwiftData
 
 struct HomeRoot: View {
     @Environment(EpisodeViewModel.self) private var rootModel
+    @Environment(PodcastViewModel.self) private var podcastViewModel
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext
@@ -75,7 +76,7 @@ struct HomeRoot: View {
             }
             .sheet(isPresented: $showingSettingsSheet) { SettingsSheet() }
             .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
-            .task { await rootModel.refresh(context, authManager: authManager) }
+            .task { await podcastViewModel.refresh(authManager: authManager, context: context) }
         }
         
         var recentEpisodes: [Episode] {
