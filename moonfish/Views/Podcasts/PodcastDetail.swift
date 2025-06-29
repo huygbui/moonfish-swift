@@ -34,8 +34,9 @@ struct PodcastDetail: View {
             VStack(spacing: 32) {
                 cover
                 title
-//                about
+                //                about
                 add
+                episodeList
             }
         }
         .safeAreaPadding(.horizontal)
@@ -49,7 +50,7 @@ struct PodcastDetail: View {
         }
         .sheet(isPresented: $showingEpisodeCreate) { EpisodeCreateSheet(podcast: podcast) }
         .sheet(isPresented: $showingPodcastUpdate) { PodcastUpdateSheet(podcast: podcast) }
-        .task {
+        .refreshable {
             await rootModel.refreshEpisodes(for: podcast, authManager: authManager, context: context)
         }
     }
@@ -94,8 +95,11 @@ struct PodcastDetail: View {
     }
 
     private var episodeList: some View {
-        ForEach(podcast.episodes) {
-            EpisodeCard(episode: $0)
+        ForEach(podcast.episodes) { episode in
+            NavigationLink(destination: EpisodeDetail(episode: episode)) {
+                EpisodeCard(episode: episode)
+            }
+            .buttonStyle(.plain)
         }
     }
 }
