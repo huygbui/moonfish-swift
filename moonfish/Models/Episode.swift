@@ -17,6 +17,12 @@ final class Episode {
     var level: String
     var instruction: String
     
+    var format: String
+    var voice1: String
+    var name1: String?
+    var voice2: String?
+    var name2: String?
+    
     var title: String?
     var summary: String?
     var fileName: String?
@@ -43,6 +49,12 @@ final class Episode {
         level: String,
         instruction: String = "",
         
+        format: String,
+        voice1: String,
+        name1: String? = nil,
+        voice2: String? = nil,
+        name2: String? = nil,
+        
         title: String? = nil,
         summary: String? = nil,
         fileName: String? = nil,
@@ -65,6 +77,12 @@ final class Episode {
         self.length = length
         self.level = level
         self.instruction = instruction
+        
+        self.format = format
+        self.name1 = name1
+        self.voice1 = voice1
+        self.name2 = name1
+        self.voice2 = voice1
 
         self.title = title
         self.summary = summary
@@ -82,14 +100,20 @@ final class Episode {
         self.podcast = podcast
     }
     
-    convenience init? (from response: EpisodeResponse, for podcast: Podcast) {
+    convenience init(from response: EpisodeResponse, for podcast: Podcast) {
         self.init(
             serverId: response.id,
             
             topic: response.topic,
             length: response.length,
             level: response.level,
-            instruction: response.instruction,
+            instruction: response.instruction ?? "",
+            
+            format: response.format,
+            voice1: response.voice1,
+            name1: response.name1,
+            voice2: response.voice2,
+            name2: response.name2,
             
             title: response.title,
             summary: response.summary,
@@ -148,6 +172,13 @@ extension Episode {
         topic: "Sustainable Urban Gardening",
         length: "short",
         level: "beginner",
+        
+        format: "conversational",
+        voice1: "male",
+        name1: "John",
+        voice2: "female",
+        name2: "Jane",
+        
         title: "Beginner's Guide to Gardening in the Far East",
         summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
         fileName: "gardening_beginner.mp3",

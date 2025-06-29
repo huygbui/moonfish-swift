@@ -239,7 +239,7 @@ final class BackendClient: Sendable {
 
    
     // MARK: - Create Episode
-    func createEpisode(for episodeRequest: EpisodeCreateRequest, podcastId: Int, authToken: String) async throws -> EpisodeResponse {
+    func createEpisode(from episodeRequest: EpisodeCreateRequest, podcastId: Int, authToken: String) async throws -> EpisodeResponse {
         var request = try createRequest(for: "podcasts/\(podcastId)/episodes", method: "POST", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(episodeRequest)

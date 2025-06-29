@@ -14,21 +14,18 @@ class PodcastViewModel {
     private let client = BackendClient()
     
     func submit(
-        _ podcastCreateRequest: PodcastCreateRequest,
-        coverModel: PodcastCoverModel, // Pass the model as parameter
+        _ createRequest: PodcastCreateRequest,
+        coverModel: PodcastCoverModel,
         authManager: AuthManager,
         context: ModelContext
     ) async {
         guard let token = authManager.token else { return }
         
         do {
-            // 1. Create podcast
             let response = try await client.createPodcast(
-                from: podcastCreateRequest,
-                authToken: token
-            )
+                from: createRequest,
+                authToken: token)
             
-            // 2. Upload image if available
             if let imageData = coverModel.imageData { // Use coverModel parameter
                 do {
                     let uploadURLResponse = try await client.createPodcastImageUploadURL(
@@ -44,17 +41,37 @@ class PodcastViewModel {
                     let (_, _) = try await URLSession.shared.data(for: request)
                 } catch {
                     // Log but don't fail podcast creation
-                    print("Image upload failed: \(error)")
+                    print("Failed to upload image: \(error)")
                 }
             }
             
-            // 3. Save podcast locally
             let podcast = Podcast(from: response)
             context.insert(podcast)
             try context.save()
-            
         } catch {
             print("Failed to create podcast: \(error)")
+        }
+    }
+    
+    func submit(
+        _ request: EpisodeCreateRequest,
+        podcast: Podcast,
+        authManager: AuthManager,
+        context: ModelContext
+    ) async {
+        guard let token = authManager.token else { return }
+        
+        do {
+            let response = try await client.createEpisode(
+                from: request,
+                podcastId: podcast.serverId,
+                authToken: token)
+            
+            let episode = Episode(from: response, for: podcast)
+            context.insert(episode)
+            try context.save()
+        } catch {
+            print("Failed to create episode: \(error)")
         }
     }
 
@@ -67,7 +84,6 @@ class PodcastViewModel {
             for podcastResponse in response {
                 let podcast = Podcast(from: podcastResponse)
                 context.insert(podcast)
-               
                 try context.save()
                 
                 await refreshEpisodes(for: podcast, authManager: authManager, context: context)
@@ -84,13 +100,12 @@ class PodcastViewModel {
             let response = try await client.getAllEpisodes(for: podcast.serverId, authToken: token)
             
             for episodeResponse in response {
-                if let episode = Episode(from: episodeResponse, for: podcast) {
-                    context.insert(episode)
-                }
+                let episode = Episode(from: episodeResponse, for: podcast)
+                context.insert(episode)
             }
             try context.save()
         } catch {
-            print("Failed to refresh podcasts: \(error)")
+            print("Failed to refresh episodes: \(error)")
         }
     }
 }

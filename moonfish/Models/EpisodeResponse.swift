@@ -15,12 +15,13 @@ struct EpisodeResponse: Codable, Identifiable {
     var topic: String
     var length: String
     var level: String
+    var instruction: String?
+    
     var format: String
     var voice1: String
     var name1: String?
     var voice2: String?
     var name2: String?
-    var instruction: String = ""
     
     var status: String
     var step: String?

@@ -7,10 +7,13 @@
 
 import SwiftUI
 
-struct EpisodeCreate: View {
+struct EpisodeCreateSheet: View {
+    var podcast: Podcast
     @Environment(AuthManager.self) var authManager
+    @Environment(PodcastViewModel.self) var rootModel
     @Environment(\.dismiss) var dismiss
-    
+    @Environment(\.modelContext) var context
+
     @State private var topic: String = ""
     @State private var length: EpisodeLength = .short
     @State private var level: EpisodeLevel = .beginner
@@ -79,25 +82,24 @@ struct EpisodeCreate: View {
         
         isSubmitting = true
 
-        let config = EpisodeCreateRequest(
-            topic: topic,
-            length: length,
-            level: level,
-            instruction: instruction
-        )
-        
-//        Task {
-//            defer { isSubmitting = false }
-//            await rootModel.submitRequest(
-//                for: config,
-//                podcastId: podcast.serverId,
-//                authManager: authManager
-//            )
-//            dismiss()
-//        }
+        Task {
+            defer { isSubmitting = false }
+            await rootModel.submit(
+                EpisodeCreateRequest(
+                    topic: topic,
+                    length: length,
+                    level: level,
+                    instruction: instruction
+                ),
+                podcast: podcast,
+                authManager: authManager,
+                context: context
+            )
+            dismiss()
+        }
     }
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    EpisodeCreate()
+    EpisodeCreateSheet(podcast: .preview)
 }

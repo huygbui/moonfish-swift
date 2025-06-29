@@ -47,7 +47,7 @@ struct PodcastDetail: View {
                 }
             }
         }
-        .sheet(isPresented: $showingEpisodeCreate) { EpisodeCreate() }
+        .sheet(isPresented: $showingEpisodeCreate) { EpisodeCreateSheet(podcast: podcast) }
         .sheet(isPresented: $showingPodcastUpdate) { PodcastUpdateSheet(podcast: podcast) }
         .task {
             await rootModel.refreshEpisodes(for: podcast, authManager: authManager, context: context)
