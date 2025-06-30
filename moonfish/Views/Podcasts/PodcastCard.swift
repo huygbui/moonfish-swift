@@ -11,27 +11,35 @@ struct PodcastCard: View {
     var podcast: Podcast
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             AsyncImage(url: podcast.imageURL) { image in
                 image
                     .resizable()
-                    .aspectRatio(1, contentMode: .fill)
+                    .aspectRatio(contentMode: .fill)
             } placeholder: {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.tertiarySystemFill))
-                    .aspectRatio(1, contentMode: .fit)
+                Color(.tertiarySystemFill)
             }
+            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
             .clipShape(RoundedRectangle(cornerRadius: 16))
-            
+            .aspectRatio(1, contentMode: .fit)
+
+
             Text(podcast.title)
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
 
 #Preview {
-    PodcastCard(podcast: .preview)
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+    ScrollView {
+        LazyVGrid(columns: columns) {
+            ForEach(1..<5) { _ in
+                PodcastCard(podcast: .preview)
+            }
+        }
+        .padding(.horizontal)
+    }
+            
 }

@@ -57,7 +57,7 @@ struct PodcastDetail: View {
         AsyncImage(url: podcast.imageURL) { image in
             image
                 .resizable()
-                .aspectRatio(1, contentMode: .fill)
+                .aspectRatio(contentMode: .fill)
         } placeholder: {
             Color(.tertiarySystemFill)
         }

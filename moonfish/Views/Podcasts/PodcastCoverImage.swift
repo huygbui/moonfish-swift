@@ -18,13 +18,13 @@ struct PodcastCoverImage: View {
             // Show new image selected by user
             image
                 .resizable()
-                .aspectRatio(contentMode: .fill)
+                .scaledToFill()
         case .loading, .empty, .failure:
             // Show existing image or placeholder
             if let existingImage = existingImage {
                 existingImage
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .scaledToFill()
             } else {
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color(.secondarySystemFill))
