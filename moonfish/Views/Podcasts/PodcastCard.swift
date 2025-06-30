@@ -22,17 +22,21 @@ struct PodcastCard: View {
             .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .aspectRatio(1, contentMode: .fit)
-
-
+            
             Text(podcast.title)
                 .font(.subheadline)
                 .fontWeight(.medium)
+                .lineLimit(1)
+            
+            Spacer()
         }
     }
 }
 
 #Preview {
-    let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+    var columns: [GridItem] {
+        [.init(.adaptive(minimum: 150, maximum: 200), spacing: 16)]
+    }
     ScrollView {
         LazyVGrid(columns: columns) {
             ForEach(1..<5) { _ in

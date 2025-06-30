@@ -9,41 +9,70 @@ import SwiftUI
 import SwiftData
 
 struct PodcastRoot: View {
-    @State private var showingCreateSheet: Bool = false
-    @Environment(PodcastViewModel.self) private var rootModel: PodcastViewModel
-    @Environment(AuthManager.self) private var authManager: AuthManager
-    @Environment(\.modelContext) private var context: ModelContext
-
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
+    @Environment(PodcastViewModel.self) private var rootModel
+    @Environment(AuthManager.self) private var authManager
+    @Environment(\.modelContext) private var context
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 2)
+    @State private var showCreateSheet = false
+    
+    private var columns: [GridItem] {
+        [.init(.adaptive(minimum: 128, maximum: 512), spacing: 16)]
+    }
     
     var body: some View {
         NavigationStack{
-            ScrollView {
-                LazyVGrid(columns: columns) {
-                    ForEach(podcasts) { podcast in
-                        NavigationLink(value: podcast) {
-                            PodcastCard(podcast: podcast)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-            .safeAreaPadding(.horizontal)
-            .scrollIndicators(.hidden)
-            .navigationTitle("Podcasts")
-            .navigationDestination(for: Podcast.self) { PodcastDetail(podcast: $0) }
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: { showingCreateSheet = true }) {
-                        Label("Create", systemImage: "plus")
-                    }
-                }
-            }
-            .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
-            .refreshable { await rootModel.refresh(authManager: authManager, context: context) }
+            content
+                .navigationTitle("Podcasts")
+                .navigationDestination(for: Podcast.self, destination: PodcastDetail.init)
+                .toolbar { createButton }
+                .sheet(isPresented: $showCreateSheet) { PodcastCreateSheet() }
+                .refreshable { await refresh() }
         }
+    }
+   
+    @ViewBuilder
+    private var content: some View {
+        if podcasts.isEmpty {
+            podcastEmpty
+        } else {
+            podcastGrid
+        }
+    }
+    
+    private var podcastGrid: some View {
+        ScrollView {
+            LazyVGrid(columns: columns) {
+                ForEach(podcasts) { podcast in
+                    NavigationLink(value: podcast) {
+                        PodcastCard(podcast: podcast)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .safeAreaPadding(.horizontal)
+        .scrollIndicators(.hidden)
+    }
+    
+    private var podcastEmpty: some View {
+        ContentUnavailableView(
+            "No Podcasts",
+            systemImage: "magnifyingglass",
+            description: Text("Tap + to create your first podcast")
+        )
+    }
+    
+    private var createButton: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Button("Create", systemImage: "plus") {
+                showCreateSheet = true
+            }
+        }
+    }
+    
+    private func refresh() async {
+        await rootModel.refresh(authManager: authManager, context: context)
     }
 }
 
