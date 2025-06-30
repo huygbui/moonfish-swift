@@ -39,7 +39,10 @@ struct PodcastCreateSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    EditablePodcastCoverImage(viewModel: podcastCoverModel)
+                    EditablePodcastCoverImage(
+                        existingImage: coverImage,
+                        viewModel: podcastCoverModel
+                    )
                         .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .listRowBackground(Color.clear)

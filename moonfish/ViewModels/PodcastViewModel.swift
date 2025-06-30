@@ -75,6 +75,32 @@ class PodcastViewModel {
         }
     }
     
+    func upload(
+        imageData: Data,
+        podcastId: Int,
+        authManager: AuthManager
+    ) async {
+        guard let token = authManager.token else { return }
+        
+        do {
+            let uploadURLResponse = try await client.createPodcastImageUploadURL(
+                podcastId: podcastId,
+                authToken: token
+            )
+            
+            var request = URLRequest(url: uploadURLResponse.url)
+            request.httpMethod = "PUT"
+            request.httpBody = imageData
+            request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+            
+            let (_, _) = try await URLSession.shared.data(for: request)
+        } catch {
+            // Log but don't fail podcast creation
+            print("Failed to upload image: \(error)")
+        }
+    }
+        
+    
     func delete(_ podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
         guard let token = authManager.token else { return }
         
@@ -84,6 +110,19 @@ class PodcastViewModel {
             try context.save()
         } catch {
             print("Failed to delete podcast: \(error)")
+        }
+    }
+    
+    func update(_ podcast: Podcast, from updateRequest: PodcastUpdateRequest, authManager: AuthManager, context: ModelContext) async {
+        guard let token = authManager.token else { return }
+        
+        do {
+            let response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest, authToken: token)
+            let updatedPodcast = Podcast(from: response)
+            context.insert(updatedPodcast)
+            try context.save()
+        } catch {
+            print("Failed to refresh podcasts: \(error)")
         }
     }
 

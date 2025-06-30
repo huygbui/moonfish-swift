@@ -29,10 +29,25 @@ struct PodcastUpdateSheet: View {
     @State private var podcastCoverModel = PodcastCoverModel()
     @State private var coverImage: Image?
     
+    @State private var isLoadingExistingImage: Bool = false
     @State private var isSubmitting: Bool = false
+    
+    // Computed property - automatically recalculates when any state changes
+    // This is more efficient than checking on every field change
+    private var hasChanges: Bool {
+        title != podcast.title ||
+        format != podcast.format ||
+        voice1 != podcast.voice1 ||
+        voice2 != podcast.voice2 ||
+        name1 != podcast.name1 ||
+        name2 != (podcast.name2 ?? "") ||
+        description != (podcast.about ?? "") ||
+        podcastCoverModel.hasImage
+    }
     
     private var canSubmit: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
+        hasChanges &&
         !isSubmitting
     }
     
@@ -40,7 +55,10 @@ struct PodcastUpdateSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    EditablePodcastCoverImage(viewModel: podcastCoverModel)
+                    EditablePodcastCoverImage(
+                        existingImage: coverImage,
+                        viewModel: podcastCoverModel
+                    )
                         .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .listRowBackground(Color.clear)
@@ -90,7 +108,7 @@ struct PodcastUpdateSheet: View {
                 }
             }
             .disabled(isSubmitting)
-            .navigationTitle("New Podcast")
+            .navigationTitle("Edit Podcast")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -101,9 +119,54 @@ struct PodcastUpdateSheet: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: submit) {
-                        Label("Submit", systemImage: "checkmark")
+                        if isSubmitting {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        } else {
+                            Label("Save", systemImage: "checkmark")
+                        }
                     }
                     .disabled(!canSubmit)
+                }
+            }
+            .onAppear {
+                initializeWithPodcastData()
+            }
+        }
+    }
+    
+    private func initializeWithPodcastData() {
+        // Initialize form fields with existing podcast data
+        title = podcast.title
+        format = podcast.format
+        voice1 = podcast.voice1
+        voice2 = podcast.voice2 ?? .female
+        name1 = podcast.name1 ?? ""
+        name2 = podcast.name2 ?? ""
+        description = podcast.about ?? ""
+        
+        if let imageURL = podcast.imageURL {
+            loadExistingCoverImage(from: imageURL)
+        }
+    }
+    
+    private func loadExistingCoverImage(from url: URL) {
+        isLoadingExistingImage = true
+        
+        Task {
+            defer { isLoadingExistingImage = false }
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                
+                await MainActor.run {
+                    if let uiImage = UIImage(data: data) {
+                        coverImage = Image(uiImage: uiImage)
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    print("Failed to load existing cover image: \(error)")
+                    isLoadingExistingImage = false
                 }
             }
         }
@@ -115,20 +178,35 @@ struct PodcastUpdateSheet: View {
         
         Task {
             defer { isSubmitting = false }
-            await rootModel.submit(
-                PodcastCreateRequest(
-                    title: title,
-                    format: format,
-                    name1: name1,
-                    voice1: voice1,
-                    name2: name2,
-                    voice2: voice2,
-                    description: description
-                ),
-                coverModel: podcastCoverModel,
+            
+            // Create update request with only changed fields
+            let updateRequest = PodcastUpdateRequest(
+                title: title != podcast.title ? title : nil,
+                format: format != podcast.format ? format : nil,
+                name1: name1 != podcast.name1 ? name1 : nil,
+                voice1: voice1 != podcast.voice1 ? voice1 : nil,
+                name2: format == .conversational && name2 != (podcast.name2 ?? "") ? name2 : nil,
+                voice2: format == .conversational && voice2 != podcast.voice2 ? voice2 : nil,
+                description: description != (podcast.about ?? "") ? description : nil
+            )
+            
+            // Update the podcast first
+            await rootModel.update(
+                podcast,
+                from: updateRequest,
                 authManager: authManager,
                 context: context
             )
+            
+            // Handle image upload separately if user selected a new image
+            if let imageData = podcastCoverModel.imageData {
+                await rootModel.upload(
+                    imageData: imageData,
+                    podcastId: podcast.serverId,
+                    authManager: authManager
+                )
+            }
+            
             dismiss()
         }
     }

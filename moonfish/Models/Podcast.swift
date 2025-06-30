@@ -13,11 +13,11 @@ final class Podcast {
     
     var title: String
     var about: String?
-    var format: String
-    var name1: String
-    var voice1: String
+    var format: EpisodeFormat
+    var name1: String?
+    var voice1: EpisodeVoice
     var name2: String?
-    var voice2: String?
+    var voice2: EpisodeVoice?
     var imageURL: URL?
     
     var createdAt: Date
@@ -30,11 +30,11 @@ final class Podcast {
         serverId: Int,
         title: String,
         about: String? = nil,
-        format: String,
+        format: EpisodeFormat,
         name1: String,
-        voice1: String,
+        voice1: EpisodeVoice,
         name2: String? = nil,
-        voice2: String? = nil,
+        voice2: EpisodeVoice? = nil,
         imageURL: URL? = nil,
         createdAt: Date,
         updatedAt: Date
@@ -74,11 +74,11 @@ extension Podcast {
     static var preview = Podcast(
         serverId: 0,
         title: "Weekly Tech News",
-        format: "conversational",
+        format: .conversational,
         name1: "sam",
-        voice1: "male",
+        voice1: .male,
         name2: "sally",
-        voice2: "female",
+        voice2: .female,
         createdAt: Date(),
         updatedAt: Date()
     )
