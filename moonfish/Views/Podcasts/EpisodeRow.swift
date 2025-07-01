@@ -17,84 +17,93 @@ struct EpisodeRow: View {
     @Environment(\.modelContext) private var context: ModelContext
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Card header
+        VStack(spacing: 8) {
             HStack(alignment: .top, spacing: 16) {
-                VStack(alignment: .leading, spacing: 0) {
-                    // Card subtitle
-                    Text("""
-                    \(episode.createdAt.compact) • \
-                    \(episode.level.localizedCapitalized)
-                    """
-                    )
-                    .font(.caption)
-                    .lineLimit(1)
-                    .foregroundStyle(.secondary)
-                    
-                    // Card title
-                    Text(episode.title ?? "")
-                        .font(.body)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                
+                title
                 Spacer()
-                
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(.tertiarySystemFill))
-                    .frame(width: 80, height: 80)
+                cover
             }
             
-            
-            // Card footer
             HStack {
-                Button {
-                    Task {
-                        await rootModel.refreshAudioURL(
-                            episode,
-                            modelContext: context,
-                            authManager: authManager
-                        )
-                        
-                        audioManager.toggle(episode)
-                    }
-                } label: {
-                    Image(systemName: audioManager.isPlaying(episode)
-                          ? "pause.circle.fill" : "play.circle.fill")
-                    .resizable()
-                    .frame(width: 32, height: 32)
-                }
-                .foregroundStyle(.primary)
-                
-                Text(episode.duration?.hoursMinutes ?? "")
-                    .font(.caption)
-                
+                playButton
+                timeRemaining
                 Spacer()
-                
-                
-                ZStack {
-                    if episode.isDownloaded {
-                        Image(systemName: "checkmark.circle")
-                    } else if episode.downloadState == .downloading {
-                        GaugeProgress(
-                            fractionCompleted: episode.downloadProgress,
-                            strokeWidth: 1
-                        )
-                    } else {
-                        EmptyView()
-                    }
-                }
-                .frame(width: 16, height: 16)
-                .foregroundStyle(.secondary)
-                
-                EpisodeMenu(episode: episode)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 24, height: 24)
+                downloadStatus
+                menuButton
             }
         }
     }
+    
+    private var title: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Subtitle
+            Text("\(episode.createdAt.compact) • \(episode.level.localizedCapitalized)")
+                .font(.caption)
+                .lineLimit(1)
+                .foregroundStyle(.secondary)
+            
+            // Title
+            Text(episode.title ?? "")
+                .font(.body)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+    
+    private var cover: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(Color(.tertiarySystemFill))
+            .frame(width: 80, height: 80)
+    }
+    
+    private var timeRemaining: some View {
+        Text(episode.duration?.hoursMinutes ?? "")
+            .font(.caption)
+    }
+    
+    private var playButton: some View {
+        Button(action: handlePlayButtonTap) {
+            Image(systemName: audioManager.isPlaying(episode)
+                  ? "pause.circle.fill" : "play.circle.fill")
+            .resizable()
+            .frame(width: 32, height: 32)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    private var downloadStatus: some View {
+        ZStack {
+            if episode.isDownloaded {
+                Image(systemName: "checkmark.circle")
+            } else if episode.downloadState == .downloading {
+                GaugeProgress(
+                    fractionCompleted: episode.downloadProgress,
+                    strokeWidth: 1
+                )
+            }
+        }
+        .frame(width: 16, height: 16)
+        .foregroundStyle(.secondary)
+    }
+    
+    private var menuButton: some View {
+        EpisodeMenu(episode: episode)
+            .foregroundStyle(.secondary)
+            .frame(width: 24, height: 24)
+    }
+    
+    private func handlePlayButtonTap() {
+        Task {
+            await rootModel.refreshAudioURL(
+                episode,
+                modelContext: context,
+                authManager: authManager
+            )
+            
+            audioManager.toggle(episode)
+        }
+    }
 }
-
 
 #Preview(traits: .audioPlayerTrait) {
     ZStack {

@@ -9,62 +9,73 @@ import SwiftUI
 import SwiftData
 
 struct EpisodeMenu: View {
-    var episode: Episode
-    
+    let episode: Episode
+   
     @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) private var dismiss
     
-    @State private var showingDeleteConfirmation = false
+    @State private var showDeleteConfirmation = false
     
     var body: some View {
         Menu {
-            Button(action: { rootModel.toggleFavorite(episode) }) {
+            Button(action: onFavoriteButtonTap) {
                 Label(
                     episode.isFavorite ? "Remove Favorite" : "Add to Favorites",
                     systemImage: episode.isFavorite ? "heart.fill" : "heart"
-                )
-            }
+                )}
             
-            Button(action: toggleDownload) {
+            Button(action: onDownloadButtonTap) {
                 Label(
                     episode.isDownloaded ? "Remove Download" : "Download Episode",
                     systemImage: episode.isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle"
-                )
-            }
+                )}
             
-            Button("Delete Episode", systemImage: "trash", role: .destructive) {
-                showingDeleteConfirmation = true
-            }
+            Button(role: .destructive, action: onDeleteButtonTap) {
+                Label(
+                    "Delete Episode",
+                    systemImage: "trash"
+                )}
+            
         } label: {
             Image(systemName: "ellipsis")
                 .font(.footnote)
         }
         .confirmationDialog(
             "Delete Episode",
-            isPresented: $showingDeleteConfirmation,
+            isPresented: $showDeleteConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Delete", role: .destructive) {
-                Task {
-                    await rootModel.delete(episode, context: context, authManager: authManager)
-                    audioManager.handleDeletion(of: episode)
-                    dismiss()
-                }
-            }
+            Button("Delete", role: .destructive) { onConfirmedDeleteButtonTap() }
             Button("Cancel", role: .cancel) { }
         } message: {
             Text("This episode will be deleted permanently.")
         }
     }
+
+    private func onDeleteButtonTap() {
+        showDeleteConfirmation = true
+    }
+
+    private func onFavoriteButtonTap() {
+        rootModel.toggleFavorite(episode)
+    }
     
-    func toggleDownload() {
+    private func onDownloadButtonTap() {
         if episode.isDownloaded {
             rootModel.removeDownload(for: episode)
         } else {
             Task { try? await rootModel.download(episode, authManager: authManager) }
+        }
+    }
+    
+    private func onConfirmedDeleteButtonTap() {
+        Task {
+            await rootModel.delete(episode, context: context, authManager: authManager)
+            audioManager.handleDeletion(of: episode)
+            dismiss()
         }
     }
 }

@@ -17,11 +17,12 @@ struct EpisodeDetail: View {
 
     @State private var isExpanded = false
     
-    private let imageDimension: CGFloat = 256
-    private let playButtonWidth: CGFloat = 128
-    private let playButtonHeight: CGFloat = 48
-    
     var body: some View {
+        content
+            .toolbar { ToolbarItem { EpisodeMenu(episode: episode) } }
+    }
+    
+    private var content: some View {
         ScrollView {
             VStack(spacing: 16) {
                 cover
@@ -29,9 +30,6 @@ struct EpisodeDetail: View {
                 play
                 summary
                 details
-            }
-            .toolbar {
-                ToolbarItem { EpisodeMenu(episode: episode) }
             }
         }
         .safeAreaPadding(.horizontal)
@@ -41,7 +39,7 @@ struct EpisodeDetail: View {
     private var cover: some View {
         RoundedRectangle(cornerRadius: 16)
             .fill(.tertiary)
-            .frame(width: imageDimension, height: imageDimension)
+            .frame(width: 256, height: 256)
     }
     
     private var title: some View {
@@ -69,12 +67,12 @@ struct EpisodeDetail: View {
             }
         } label: {
             Image(systemName: audioManager.isPlaying(episode)
-                  ? "pause.fill" : "play.fill"
-            )
-                .frame(width: playButtonWidth, height: playButtonHeight)
+                  ? "pause.fill" : "play.fill")
+                .font(.subheadline)
+                .padding(.vertical)
+                .padding(.horizontal, 48)
                 .background(.primary, in: .capsule.stroke(lineWidth: 1))
         }
-        .controlSize(.large)
         .buttonStyle(.plain)
     }
     
@@ -96,5 +94,7 @@ struct EpisodeDetail: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    EpisodeDetail(episode: .preview)
+    NavigationStack {
+        EpisodeDetail(episode: .preview)
+    }
 }

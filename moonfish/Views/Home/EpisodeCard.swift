@@ -51,7 +51,7 @@ struct EpisodeCard: View {
                     }
                 } label: {
                     Image(systemName: audioManager.isPlaying(episode)
-                          ? "pause.circle.fill" : "play.circle.fill")
+                          ? "pause.circle" : "play.circle.fill")
                     .resizable()
                     .frame(width: 32, height: 32)
                 }

@@ -18,12 +18,16 @@ struct PodcastDetail: View {
     
     @State private var showingEpisodeCreate: Bool = false
     @State private var showingPodcastUpdate: Bool = false
-
-    private let imageDimension: CGFloat = 160
-    private let playButtonWidth: CGFloat = 128
-    private let playButtonHeight: CGFloat = 48
     
     var body: some View {
+        content
+            .toolbar { menuButton }
+            .sheet(isPresented: $showingEpisodeCreate) { EpisodeCreateSheet(podcast: podcast) }
+            .sheet(isPresented: $showingPodcastUpdate) { PodcastUpdateSheet(podcast: podcast) }
+            .refreshable { await refresh() }
+    }
+    
+    private var content: some View {
         ScrollView {
             VStack(spacing: 16) {
                 cover
@@ -35,22 +39,6 @@ struct PodcastDetail: View {
         }
         .safeAreaPadding(.horizontal)
         .scrollIndicators(.hidden)
-        .toolbar {
-            ToolbarItem {
-                PodcastMenu(
-                    onEdit: { showingPodcastUpdate = true },
-                    onDelete: {
-                        await rootModel.delete(podcast, authManager: authManager, context: context)
-                        dismiss()
-                    }
-                )
-            }
-        }
-        .sheet(isPresented: $showingEpisodeCreate) { EpisodeCreateSheet(podcast: podcast) }
-        .sheet(isPresented: $showingPodcastUpdate) { PodcastUpdateSheet(podcast: podcast) }
-        .refreshable {
-            await rootModel.refreshEpisodes(for: podcast, authManager: authManager, context: context)
-        }
     }
     
     private var cover: some View {
@@ -61,7 +49,7 @@ struct PodcastDetail: View {
         } placeholder: {
             Color(.tertiarySystemFill)
         }
-        .frame(width: imageDimension, height: imageDimension)
+        .frame(width: 160, height: 160)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
     
@@ -73,15 +61,13 @@ struct PodcastDetail: View {
     }
     
     private var addButton: some View {
-        Button {
+        Button("Add Episode", systemImage: "plus") {
            showingEpisodeCreate = true
-        } label: {
-            Image(systemName: "plus")
-                .frame(width: playButtonWidth, height: playButtonHeight)
-                .background(.primary, in: .capsule.stroke(lineWidth: 1))
         }
-        .controlSize(.large)
-        .buttonStyle(.plain)
+            .font(.subheadline)
+            .padding()
+            .background(.primary, in: .capsule.stroke(lineWidth: 1))
+            .buttonStyle(.plain)
     }
     
     private var about: some View {
@@ -94,19 +80,35 @@ struct PodcastDetail: View {
     }
 
     private var episodeList: some View {
-        LazyVStack(spacing: 8) {
+        VStack(spacing: 8) {
             ForEach(podcast.episodes) { episode in
-                Group {
-                    NavigationLink(destination: EpisodeDetail(episode: episode)) {
-                        EpisodeRow(episode: episode)
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Divider()
+                NavigationLink(destination: EpisodeDetail(episode: episode)) {
+                    EpisodeRow(episode: episode)
                 }
+                .buttonStyle(.plain)
+                
+                Divider()
             }
         }
         .padding(.top, 16)
+    }
+    
+    private var menuButton: some ToolbarContent {
+        ToolbarItem {
+            PodcastMenu(
+                onEdit: { showingPodcastUpdate = true },
+                onDelete: {
+                    Task {
+                        await rootModel.delete(podcast, authManager: authManager, context: context)
+                        dismiss()
+                    }
+                }
+            )
+        }
+    }
+    
+    private func refresh() async {
+        await rootModel.refreshEpisodes(for: podcast, authManager: authManager, context: context)
     }
 }
 
