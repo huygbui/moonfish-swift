@@ -15,7 +15,7 @@ class PodcastViewModel {
     
     func submit(
         _ createRequest: PodcastCreateRequest,
-        coverModel: PodcastCoverModel,
+        imageData: Data?,
         authManager: AuthManager,
         context: ModelContext
     ) async {
@@ -26,7 +26,7 @@ class PodcastViewModel {
                 from: createRequest,
                 authToken: token)
             
-            if let imageData = coverModel.imageData { // Use coverModel parameter
+            if let imageData {
                 do {
                     let uploadURLResponse = try await client.createPodcastImageUploadURL(
                         podcastId: response.id,
@@ -40,7 +40,6 @@ class PodcastViewModel {
                     
                     let (_, _) = try await URLSession.shared.data(for: request)
                 } catch {
-                    // Log but don't fail podcast creation
                     print("Failed to upload image: \(error)")
                 }
             }
@@ -141,6 +140,21 @@ class PodcastViewModel {
             }
         } catch {
            print("Failed to refresh podcasts: \(error)")
+        }
+    }
+    
+    func refresh(_ podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
+        guard let token = authManager.token else { return }
+        
+        do {
+            let response = try await client.getPodcast(id: podcast.serverId, authToken: token)
+            let podcast = Podcast(from: response)
+            context.insert(podcast)
+            try context.save()
+            
+            await refreshEpisodes(for: podcast, authManager: authManager, context: context)
+        } catch {
+            print("Failed to refresh podcasts: \(error)")
         }
     }
     

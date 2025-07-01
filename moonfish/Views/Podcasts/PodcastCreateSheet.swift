@@ -23,12 +23,15 @@ struct PodcastCreateSheet: View {
     @State private var name2: String = ""
     @State private var description: String = ""
     
+    
+    
     // Photo picker states
     @State private var selectedPhoto: PhotosPickerItem?
-    @State private var podcastCoverModel = PodcastCoverModel()
-    @State private var coverImage: Image?
+    @State private var cover: Image?
+    @State private var coverData: Data?
     
     @State private var isSubmitting: Bool = false
+    @State private var isCoverLoading: Bool = false
     
     private var canSubmit: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
@@ -38,22 +41,25 @@ struct PodcastCreateSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    EditablePodcastCoverImage(
-                        existingImage: coverImage,
-                        viewModel: podcastCoverModel
-                    )
-                        .frame(maxWidth: .infinity, alignment: .center)
-                }
-                .listRowBackground(Color.clear)
-
+                PodcastCoverImage(image: cover, isLoading: isCoverLoading)
+                    .overlay(alignment: .center) {
+                        PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                            Image(systemName: "camera.circle.fill")
+                                .font(.largeTitle)
+                                .foregroundStyle(.primary, Color(.secondarySystemBackground))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .listRowBackground(Color.clear)
+                
                 Section("Title") {
                     TextField(
                         "Name your podcast",
                         text: $title
                     )
                 }
-                    
+                
                 Section("Delivery") {
                     Picker("Format", selection: $format) {
                         ForEach(EpisodeFormat.allCases) { format in
@@ -111,7 +117,29 @@ struct PodcastCreateSheet: View {
         }
     }
     
-    func submit() {
+    private func processSelectedPhoto(item: PhotosPickerItem?) {
+        guard let item else { return }
+        
+        Task {
+            isCoverLoading = true
+            defer { isCoverLoading = false }
+            
+            do {
+                guard let data = try await item.loadTransferable(type: Data.self) else { return }
+                
+                if let uiImage = UIImage(data: data) {
+                    let compressedData = uiImage.jpegData(compressionQuality: 0.8)
+                    cover = Image(uiImage: uiImage)
+                    coverData = compressedData ?? data
+                }
+            } catch {
+                print("Failed to load image data: \(error)")
+            }
+        }
+    }
+    
+    
+    private func submit() {
         guard canSubmit else { return }
         isSubmitting = true
         
@@ -127,7 +155,7 @@ struct PodcastCreateSheet: View {
                     voice2: voice2,
                     description: description
                 ),
-                coverModel: podcastCoverModel,
+                imageData: coverData,
                 authManager: authManager,
                 context: context
             )
@@ -135,6 +163,7 @@ struct PodcastCreateSheet: View {
         }
     }
 }
+
 
 #Preview(traits: .audioPlayerTrait) {
     PodcastCreateSheet()
