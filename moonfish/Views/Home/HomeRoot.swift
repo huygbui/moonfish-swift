@@ -15,20 +15,27 @@ struct HomeRoot: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext
     
-    @Query(sort: \Episode.createdAt, order: .reverse) private var episodes: [Episode]
+    @Query(
+        filter: #Predicate<Episode> { $0.status == "completed" },
+        sort: \Episode.createdAt,
+        order: .reverse
+    ) private var recentEpisodes: [Episode]
+
+    @Query private var podcasts: [Podcast]
     
     @State private var showingSettingsSheet: Bool = false
     @State private var showingCreateSheet: Bool = false
-
+    
+    
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVStack(alignment: .leading, spacing: 32) {
+                LazyVStack(alignment: .leading, spacing: 16) {
                     if !recentEpisodes.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Newly Added").font(.headline)
                             ScrollView(.horizontal) {
-                                LazyHStack {
+                                HStack {
                                     ForEach(recentEpisodes) { episode in
                                         NavigationLink(value: episode) {
                                             EpisodeHighlight(episode: episode)
@@ -42,13 +49,32 @@ struct HomeRoot: View {
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Past Episodes").font(.headline)
-                        LazyVStack(spacing: 8) {
-                            ForEach(pastEpisodes){ episode in
+                        Text("Your Favorite Shows").font(.headline)
+                        ScrollView(.horizontal) {
+                            HStack(spacing: 16) {
+                                ForEach(podcasts) { podcast in
+                                    NavigationLink(value: podcast) {
+                                        PodcastHighlight(podcast: podcast)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                        .scrollIndicators(.hidden)
+                    }
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Listen Again").font(.headline)
+                        VStack(spacing: 8) {
+                            ForEach(recentEpisodes){ episode in
                                 NavigationLink(value: episode) {
                                     EpisodeCard(episode: episode)
                                 }
                                 .buttonStyle(.plain)
+                                
+                                if episode != recentEpisodes.last {
+                                    Divider()
+                                }
                             }
                         }
                     }
@@ -64,9 +90,9 @@ struct HomeRoot: View {
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
             .scrollIndicators(.hidden)
-            .background(Color(.secondarySystemBackground))
             .navigationTitle("Home")
-            .navigationDestination(for: Episode.self) { EpisodeDetail(episode: $0)}
+            .navigationDestination(for: Episode.self, destination: EpisodeDetail.init)
+            .navigationDestination(for: Podcast.self, destination: PodcastDetail.init)
             .toolbar {
                 ToolbarItem {
                     Button(action: { showingSettingsSheet = true }) {
@@ -76,16 +102,10 @@ struct HomeRoot: View {
             }
             .sheet(isPresented: $showingSettingsSheet) { SettingsSheet() }
             .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
+//            .refreshable { await podcastViewModel.refresh(authManager: authManager, context: context) }
             .task { await podcastViewModel.refresh(authManager: authManager, context: context) }
         }
         
-        var recentEpisodes: [Episode] {
-            episodes.filter { $0.isRecent }
-        }
-        
-        var pastEpisodes: [Episode] {
-            episodes.filter { !$0.isRecent }
-        }
     }
 }
 

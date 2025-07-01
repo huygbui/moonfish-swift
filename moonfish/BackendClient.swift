@@ -316,6 +316,31 @@ final class BackendClient: Sendable {
             throw ClientError.unexpectedError
         }
     }
+     
+    // MARK: - Get Episodes
+    func getAllEpisodes(authToken: String) async throws -> [EpisodeResponse] {
+        let request = try createRequest(for: "/episodes", authToken: authToken)
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode([EpisodeResponse].self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
+        }
+    }
 
    
     // MARK: - Create Episode

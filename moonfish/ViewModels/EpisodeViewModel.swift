@@ -37,7 +37,7 @@ class EpisodeViewModel {
        
         do {
             try await client.cancelOngoingEpisode(id: episode.serverId, authToken: token)
-            episode.status = .cancelled
+            episode.status = EpisodeStatus.cancelled.rawValue
             try context.save()
         } catch {
             print("Failed to cancel episode: \(error)")

@@ -134,44 +134,54 @@ class PodcastViewModel {
             for podcastResponse in response {
                 let podcast = Podcast(from: podcastResponse)
                 context.insert(podcast)
-                try context.save()
-                
                 await refreshEpisodes(for: podcast, authManager: authManager, context: context)
             }
+            try context.save()
         } catch {
            print("Failed to refresh podcasts: \(error)")
         }
     }
     
-    func refresh(_ podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
-        guard let token = authManager.token else { return }
-        
-        do {
-            let response = try await client.getPodcast(id: podcast.serverId, authToken: token)
-            let refreshedPodcast = Podcast(from: response)
-            context.insert(refreshedPodcast)
-            try context.save()
-            
-            await refreshEpisodes(for: refreshedPodcast, authManager: authManager, context: context)
-        } catch {
-            print("Failed to refresh podcasts: \(error)")
-        }
-    }
+//    func refresh(_ podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
+//        guard let token = authManager.token else { return }
+//        
+//        do {
+//            let response = try await client.getPodcast(id: podcast.serverId, authToken: token)
+//            let refreshedPodcast = Podcast(from: response)
+//            context.insert(refreshedPodcast)
+//            try context.save()
+//            
+//            await refreshEpisodes(for: refreshedPodcast, authManager: authManager, context: context)
+//        } catch {
+//            print("Failed to refresh podcasts: \(error)")
+//        }
+//    }
     
     func refreshEpisodes(for podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
         guard let token = authManager.token else { return }
         
         do {
             let response = try await client.getAllEpisodes(for: podcast.serverId, authToken: token)
-            
             for episodeResponse in response {
                 let episode = Episode(from: episodeResponse, for: podcast)
                 context.insert(episode)
             }
-            try context.save()
         } catch {
             print("Failed to refresh episodes: \(error)")
         }
     }
+    
+//    func refreshAllEpisodes(authManager: AuthManager, context: ModelContext) async {
+//        guard let token = authManager.token else { return }
+//        
+//        do {
+//            let response = try await client.getAllEpisodes(authToken: token)
+//            
+//            for episodeResponse in response {
+//                let episode = Episode(from: episodeResponse)
+//                context.insert(episode)
+//            }
+//        }
+//    }
 }
  

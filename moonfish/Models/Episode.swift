@@ -23,8 +23,8 @@ final class Episode {
     var voice2: String?
     var name2: String?
     
-    var status: EpisodeStatus?
-    var step: EpisodeStep?
+    var status: String?
+    var step: String?
     
     var title: String?
     var summary: String?
@@ -58,8 +58,8 @@ final class Episode {
         voice2: String? = nil,
         name2: String? = nil,
         
-        status: EpisodeStatus? = nil,
-        step: EpisodeStep? = nil,
+        status: String? = nil,
+        step: String? = nil,
         
         title: String? = nil,
         summary: String? = nil,
@@ -70,7 +70,7 @@ final class Episode {
         isFavorite: Bool = false,
         isDownloaded: Bool = false,
         
-        url: URL? = nil,
+        audioURL: URL? = nil,
         expiresAt: Date? = nil,
         
         downloadState: DownloadState = .idle,
@@ -101,7 +101,7 @@ final class Episode {
         self.isFavorite = isFavorite
         self.isDownloaded = isDownloaded
         
-        self.audioURL = url
+        self.audioURL = audioURL
         self.expiresAt = expiresAt
         
         self.downloadState = downloadState
@@ -124,8 +124,8 @@ final class Episode {
             voice2: response.voice2,
             name2: response.name2,
             
-            status: response.status,
-            step: response.step,
+            status: response.status.rawValue,
+            step: response.step?.rawValue,
             
             title: response.title,
             summary: response.summary,
@@ -182,10 +182,10 @@ extension Episode {
     
     var currentProgress: Double {
         switch step {
-        case .research: return 0.125
-        case .compose: return 0.25
-        case .voice: return 0.5
-        case .none: return 0.0
+        case EpisodeStep.research.rawValue: return 0.125
+        case EpisodeStep.compose.rawValue: return 0.25
+        case EpisodeStep.voice.rawValue: return 0.5
+        default: return 0.0
         }
     }
 }
@@ -204,8 +204,8 @@ extension Episode {
         voice2: "female",
         name2: "Jane",
         
-        status: .active,
-        step: .voice,
+        status: EpisodeStatus.active.rawValue,
+        step: EpisodeStep.voice.rawValue,
         
         title: "Beginner's Guide to Gardening in the Far East",
         summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",

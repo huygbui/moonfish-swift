@@ -58,15 +58,15 @@ struct EpisodeRow: View {
     
     @ViewBuilder
     private var timeRemaining: some View {
-        if episode.status == .pending {
+        if episode.status == EpisodeStatus.pending.rawValue {
             Text("Pending...")
                 .font(.caption)
                 .shimmer()
-        } else if episode.status == .active {
+        } else if episode.status == EpisodeStatus.active.rawValue {
             Text(episode.step?.description ?? "")
                 .font(.caption)
                 .shimmer()
-        } else if episode.status == .completed {
+        } else if episode.status == EpisodeStatus.completed.rawValue {
             Text(episode.duration?.hoursMinutes ?? "")
                 .font(.caption)
         }
@@ -74,7 +74,7 @@ struct EpisodeRow: View {
     
     @ViewBuilder
     private var playButton: some View {
-        if episode.status == .completed {
+        if episode.status == EpisodeStatus.completed.rawValue {
             Button(action: handlePlayButtonTap) {
                 Image(systemName: audioManager.isPlaying(episode)
                       ? "pause.circle.fill" : "play.circle.fill")

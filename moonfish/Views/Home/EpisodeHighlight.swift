@@ -17,55 +17,35 @@ struct EpisodeHighlight: View {
     @Environment(\.modelContext) private var context: ModelContext
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 16) {
             // Card header
-            VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.secondarySystemFill))
+                    .frame(width: 160, height: 160)
+            }
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
+            
+            
+            VStack(alignment: .leading, spacing: 4) {
                 Text(episode.title ?? "")
-                    .lineLimit(2)
+                    .font(.footnote)
+                    .lineLimit(1)
                 
                 (Text(episode.duration?.hoursMinutes ?? "") +
                  Text(" • ") +
                  Text(episode.summary ?? "")
-                    .foregroundStyle(.secondary)
                 )
-                    .font(.subheadline)
-                    .lineLimit(3)
-                
-                HStack(spacing: 12) {
-                    if episode.isNew {
-                        Text("New").font(.footnote)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .foregroundStyle(.primary)
-                            .background(.primary, in: .capsule.stroke(lineWidth: 1))
-                    }
-                    
-                    ZStack {
-                        if episode.isDownloaded {
-                            Image(systemName: "checkmark.circle")
-                        } else if episode.downloadState == .downloading {
-                            GaugeProgress(
-                                fractionCompleted: episode.downloadProgress,
-                                strokeWidth: 1
-                            )
-                        } else {
-                            EmptyView()
-                        }
-                    }
-                    .frame(width: 16, height: 16)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
-                }
+                    .lineLimit(3, reservesSpace: true)
             }
             
-            Spacer()
+            Spacer(minLength: 0)
             
             // Card footer
-            HStack(spacing: 16) {
-                Spacer()
-                
-                EpisodeMenu(episode: episode)
-                    .foregroundStyle(.secondary)
-                
+            HStack(spacing: 12) {
                 Button {
                     Task {
                         await rootModel.refreshAudioURL(
@@ -81,18 +61,39 @@ struct EpisodeHighlight: View {
                     .resizable()
                     .frame(width: 32, height: 32)
                 }
+                
+                
+                Spacer()
+                
+                Group {
+                    if episode.isDownloaded {
+                        Image(systemName: "checkmark.circle")
+                    } else if episode.downloadState == .downloading {
+                        GaugeProgress(
+                            fractionCompleted: episode.downloadProgress,
+                            strokeWidth: 1
+                        )
+                    }
+                }
+                .frame(width: 16, height: 16)
+                .foregroundStyle(.secondary)
+                
+                
+                EpisodeMenu(episode: episode)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 16, height: 16)
             }
             .foregroundStyle(.primary)
         }
         .padding()
-        .background(Color(.tertiarySystemBackground), in: .rect(cornerRadius: 16))
-        .frame(width: 256, height: 256)
+        .frame(width: 240, height: 360)
+        .background(Color(.tertiarySystemFill), in: .rect(cornerRadius: 16))
     }
 }
 
 #Preview(traits: .audioPlayerTrait) {
     ZStack {
-        Color(.secondarySystemBackground)
+//        Color(.secondarySystemBackground)
         
         EpisodeHighlight(episode: .preview)
     }

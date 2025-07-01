@@ -21,7 +21,7 @@ struct PodcastDetail: View {
     
     private var episodes: [Episode] {
         podcast.episodes
-            .filter { $0.status != .failed && $0.status != .cancelled }
+            .filter { $0.status != EpisodeStatus.failed.rawValue && $0.status != EpisodeStatus.cancelled.rawValue }
             .sorted { $0.createdAt > $1.createdAt }
     }
     
@@ -88,7 +88,7 @@ struct PodcastDetail: View {
     private var episodeList: some View {
         VStack(spacing: 8) {
             ForEach(episodes) { episode in
-                if episode.status == .completed {
+                if episode.status == EpisodeStatus.completed.rawValue {
                     NavigationLink(destination: EpisodeDetail(episode: episode)) {
                         EpisodeRow(episode: episode)
                     }
