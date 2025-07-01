@@ -32,6 +32,18 @@ class EpisodeViewModel {
         }
     }
     
+    func cancel(_ episode: Episode, authManager: AuthManager, context: ModelContext) async {
+        guard let token = authManager.token else { return }
+       
+        do {
+            try await client.cancelOngoingEpisode(id: episode.serverId, authToken: token)
+            episode.status = .cancelled
+            try context.save()
+        } catch {
+            print("Failed to cancel episode: \(error)")
+        }
+    }
+    
     func delete(_ episode: Episode, context: ModelContext, authManager: AuthManager) async {
         guard let token = authManager.token else { return }
         

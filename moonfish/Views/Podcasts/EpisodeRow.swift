@@ -56,19 +56,37 @@ struct EpisodeRow: View {
             .frame(width: 80, height: 80)
     }
     
+    @ViewBuilder
     private var timeRemaining: some View {
-        Text(episode.duration?.hoursMinutes ?? "")
-            .font(.caption)
+        if episode.status == .pending {
+            Text("Pending...")
+                .font(.caption)
+                .shimmer()
+        } else if episode.status == .active {
+            Text(episode.step?.description ?? "")
+                .font(.caption)
+                .shimmer()
+        } else if episode.status == .completed {
+            Text(episode.duration?.hoursMinutes ?? "")
+                .font(.caption)
+        }
     }
     
+    @ViewBuilder
     private var playButton: some View {
-        Button(action: handlePlayButtonTap) {
-            Image(systemName: audioManager.isPlaying(episode)
-                  ? "pause.circle.fill" : "play.circle.fill")
-            .resizable()
-            .frame(width: 32, height: 32)
+        if episode.status == .completed {
+            Button(action: handlePlayButtonTap) {
+                Image(systemName: audioManager.isPlaying(episode)
+                      ? "pause.circle.fill" : "play.circle.fill")
+                .resizable()
+                .frame(width: 32, height: 32)
+            }
+            .buttonStyle(.plain)
+        } else {
+            GaugeProgress(fractionCompleted: episode.currentProgress, strokeWidth: 4)
+                .frame(width: 32, height: 32)
         }
-        .buttonStyle(.plain)
+        
     }
     
     private var downloadStatus: some View {
@@ -85,11 +103,18 @@ struct EpisodeRow: View {
         .frame(width: 16, height: 16)
         .foregroundStyle(.secondary)
     }
-    
+   
+    @ViewBuilder
     private var menuButton: some View {
-        EpisodeMenu(episode: episode)
-            .foregroundStyle(.secondary)
-            .frame(width: 24, height: 24)
+        if episode.isCompleted {
+            EpisodeMenu(episode: episode)
+                .foregroundStyle(.secondary)
+                .frame(width: 24, height: 24)
+        } else {
+            OngoingEpisodeMenu(episode: episode)
+                .foregroundStyle(.secondary)
+                .frame(width: 24, height: 24)
+        }
     }
     
     private func handlePlayButtonTap() {

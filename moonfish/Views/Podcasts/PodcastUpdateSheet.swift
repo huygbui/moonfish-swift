@@ -192,15 +192,30 @@ struct PodcastUpdateSheet: View {
             defer { isProcessingNewCover = false }
             
             do {
-                guard let data = try await item.loadTransferable(type: Data.self) else { return }
-                
-                if let uiImage = UIImage(data: data) {
-                    let compressedData = uiImage.jpegData(compressionQuality: 0.8)
-                    newCover = Image(uiImage: uiImage)
-                    newCoverData = compressedData ?? data
+                // Load as Data directly
+                guard let data = try await item.loadTransferable(type: Data.self) else {
+                    print("Failed to load image data")
+                    return
                 }
+                
+                // Validate and compress the image
+                guard let uiImage = UIImage(data: data) else {
+                    print("Invalid image data")
+                    return
+                }
+                
+                // Compress to JPEG with reasonable quality
+                if let compressedData = uiImage.jpegData(compressionQuality: 0.8) {
+                    newCover = Image(uiImage: uiImage)
+                    newCoverData = compressedData
+                } else {
+                    // Fallback to original data if compression fails
+                    newCover = Image(uiImage: uiImage)
+                    newCoverData = data
+                }
+                
             } catch {
-                print("Failed to load image data: \(error)")
+                print("Failed to process photo: \(error)")
             }
         }
     }
@@ -213,6 +228,14 @@ struct PodcastUpdateSheet: View {
         
         Task {
             defer { isSubmitting = false }
+            
+            if let imageData = newCoverData {
+                await rootModel.upload(
+                    imageData: imageData,
+                    podcastId: podcast.serverId,
+                    authManager: authManager
+                )
+            }
             
             let updateRequest = PodcastUpdateRequest(
                 title: title != podcast.title ? title : nil,
@@ -231,27 +254,11 @@ struct PodcastUpdateSheet: View {
                 context: context
             )
             
-            if let imageData = newCoverData {
-                await rootModel.upload(
-                    imageData: imageData,
-                    podcastId: podcast.serverId,
-                    authManager: authManager
-                )
-            }
-            
-            await rootModel.refresh(
-                podcast,
-                authManager: authManager,
-                context: context
-            )
-            
             dismiss()
         }
     }
 }
 
-
-// MARK: - Preview
 
 #Preview(traits: .audioPlayerTrait) {
     PodcastUpdateSheet(podcast: .preview)

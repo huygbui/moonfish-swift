@@ -19,6 +19,12 @@ struct PodcastDetail: View {
     @State private var showingEpisodeCreate: Bool = false
     @State private var showingPodcastUpdate: Bool = false
     
+    private var episodes: [Episode] {
+        podcast.episodes
+            .filter { $0.status != .failed && $0.status != .cancelled }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+    
     var body: some View {
         content
             .toolbar { menuButton }
@@ -81,12 +87,17 @@ struct PodcastDetail: View {
 
     private var episodeList: some View {
         VStack(spacing: 8) {
-            ForEach(podcast.episodes) { episode in
-                NavigationLink(destination: EpisodeDetail(episode: episode)) {
+            ForEach(episodes) { episode in
+                if episode.status == .completed {
+                    NavigationLink(destination: EpisodeDetail(episode: episode)) {
+                        EpisodeRow(episode: episode)
+                    }
+                    .buttonStyle(.plain)
+                } else {
                     EpisodeRow(episode: episode)
                 }
-                .buttonStyle(.plain)
                 
+               
                 Divider()
             }
         }

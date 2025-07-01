@@ -23,6 +23,9 @@ final class Episode {
     var voice2: String?
     var name2: String?
     
+    var status: EpisodeStatus?
+    var step: EpisodeStep?
+    
     var title: String?
     var summary: String?
     var fileName: String?
@@ -55,6 +58,9 @@ final class Episode {
         voice2: String? = nil,
         name2: String? = nil,
         
+        status: EpisodeStatus? = nil,
+        step: EpisodeStep? = nil,
+        
         title: String? = nil,
         summary: String? = nil,
         fileName: String? = nil,
@@ -83,6 +89,9 @@ final class Episode {
         self.voice1 = voice1
         self.name2 = name1
         self.voice2 = voice1
+        
+        self.status = status
+        self.step = step
 
         self.title = title
         self.summary = summary
@@ -115,6 +124,9 @@ final class Episode {
             voice2: response.voice2,
             name2: response.name2,
             
+            status: response.status,
+            step: response.step,
+            
             title: response.title,
             summary: response.summary,
             fileName: response.fileName,
@@ -133,6 +145,10 @@ extension Episode {
     
     var isRecent: Bool {
         createdAt.timeIntervalSinceNow > -3 * 24 * 60 * 60
+    }
+    
+    var isCompleted: Bool {
+        title != nil && summary != nil && audioURL != nil
     }
 }
 
@@ -163,6 +179,15 @@ extension Episode {
             ? fileURL
             : audioURL
     }
+    
+    var currentProgress: Double {
+        switch step {
+        case .research: return 0.125
+        case .compose: return 0.25
+        case .voice: return 0.5
+        case .none: return 0.0
+        }
+    }
 }
 
 extension Episode {
@@ -178,6 +203,9 @@ extension Episode {
         name1: "John",
         voice2: "female",
         name2: "Jane",
+        
+        status: .active,
+        step: .voice,
         
         title: "Beginner's Guide to Gardening in the Far East",
         summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",

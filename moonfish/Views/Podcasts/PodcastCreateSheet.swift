@@ -23,8 +23,6 @@ struct PodcastCreateSheet: View {
     @State private var name2: String = ""
     @State private var description: String = ""
     
-    
-    
     // Photo picker states
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var cover: Image?

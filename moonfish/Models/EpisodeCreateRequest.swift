@@ -34,4 +34,22 @@ enum EpisodeFormat: String, Identifiable, CaseIterable, Codable {
     var id: Self { self }
 }
 
+enum EpisodeStatus: String, Identifiable, CaseIterable, Codable {
+    case pending, active, completed, failed, cancelled
+    var id: Self { self }
+}
+
+enum EpisodeStep: String, Identifiable, CaseIterable, Codable {
+    case research, compose, voice
+    var id: Self { self }
+    
+    var description: String {
+        switch self {
+        case .research: return "Researching..."
+        case .compose: return "Composing..."
+        case .voice: return "Voicing..."
+        }
+    }
+}
+
 

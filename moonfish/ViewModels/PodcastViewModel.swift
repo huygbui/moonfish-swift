@@ -148,11 +148,11 @@ class PodcastViewModel {
         
         do {
             let response = try await client.getPodcast(id: podcast.serverId, authToken: token)
-            let podcast = Podcast(from: response)
-            context.insert(podcast)
+            let refreshedPodcast = Podcast(from: response)
+            context.insert(refreshedPodcast)
             try context.save()
             
-            await refreshEpisodes(for: podcast, authManager: authManager, context: context)
+            await refreshEpisodes(for: refreshedPodcast, authManager: authManager, context: context)
         } catch {
             print("Failed to refresh podcasts: \(error)")
         }
