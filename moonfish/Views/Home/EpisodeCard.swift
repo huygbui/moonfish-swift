@@ -21,7 +21,6 @@ struct EpisodeCard: View {
                 .fill(Color(.secondarySystemFill))
                 .frame(width: 96, height: 96)
             
-            
             // Card header
             VStack(alignment: .leading, spacing: 0) {
                 // Card subtitle
@@ -51,21 +50,34 @@ struct EpisodeCard: View {
                             audioManager.toggle(episode)
                         }
                     } label: {
-                        Image(systemName: audioManager.isPlaying(episode)
-                              ? "pause.circle" : "play.circle.fill")
-                        .font(.title)
+                        HStack {
+                            Label (
+                                audioManager.isPlaying(episode) ? "Pause" : "Play",
+                                systemImage: audioManager.isPlaying(episode)
+                                ? "pause.fill" : "play.fill"
+                            )
+                            .font(.caption)
+                      
+                        }
+                        .font(.caption)
                     }
+                    .buttonStyle(.bordered)
                     .foregroundStyle(.primary)
                     
+                    if audioManager.isPlaying(episode) {
+                        ProgressView(value: 0.5)
+                            .frame(width: 48)
+                    }
                     Text(episode.duration?.hoursMinutes ?? "")
                         .font(.caption)
+                        .foregroundStyle(.secondary)
                     
                     Spacer()
-                    
                     
                     ZStack {
                         if episode.isDownloaded {
                             Image(systemName: "checkmark.circle")
+                                .font(.footnote)
                         } else if episode.downloadState == .downloading {
                             GaugeProgress(
                                 fractionCompleted: episode.downloadProgress,

@@ -35,7 +35,7 @@ struct HomeRoot: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Newly Added").font(.headline)
                             ScrollView(.horizontal) {
-                                HStack {
+                                HStack(spacing: 8) {
                                     ForEach(recentEpisodes) { episode in
                                         NavigationLink(value: episode) {
                                             EpisodeHighlight(episode: episode)
@@ -51,7 +51,7 @@ struct HomeRoot: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Your Favorite Shows").font(.headline)
                         ScrollView(.horizontal) {
-                            HStack(spacing: 16) {
+                            HStack(spacing: 8) {
                                 ForEach(podcasts) { podcast in
                                     NavigationLink(value: podcast) {
                                         PodcastHighlight(podcast: podcast)
@@ -65,16 +65,12 @@ struct HomeRoot: View {
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Listen Again").font(.headline)
-                        VStack(spacing: 8) {
+                        VStack(spacing: 16) {
                             ForEach(recentEpisodes){ episode in
                                 NavigationLink(value: episode) {
                                     EpisodeCard(episode: episode)
                                 }
                                 .buttonStyle(.plain)
-                                
-                                if episode != recentEpisodes.last {
-                                    Divider()
-                                }
                             }
                         }
                     }

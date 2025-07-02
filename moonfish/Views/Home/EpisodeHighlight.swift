@@ -13,39 +13,32 @@ struct EpisodeHighlight: View {
     
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(AuthManager.self) private var authManager
-    @Environment(AudioManager.self) private var audioPlayer
+    @Environment(AudioManager.self) private var audioManager
     @Environment(\.modelContext) private var context: ModelContext
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Card header
-            HStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.secondarySystemFill))
-                    .frame(width: 160, height: 160)
-            }
-            .padding(.vertical, 8)
-            .frame(maxWidth: .infinity)
-            
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.secondarySystemFill))
+                .frame(width: 160, height: 160)
+                .padding(.top, 16)
+                .frame(maxWidth: .infinity)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(episode.title ?? "")
                     .font(.footnote)
                     .lineLimit(1)
                 
-                (Text(episode.duration?.hoursMinutes ?? "") +
-                 Text(" • ") +
-                 Text(episode.summary ?? "")
-                )
+                (Text(episode.duration?.hoursMinutes ?? "") + Text(" • ") +
+                 Text(episode.summary ?? ""))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(3, reservesSpace: true)
             }
             
-            Spacer(minLength: 0)
-            
             // Card footer
-            HStack(spacing: 12) {
+            HStack(spacing: 8) {
                 Button {
                     Task {
                         await rootModel.refreshAudioURL(
@@ -53,21 +46,29 @@ struct EpisodeHighlight: View {
                             modelContext: context,
                             authManager: authManager
                         )
-                        audioPlayer.toggle(episode)
+                        audioManager.toggle(episode)
                     }
                 } label: {
-                    Image(systemName: audioPlayer.isPlaying(episode)
-                          ? "pause.circle.fill" : "play.circle.fill")
-                    .resizable()
-                    .frame(width: 32, height: 32)
+                    Label (
+                        audioManager.isPlaying(episode) ? "Pause" : "Play",
+                        systemImage: audioManager.isPlaying(episode)
+                          ? "pause.fill" : "play.fill"
+                    )
+                    .font(.footnote)
                 }
+                .buttonStyle(.bordered)
                 
+                if audioManager.isPlaying(episode) {
+                    ProgressView(value: 0.5)
+                        .frame(width: 48)
+                }
                 
                 Spacer()
                 
                 Group {
                     if episode.isDownloaded {
                         Image(systemName: "checkmark.circle")
+                            .font(.footnote)
                     } else if episode.downloadState == .downloading {
                         GaugeProgress(
                             fractionCompleted: episode.downloadProgress,
@@ -85,8 +86,8 @@ struct EpisodeHighlight: View {
             }
             .foregroundStyle(.primary)
         }
-        .padding()
-        .frame(width: 240, height: 360)
+        .padding(16)
+        .frame(width: 256)
         .background(Color(.tertiarySystemFill), in: .rect(cornerRadius: 16))
     }
 }
