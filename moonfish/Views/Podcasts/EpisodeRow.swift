@@ -28,7 +28,7 @@ struct EpisodeRow: View {
                 playButton
                 timeRemaining
                 Spacer()
-                downloadStatus
+                downloadIndicator
                 menuButton
             }
         }
@@ -44,7 +44,6 @@ struct EpisodeRow: View {
             
             // Title
             Text(episode.title ?? "")
-                .font(.body)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -58,15 +57,16 @@ struct EpisodeRow: View {
     
     @ViewBuilder
     private var timeRemaining: some View {
-        if episode.status == EpisodeStatus.pending.rawValue {
+        switch episode.status {
+        case EpisodeStatus.pending.rawValue:
             Text("Pending...")
                 .font(.caption)
                 .shimmer()
-        } else if episode.status == EpisodeStatus.active.rawValue {
-            Text(episode.step?.description ?? "")
+        case EpisodeStatus.active.rawValue:
+            Text(episode.currentStep)
                 .font(.caption)
                 .shimmer()
-        } else if episode.status == EpisodeStatus.completed.rawValue {
+        default:
             Text(episode.duration?.hoursMinutes ?? "")
                 .font(.caption)
         }
@@ -86,10 +86,9 @@ struct EpisodeRow: View {
             GaugeProgress(fractionCompleted: episode.currentProgress, strokeWidth: 4)
                 .frame(width: 32, height: 32)
         }
-        
     }
     
-    private var downloadStatus: some View {
+    private var downloadIndicator: some View {
         ZStack {
             if episode.isDownloaded {
                 Image(systemName: "checkmark.circle")
@@ -100,6 +99,7 @@ struct EpisodeRow: View {
                 )
             }
         }
+        .font(.caption)
         .frame(width: 16, height: 16)
         .foregroundStyle(.secondary)
     }
@@ -109,11 +109,9 @@ struct EpisodeRow: View {
         if episode.isCompleted {
             EpisodeMenu(episode: episode)
                 .foregroundStyle(.secondary)
-                .frame(width: 24, height: 24)
         } else {
             OngoingEpisodeMenu(episode: episode)
                 .foregroundStyle(.secondary)
-                .frame(width: 24, height: 24)
         }
     }
     

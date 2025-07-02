@@ -24,7 +24,7 @@ struct PodcastCard: View {
             .aspectRatio(1, contentMode: .fit)
             
             Text(podcast.title)
-                .font(.subheadline)
+                .font(.footnote)
                 .fontWeight(.medium)
                 .lineLimit(1)
             

@@ -188,6 +188,15 @@ extension Episode {
         default: return 0.0
         }
     }
+    
+    var currentStep: String {
+        switch step {
+        case EpisodeStep.research.rawValue: return "Researching..."
+        case EpisodeStep.compose.rawValue: return "Composing..."
+        case EpisodeStep.voice.rawValue: return "Voicing..."
+        default: return ""
+        }
+    }
 }
 
 

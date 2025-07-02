@@ -49,26 +49,17 @@ struct EpisodeDetail: View {
                 .foregroundStyle(.secondary)
             
             Text(episode.title ?? "")
-                .font(.title)
+                .font(.title2)
                 .fixedSize(horizontal: false, vertical: true)
                 .multilineTextAlignment(.center)
         }
     }
     
     private var play: some View {
-        Button {
-            Task {
-                await rootModel.refreshAudioURL(
-                    episode,
-                    modelContext: context,
-                    authManager: authManager
-                )
-                audioManager.toggle(episode)
-            }
-        } label: {
+        Button(action: onPlayButtonTap) {
             Image(systemName: audioManager.isPlaying(episode)
                   ? "pause.fill" : "play.fill")
-                .font(.subheadline)
+                .font(.footnote)
                 .padding(.vertical)
                 .padding(.horizontal, 48)
                 .background(.primary, in: .capsule.stroke(lineWidth: 1))
@@ -78,6 +69,7 @@ struct EpisodeDetail: View {
     
     private var summary: some View {
         Text(episode.summary ?? "")
+            .font(.subheadline)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -89,6 +81,18 @@ struct EpisodeDetail: View {
             LabeledContent("Length", value: episode.length.localizedCapitalized)
             Divider()
             LabeledContent("Level", value: episode.level.localizedCapitalized)
+        }
+        .font(.subheadline)
+    }
+    
+    private func onPlayButtonTap() {
+        Task {
+            await rootModel.refreshAudioURL(
+                episode,
+                modelContext: context,
+                authManager: authManager
+            )
+            audioManager.toggle(episode)
         }
     }
 }

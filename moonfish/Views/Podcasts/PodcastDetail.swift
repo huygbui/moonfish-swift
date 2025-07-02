@@ -39,7 +39,6 @@ struct PodcastDetail: View {
                 cover
                 title
                 addButton
-                about
                 episodeList
             }
         }
@@ -61,7 +60,7 @@ struct PodcastDetail: View {
     
     private var title: some View {
         Text(podcast.title)
-            .font(.title)
+            .font(.title2)
             .fixedSize(horizontal: false, vertical: true)
             .multilineTextAlignment(.center)
     }
@@ -70,19 +69,10 @@ struct PodcastDetail: View {
         Button("Add Episode", systemImage: "plus") {
            showingEpisodeCreate = true
         }
-            .font(.subheadline)
+            .font(.footnote)
             .padding()
             .background(.primary, in: .capsule.stroke(lineWidth: 1))
             .buttonStyle(.plain)
-    }
-    
-    private var about: some View {
-        podcast.about.map {
-            Text($0)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .multilineTextAlignment(.center)
-        }
     }
 
     private var episodeList: some View {
