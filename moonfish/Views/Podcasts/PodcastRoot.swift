@@ -58,7 +58,7 @@ struct PodcastRoot: View {
     private var podcastEmpty: some View {
         ContentUnavailableView(
             "No Podcasts",
-            systemImage: "magnifyingglass",
+            systemImage: "",
             description: Text("Tap + to create your first podcast")
         )
     }

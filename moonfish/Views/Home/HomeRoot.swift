@@ -24,79 +24,116 @@ struct HomeRoot: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 16) {
-                    if !recentEpisodes.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Newly Added").font(.headline)
-                            ScrollView(.horizontal) {
-                                HStack(spacing: 8) {
-                                    ForEach(recentEpisodes) { episode in
-                                        NavigationLink(value: episode) {
-                                            EpisodeHighlight(episode: episode)
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
-                            }
-                            .scrollIndicators(.hidden)
-                        }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Your Favorite Shows").font(.headline)
-                        ScrollView(.horizontal) {
-                            HStack(spacing: 8) {
-                                ForEach(podcasts) { podcast in
-                                    NavigationLink(value: podcast) {
-                                        PodcastHighlight(podcast: podcast)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                        }
-                        .scrollIndicators(.hidden)
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Listen Again").font(.headline)
-                        VStack(spacing: 16) {
-                            ForEach(pastEpisodes){ episode in
-                                NavigationLink(value: episode) {
-                                    EpisodeCard(episode: episode)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                    .padding(.bottom, {
-                        if #available(iOS 26.0, *) {
-                            return 0
-                        } else {
-                            return 128
-                        }
-                    }())
+            content
+                .navigationTitle("Home")
+                .navigationDestination(for: Episode.self, destination: EpisodeDetail.init)
+                .navigationDestination(for: Podcast.self, destination: PodcastDetail.init)
+                .toolbar {
+                    settingButton
                 }
+                .sheet(isPresented: $showingSettingsSheet) { SettingsSheet() }
+                .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
+//              .refreshable { await podcastViewModel.refresh(authManager: authManager, context: context) }
+                .task { await podcastViewModel.refresh(authManager: authManager, context: context) }
+        }
+    }
+    
+    @ViewBuilder
+    private var content: some View {
+        if !podcasts.isEmpty {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    episodeHighlight
+                    podcastHighlight
+                    episodePast
+                }
+                .padding(.bottom, {
+                    if #available(iOS 26.0, *) {
+                        return 0
+                    } else {
+                        return 128
+                    }
+                }())
             }
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
             .scrollIndicators(.hidden)
-            .navigationTitle("Home")
-            .navigationDestination(for: Episode.self, destination: EpisodeDetail.init)
-            .navigationDestination(for: Podcast.self, destination: PodcastDetail.init)
-            .toolbar {
-                ToolbarItem {
-                    Button(action: { showingSettingsSheet = true }) {
-                        Label("Setting", systemImage: "person")
+        } else {
+            emptyContent
+        }
+    }
+
+    private var emptyContent: some View {
+        ContentUnavailableView(
+            "No Podcasts",
+            systemImage: "",
+            description: Text("Go to \"Podcasts\" to create your first")
+        )
+    }
+   
+    @ViewBuilder
+    private var episodeHighlight: some View {
+        if !recentEpisodes.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Newly Added").font(.headline)
+                ScrollView(.horizontal) {
+                    HStack(spacing: 8) {
+                        ForEach(recentEpisodes) { episode in
+                            NavigationLink(value: episode) {
+                                EpisodeHighlight(episode: episode)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                .scrollIndicators(.hidden)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var podcastHighlight: some View {
+        if !podcasts.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Your Favorite Shows").font(.headline)
+                ScrollView(.horizontal) {
+                    HStack(spacing: 8) {
+                        ForEach(podcasts) { podcast in
+                            NavigationLink(value: podcast) {
+                                PodcastHighlight(podcast: podcast)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                .scrollIndicators(.hidden)
+            }
+        }
+    }
+   
+    @ViewBuilder
+    private var episodePast: some View {
+        if !pastEpisodes.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Listen Again").font(.headline)
+                VStack(spacing: 16) {
+                    ForEach(pastEpisodes){ episode in
+                        NavigationLink(value: episode) {
+                            EpisodeCard(episode: episode)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
-            .sheet(isPresented: $showingSettingsSheet) { SettingsSheet() }
-            .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
-//            .refreshable { await podcastViewModel.refresh(authManager: authManager, context: context) }
-            .task { await podcastViewModel.refresh(authManager: authManager, context: context) }
         }
-        
+    }
+    
+    private var settingButton: some ToolbarContent {
+        ToolbarItem {
+            Button(action: { showingSettingsSheet = true }) {
+                Label("Setting", systemImage: "person")
+            }
+        }
     }
 }
 
