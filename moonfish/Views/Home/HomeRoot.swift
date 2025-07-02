@@ -15,17 +15,12 @@ struct HomeRoot: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context: ModelContext
     
-    @Query(
-        filter: #Predicate<Episode> { $0.status == "completed" },
-        sort: \Episode.createdAt,
-        order: .reverse
-    ) private var recentEpisodes: [Episode]
-
+    @Query(Episode.recentDescriptor) private var recentEpisodes: [Episode]
+    @Query(Episode.pastDescriptor) private var pastEpisodes: [Episode]
     @Query private var podcasts: [Podcast]
     
     @State private var showingSettingsSheet: Bool = false
     @State private var showingCreateSheet: Bool = false
-    
     
     var body: some View {
         NavigationStack {
@@ -66,7 +61,7 @@ struct HomeRoot: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Listen Again").font(.headline)
                         VStack(spacing: 16) {
-                            ForEach(recentEpisodes){ episode in
+                            ForEach(pastEpisodes){ episode in
                                 NavigationLink(value: episode) {
                                     EpisodeCard(episode: episode)
                                 }

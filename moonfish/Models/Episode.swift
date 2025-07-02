@@ -43,7 +43,7 @@ final class Episode {
     @Attribute(.ephemeral) private(set) var totalBytes: Int64 = 0
     
     var podcast: Podcast
-
+    
     init(
         serverId: Int,
         
@@ -92,7 +92,7 @@ final class Episode {
         
         self.status = status
         self.step = step
-
+        
         self.title = title
         self.summary = summary
         self.fileName = fileName
@@ -162,7 +162,7 @@ extension Episode {
         guard totalBytes > 0 else { return 0 }
         return Double(currentBytes) / Double(totalBytes)
     }
-
+    
     func update(currentBytes: Int64, totalBytes: Int64) {
         self.currentBytes = currentBytes
         self.totalBytes = totalBytes
@@ -176,8 +176,8 @@ extension Episode {
     
     var playbackURL: URL? {
         isDownloaded && FileManager.default.fileExists(atPath: fileURL.path)
-            ? fileURL
-            : audioURL
+        ? fileURL
+        : audioURL
     }
     
     var currentProgress: Double {
@@ -189,6 +189,8 @@ extension Episode {
         }
     }
 }
+
+
 
 extension Episode {
     @MainActor
