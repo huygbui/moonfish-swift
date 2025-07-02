@@ -26,6 +26,16 @@ final class AudioManager {
         addPeriodicTimeObserver()
     }
     
+    var currentProgress: Double {
+        guard duration > 0 else { return 0 }
+        return min(currentTime / duration, 1.0)
+    }
+    
+    var timeRemaining: Double {
+        guard duration > 0 else { return 0 }
+        return duration - currentTime
+    }
+    
     func play(_ episode: Episode) {
         guard let url = episode.playbackURL else { return }
        

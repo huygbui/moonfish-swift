@@ -38,63 +38,63 @@ struct EpisodeCard: View {
                 Spacer()
                 
                 // Card footer
-                HStack(spacing: 4) {
-                    Button {
-                        Task {
-                            await rootModel.refreshAudioURL(
-                                episode,
-                                modelContext: context,
-                                authManager: authManager
-                            )
-                            
-                            audioManager.toggle(episode)
-                        }
-                    } label: {
-                        HStack {
-                            Label (
-                                audioManager.isPlaying(episode) ? "Pause" : "Play",
-                                systemImage: audioManager.isPlaying(episode)
-                                ? "pause.fill" : "play.fill"
-                            )
-                            .font(.caption)
-                      
-                        }
-                        .font(.caption)
-                    }
-                    .buttonStyle(.bordered)
-                    .foregroundStyle(.primary)
-                    
-                    if audioManager.isPlaying(episode) {
-                        ProgressView(value: 0.5)
-                            .frame(width: 48)
-                    }
-                    Text(episode.duration?.hoursMinutes ?? "")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                HStack(spacing: 8) {
+                    playButton
                     
                     Spacer()
                     
-                    ZStack {
-                        if episode.isDownloaded {
-                            Image(systemName: "checkmark.circle")
-                                .font(.footnote)
-                        } else if episode.downloadState == .downloading {
-                            GaugeProgress(
-                                fractionCompleted: episode.downloadProgress,
-                                strokeWidth: 1
-                            )
-                        } else {
-                            EmptyView()
-                        }
-                    }
-                    .frame(width: 16, height: 16)
-                    .foregroundStyle(.secondary)
+                    downloadIndicator
                     
                     EpisodeMenu(episode: episode)
-                        .foregroundStyle(.secondary)
-                        .frame(width: 24, height: 24)
+                }
+                .foregroundStyle(.secondary)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var downloadIndicator: some View {
+        if episode.isDownloaded {
+            Image(systemName: "checkmark.circle")
+                .font(.footnote)
+        } else if episode.downloadState == .downloading {
+            GaugeProgress(
+                fractionCompleted: episode.downloadProgress,
+                strokeWidth: 1
+            )
+        }
+    }
+    
+    private var playButton: some View {
+        Button(action: onPlayButtonTap) {
+            if audioManager.isPlaying(episode) {
+                HStack {
+                    Image(systemName: "pause.fill")
+                    ProgressView(value: audioManager.currentProgress)
+                        .frame(width: 36)
+                    Text(audioManager.timeRemaining.hoursMinutesCompact)
+                }
+            } else {
+                HStack {
+                    Image(systemName: "play.fill")
+                    Text(episode.duration?.hoursMinutesCompact ?? "")
                 }
             }
+        }
+        .font(.caption)
+        .buttonStyle(.bordered)
+        .foregroundStyle(.primary)
+    }
+    
+    private func onPlayButtonTap() {
+        Task {
+            await rootModel.refreshAudioURL(
+                episode,
+                modelContext: context,
+                authManager: authManager
+            )
+            
+            audioManager.toggle(episode)
         }
     }
 }

@@ -39,56 +39,65 @@ struct EpisodeHighlight: View {
             
             // Card footer
             HStack(spacing: 8) {
-                Button {
-                    Task {
-                        await rootModel.refreshAudioURL(
-                            episode,
-                            modelContext: context,
-                            authManager: authManager
-                        )
-                        audioManager.toggle(episode)
-                    }
-                } label: {
-                    Label (
-                        audioManager.isPlaying(episode) ? "Pause" : "Play",
-                        systemImage: audioManager.isPlaying(episode)
-                          ? "pause.fill" : "play.fill"
-                    )
-                    .font(.footnote)
-                }
-                .buttonStyle(.bordered)
-                
-                if audioManager.isPlaying(episode) {
-                    ProgressView(value: 0.5)
-                        .frame(width: 48)
-                }
+                playButton
                 
                 Spacer()
                 
-                Group {
-                    if episode.isDownloaded {
-                        Image(systemName: "checkmark.circle")
-                            .font(.footnote)
-                    } else if episode.downloadState == .downloading {
-                        GaugeProgress(
-                            fractionCompleted: episode.downloadProgress,
-                            strokeWidth: 1
-                        )
-                    }
-                }
-                .frame(width: 16, height: 16)
-                .foregroundStyle(.secondary)
-                
+                downloadIndicator
                 
                 EpisodeMenu(episode: episode)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 16, height: 16)
             }
-            .foregroundStyle(.primary)
+            .foregroundStyle(.secondary)
         }
         .padding(16)
         .frame(width: 256)
         .background(Color(.tertiarySystemFill), in: .rect(cornerRadius: 16))
+    }
+    
+    @ViewBuilder
+    private var downloadIndicator: some View {
+        if episode.isDownloaded {
+            Image(systemName: "checkmark.circle")
+                .font(.footnote)
+        } else if episode.downloadState == .downloading {
+            GaugeProgress(
+                fractionCompleted: episode.downloadProgress,
+                strokeWidth: 1
+            )
+        }
+    }
+    
+    private var playButton: some View {
+        Button(action: onPlayButtonTap) {
+            if audioManager.isPlaying(episode) {
+                HStack {
+                    Image(systemName: "pause.fill")
+                    ProgressView(value: audioManager.currentProgress)
+                        .frame(width: 36)
+                    Text(audioManager.timeRemaining.hoursMinutesCompact)
+                }
+            } else {
+                HStack {
+                    Image(systemName: "play.fill")
+                    Text(episode.duration?.hoursMinutesCompact ?? "")
+                }
+            }
+        }
+        .font(.caption)
+        .buttonStyle(.bordered)
+        .foregroundStyle(.primary)
+    }
+    
+    private func onPlayButtonTap() {
+        Task {
+            await rootModel.refreshAudioURL(
+                episode,
+                modelContext: context,
+                authManager: authManager
+            )
+            
+            audioManager.toggle(episode)
+        }
     }
 }
 
