@@ -57,14 +57,17 @@ struct EpisodeDetail: View {
     
     private var play: some View {
         Button(action: onPlayButtonTap) {
-            Image(systemName: audioManager.isPlaying(episode)
-                  ? "pause.fill" : "play.fill")
-                .font(.footnote)
-                .padding(.vertical)
-                .padding(.horizontal, 48)
-                .background(.primary, in: .capsule.stroke(lineWidth: 1))
+            let isPlaying = audioManager.isPlaying(episode)
+            Label(
+                isPlaying ? "Pause" : "Play",
+                systemImage: audioManager.isPlaying(episode)
+                ? "pause.fill" : "play.fill"
+            )
         }
-        .buttonStyle(.plain)
+        .font(.subheadline)
+        .controlSize(.large)
+        .buttonStyle(.bordered)
+        .foregroundStyle(.primary)
     }
     
     private var summary: some View {

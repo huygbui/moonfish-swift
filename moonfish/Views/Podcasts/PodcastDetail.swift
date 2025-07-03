@@ -69,10 +69,10 @@ struct PodcastDetail: View {
         Button("Add Episode", systemImage: "plus") {
            showingEpisodeCreate = true
         }
-            .font(.footnote)
-            .padding()
-            .background(.primary, in: .capsule.stroke(lineWidth: 1))
-            .buttonStyle(.plain)
+            .font(.subheadline)
+            .controlSize(.large)
+            .buttonStyle(.bordered)
+            .foregroundStyle(.primary)
     }
 
     private var episodeList: some View {
@@ -116,8 +116,8 @@ struct PodcastDetail: View {
 #Preview(traits: .audioPlayerTrait) {
     NavigationStack {
         ZStack {
-            Color(.secondarySystemBackground)
-                .ignoresSafeArea()
+//            Color(.secondarySystemBackground)
+//                .ignoresSafeArea()
             PodcastDetail(podcast: .preview)
         }
     }
