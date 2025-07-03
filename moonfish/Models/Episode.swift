@@ -23,6 +23,9 @@ final class Episode {
     var voice2: String?
     var name2: String?
     
+    var cover: String?
+    var coverDescription: String?
+    
     var status: String?
     var step: String?
     
@@ -63,6 +66,9 @@ final class Episode {
         
         title: String? = nil,
         summary: String? = nil,
+        cover: String? = nil,
+        coverDescription: String? = nil,
+        
         fileName: String? = nil,
         duration: Double? = nil,
         createdAt: Date,
@@ -95,6 +101,9 @@ final class Episode {
         
         self.title = title
         self.summary = summary
+        self.cover = cover
+        self.coverDescription = coverDescription
+        
         self.fileName = fileName
         self.duration = duration
         self.createdAt = createdAt
@@ -123,12 +132,15 @@ final class Episode {
             name1: response.name1,
             voice2: response.voice2,
             name2: response.name2,
-            
+           
             status: response.status.rawValue,
             step: response.step?.rawValue,
             
             title: response.title,
             summary: response.summary,
+            cover: response.cover,
+            coverDescription: response.coverDescription,
+            
             fileName: response.fileName,
             duration: response.duration,
             createdAt: response.createdAt,

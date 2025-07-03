@@ -6,7 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3425FDA72E165FAA0041B7A1 /* moonfish.icon in Resources */ = {isa = PBXBuildFile; fileRef = 3425FDA62E165FAA0041B7A1 /* moonfish.icon */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		3425FDA62E165FAA0041B7A1 /* moonfish.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = moonfish.icon; sourceTree = "<group>"; };
 		34E966562D5BAE0200EE4AED /* moonfish.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = moonfish.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -48,6 +53,7 @@
 			children = (
 				34E966582D5BAE0200EE4AED /* moonfish */,
 				34E966572D5BAE0200EE4AED /* Products */,
+				3425FDA62E165FAA0041B7A1 /* moonfish.icon */,
 			);
 			sourceTree = "<group>";
 		};
@@ -123,6 +129,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3425FDA72E165FAA0041B7A1 /* moonfish.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,7 +274,7 @@
 		34E966652D5BAE0300EE4AED /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = moonfish;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = moonfish/moonfish.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -278,6 +285,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = moonfish/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Moonfish;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -300,7 +308,7 @@
 		34E966662D5BAE0300EE4AED /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = moonfish;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = moonfish/moonfish.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -311,6 +319,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = moonfish/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Moonfish;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -1,0 +1,110 @@
+{
+  "fill" : {
+    "automatic-gradient" : "srgb:0.34510,0.33725,0.83922,1.00000"
+  },
+  "groups" : [
+    {
+      "blur-material" : 0.5,
+      "hidden" : false,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "automatic-gradient" : "extended-srgb:0.34510,0.33725,0.83922,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "automatic-gradient" : "srgb:0.47684,0.50481,1.00000,1.00000"
+              }
+            }
+          ],
+          "image-name" : "Ellipse 4 (1).svg",
+          "name" : "Ellipse 4 (1)",
+          "opacity-specializations" : [
+            {
+              "value" : 1
+            },
+            {
+              "appearance" : "dark",
+              "value" : 1
+            }
+          ],
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              256.054208616592,
+              -49.134817309205715
+            ]
+          }
+        },
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "automatic-gradient" : "srgb:0.92143,0.92145,0.92144,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Ellipse 1.svg",
+          "name" : "Ellipse 1",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "srgb:0.92143,0.92145,0.92144,1.00000"
+          },
+          "image-name" : "Ellipse 3.svg",
+          "name" : "Ellipse 3",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -100,
+              -180
+            ]
+          }
+        },
+        {
+          "fill" : {
+            "automatic-gradient" : "srgb:0.92143,0.92145,0.92144,1.00000"
+          },
+          "glass" : true,
+          "image-name" : "Ellipse 2.svg",
+          "name" : "Ellipse 2",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 1,
+            "translation-in-points" : [
+              -100,
+              180
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

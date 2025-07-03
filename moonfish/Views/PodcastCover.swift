@@ -38,23 +38,21 @@ struct PodcastCover: View {
             .minimumScaleFactor(0.25)
             .padding(32)
             .frame(width: 256, height: 256, alignment: .center)
-            .background(color, in: .rect(cornerRadius: 16))
+            .background(
+                LinearGradient(
+                    colors: [Color.blue, Color.blue, Color.blue],
+                    startPoint: .top,
+                    endPoint: .bottom
+                ),
+                in: .rect(cornerRadius: 32)
+            )
     }
 }
 
 #Preview {
-    let pattern = """
-0000000110000000
-0000000110000000
-0000001111000000
-0000011111100000
-0000111111111100
-0000011111111000
-0000001111110000
-0000000111100000
-"""
+    let pattern = "0000001100000000\n0000011110000000\n0000111111000000\n0001111111100000\n0011000000011000\n0110000000001100\n0110000000001100\n0011111111111100"
     
-    let color = Color.green
+    let color = Color.blue
     
     PodcastCover(pattern: pattern, color: color)
 }
