@@ -7,18 +7,12 @@
 
 import SwiftUI
 
-struct PodcastCover: View {
-    var pattern: String = """
-0000000110000000
-0000000110000000
-0000001111000000
-0000011111100000
-0000111111111100
-0000011111111000
-0000001111110000
-0000000111100000
-"""
-    var color: Color = .green
+struct EpisodeCover: View {
+    var pattern: String
+    var color: Color = Color(.systemIndigo)
+    var size: CGFloat = 128
+    var padding: CGFloat = 16
+    var cornerRadius: CGFloat = 8
     
     private var attributedPattern: AttributedString {
         var result = AttributedString("")
@@ -36,23 +30,21 @@ struct PodcastCover: View {
         Text(attributedPattern)
             .font(.system(size: 24, weight: .bold, design: .monospaced))
             .minimumScaleFactor(0.25)
-            .padding(32)
-            .frame(width: 256, height: 256, alignment: .center)
+            .padding(padding)
+            .frame(width: size, height: size, alignment: .center)
             .background(
                 LinearGradient(
-                    colors: [Color.blue, Color.blue, Color.blue],
+                    colors: [color, color, color],
                     startPoint: .top,
                     endPoint: .bottom
                 ),
-                in: .rect(cornerRadius: 32)
+                in: .rect(cornerRadius: cornerRadius)
             )
     }
 }
 
 #Preview {
-    let pattern = "0000001100000000\n0000011110000000\n0000111111000000\n0001111111100000\n0011000000011000\n0110000000001100\n0110000000001100\n0011111111111100"
-    
-    let color = Color.blue
-    
-    PodcastCover(pattern: pattern, color: color)
+    let pattern = "0001111111111000\n0001000000000100\n0001000000000100\n0001000000000100\n0001000000000100\n0000101010101000\n0000010101010000\n0000001111110000"
+    let color = Color(.systemIndigo)
+    EpisodeCover(pattern: pattern, color: color)
 }

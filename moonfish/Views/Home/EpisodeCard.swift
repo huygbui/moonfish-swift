@@ -17,9 +17,7 @@ struct EpisodeCard: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 8) {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(.secondarySystemFill))
-                .frame(width: 96, height: 96)
+            episodeCover
             
             // Card header
             VStack(alignment: .leading, spacing: 0) {
@@ -49,6 +47,21 @@ struct EpisodeCard: View {
                 }
                 .foregroundStyle(.secondary)
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var episodeCover: some View {
+        if let cover = episode.cover {
+            EpisodeCover(
+                pattern: cover,
+                size: 96,
+                padding: 8
+            )
+        } else {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(.secondarySystemFill))
+                .frame(width: 96, height: 96)
         }
     }
     

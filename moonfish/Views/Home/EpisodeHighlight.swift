@@ -19,12 +19,10 @@ struct EpisodeHighlight: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Card header
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.secondarySystemFill))
-                .frame(width: 160, height: 160)
+            episodeCover
                 .padding(.top, 16)
                 .frame(maxWidth: .infinity)
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(episode.title ?? "")
                     .font(.footnote)
@@ -52,6 +50,21 @@ struct EpisodeHighlight: View {
         .padding(16)
         .frame(width: 256)
         .background(Color(.tertiarySystemFill), in: .rect(cornerRadius: 16))
+    }
+    
+    @ViewBuilder
+    private var episodeCover: some View {
+        if let cover = episode.cover {
+            EpisodeCover(
+                pattern: cover,
+                size: 160,
+                padding: 16
+            )
+        } else {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.secondarySystemFill))
+                .frame(width: 160, height: 160)
+        }
     }
     
     @ViewBuilder

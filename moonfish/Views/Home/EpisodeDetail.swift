@@ -35,11 +35,20 @@ struct EpisodeDetail: View {
         .safeAreaPadding(.horizontal)
         .scrollIndicators(.hidden)
     }
-    
+   
+    @ViewBuilder
     private var cover: some View {
-        RoundedRectangle(cornerRadius: 16)
-            .fill(.tertiary)
-            .frame(width: 256, height: 256)
+        if let cover = episode.cover {
+            EpisodeCover(
+                pattern: cover,
+                size: 160,
+                padding: 16
+            )
+        } else {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.secondarySystemFill))
+                .frame(width: 160, height: 160)
+        }
     }
     
     private var title: some View {

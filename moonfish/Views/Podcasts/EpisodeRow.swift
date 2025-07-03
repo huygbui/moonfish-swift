@@ -48,11 +48,21 @@ struct EpisodeRow: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
-    
+   
+    @ViewBuilder
     private var cover: some View {
-        RoundedRectangle(cornerRadius: 8)
-            .fill(Color(.tertiarySystemFill))
-            .frame(width: 80, height: 80)
+        if let cover = episode.cover {
+            EpisodeCover(
+                pattern: cover,
+                size: 80,
+                padding: 8,
+                cornerRadius: 8,
+            )
+        } else {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(.tertiarySystemFill))
+                .frame(width: 80, height: 80)
+        }
     }
     
     @ViewBuilder
