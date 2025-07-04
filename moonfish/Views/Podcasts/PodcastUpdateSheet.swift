@@ -28,7 +28,8 @@ struct PodcastUpdateSheet: View {
     @State private var newCover: Image?
     @State private var newCoverData: Data?
     @State private var existingCover: Image?
-    
+    @State private var colorChannels: (red: Double, green: Double, blue: Double)?
+
     @State private var isProcessingNewCover: Bool = false
     @State private var isLoadingExistingCover: Bool = false
     @State private var isSubmitting: Bool = false
@@ -214,6 +215,11 @@ struct PodcastUpdateSheet: View {
                     newCoverData = data
                 }
                 
+                // Extract and store the dominant color
+                if let colorChannels = uiImage.averageColor {
+                    self.colorChannels = colorChannels
+                }
+                
             } catch {
                 print("Failed to process photo: \(error)")
             }
@@ -250,6 +256,7 @@ struct PodcastUpdateSheet: View {
             await rootModel.update(
                 podcast,
                 from: updateRequest,
+                colorChannels: colorChannels,
                 authManager: authManager,
                 context: context
             )

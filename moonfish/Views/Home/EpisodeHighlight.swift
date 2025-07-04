@@ -15,6 +15,30 @@ struct EpisodeHighlight: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(AudioManager.self) private var audioManager
     @Environment(\.modelContext) private var context: ModelContext
+    
+    private var episodeBackground: LinearGradient {
+        if let themeColor = episode.podcast.themeColor {
+            LinearGradient(
+                colors: [
+                    themeColor.opacity(0.3),
+                    themeColor.opacity(0.1),
+                    Color.clear
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        } else {
+            LinearGradient(
+                colors: [
+                    Color.gray.opacity(0.3),
+                    Color.gray.opacity(0.1),
+                    Color.clear
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -49,7 +73,7 @@ struct EpisodeHighlight: View {
         }
         .padding(16)
         .frame(width: 256)
-        .background(Color(.tertiarySystemFill), in: .rect(cornerRadius: 16))
+        .background(episodeBackground, in: .rect(cornerRadius: 16))
     }
     
     @ViewBuilder

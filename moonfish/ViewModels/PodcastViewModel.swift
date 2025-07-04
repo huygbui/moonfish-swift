@@ -16,6 +16,7 @@ class PodcastViewModel {
     func submit(
         _ createRequest: PodcastCreateRequest,
         imageData: Data?,
+        colorChannels: (red: Double, green: Double, blue: Double)?,
         authManager: AuthManager,
         context: ModelContext
     ) async {
@@ -45,6 +46,11 @@ class PodcastViewModel {
             }
             
             let podcast = Podcast(from: response)
+            if let channels = colorChannels {
+                podcast.colorRed = channels.red
+                podcast.colorGreen = channels.green
+                podcast.colorBlue = channels.blue
+            }
             context.insert(podcast)
             try context.save()
         } catch {
@@ -112,12 +118,23 @@ class PodcastViewModel {
         }
     }
     
-    func update(_ podcast: Podcast, from updateRequest: PodcastUpdateRequest, authManager: AuthManager, context: ModelContext) async {
+    func update(
+        _ podcast: Podcast,
+        from updateRequest: PodcastUpdateRequest,
+        colorChannels: (red: Double, green: Double, blue: Double)?,
+        authManager: AuthManager,
+        context: ModelContext
+    ) async {
         guard let token = authManager.token else { return }
         
         do {
             let response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest, authToken: token)
             let updatedPodcast = Podcast(from: response)
+            if let channels = colorChannels {
+                updatedPodcast.colorRed = channels.red
+                updatedPodcast.colorGreen = channels.green
+                updatedPodcast.colorBlue = channels.blue
+            }
             context.insert(updatedPodcast)
             try context.save()
         } catch {

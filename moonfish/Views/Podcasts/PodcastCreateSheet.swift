@@ -27,7 +27,8 @@ struct PodcastCreateSheet: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var cover: Image?
     @State private var coverData: Data?
-    
+    @State private var colorChannels: (red: Double, green: Double, blue: Double)?
+
     @State private var isSubmitting: Bool = false
     @State private var isCoverLoading: Bool = false
     
@@ -129,6 +130,11 @@ struct PodcastCreateSheet: View {
                     let compressedData = uiImage.jpegData(compressionQuality: 0.8)
                     cover = Image(uiImage: uiImage)
                     coverData = compressedData ?? data
+                    
+                    // Extract and store the dominant color
+                    if let colorChannels = uiImage.averageColor {
+                        self.colorChannels = colorChannels
+                    }
                 }
             } catch {
                 print("Failed to load image data: \(error)")
@@ -154,6 +160,7 @@ struct PodcastCreateSheet: View {
                     description: description
                 ),
                 imageData: coverData,
+                colorChannels: colorChannels,
                 authManager: authManager,
                 context: context
             )
