@@ -20,8 +20,8 @@ struct EpisodeHighlight: View {
         if let themeColor = episode.podcast.themeColor {
             LinearGradient(
                 colors: [
-                    themeColor.opacity(0.3),
-                    themeColor.opacity(0.1),
+                    themeColor.opacity(0.75),
+                    themeColor.opacity(0.25),
                     Color.clear
                 ],
                 startPoint: .top,
@@ -43,7 +43,9 @@ struct EpisodeHighlight: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Card header
-            episodeCover
+            PodcastAsyncImage(url: episode.podcast.imageURL)
+                .frame(width: 160, height: 160)
+                .cornerRadius(16)
                 .padding(.top, 16)
                 .frame(maxWidth: .infinity)
 
@@ -74,21 +76,6 @@ struct EpisodeHighlight: View {
         .padding(16)
         .frame(width: 256)
         .background(episodeBackground, in: .rect(cornerRadius: 16))
-    }
-    
-    @ViewBuilder
-    private var episodeCover: some View {
-        if let cover = episode.cover {
-            EpisodeCover(
-                pattern: cover,
-                size: 160,
-                padding: 16
-            )
-        } else {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.secondarySystemFill))
-                .frame(width: 160, height: 160)
-        }
     }
     
     @ViewBuilder

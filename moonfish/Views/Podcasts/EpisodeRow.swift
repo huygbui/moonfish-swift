@@ -17,12 +17,8 @@ struct EpisodeRow: View {
     @Environment(\.modelContext) private var context: ModelContext
 
     var body: some View {
-        VStack(spacing: 8) {
-            HStack(alignment: .top, spacing: 16) {
-                title
-                Spacer()
-                cover
-            }
+        VStack(alignment:.leading, spacing: 16) {
+            title
             
             HStack {
                 playButton
@@ -44,27 +40,10 @@ struct EpisodeRow: View {
             
             // Title
             Text(episode.title ?? "")
-                .lineLimit(2)
-                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(2, reservesSpace: true)
         }
     }
    
-    @ViewBuilder
-    private var cover: some View {
-        if let cover = episode.cover {
-            EpisodeCover(
-                pattern: cover,
-                size: 80,
-                padding: 8,
-                cornerRadius: 8,
-            )
-        } else {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color(.tertiarySystemFill))
-                .frame(width: 80, height: 80)
-        }
-    }
-    
     @ViewBuilder
     private var timeRemaining: some View {
         switch episode.status {

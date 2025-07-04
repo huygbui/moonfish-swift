@@ -10,6 +10,8 @@ import SwiftUI
 struct PodcastCoverImage: View {
     let image: Image?
     let isLoading: Bool
+    let size: CGFloat = 128
+    let cornerRadius: CGFloat = 16
     
     var body: some View {
         ZStack {
@@ -25,8 +27,8 @@ struct PodcastCoverImage: View {
                 ProgressView()
             }
         }
-        .frame(width: 128, height: 128)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .frame(width: size, height: size)
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
     }
 }
 

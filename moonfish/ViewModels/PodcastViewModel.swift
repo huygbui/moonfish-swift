@@ -129,16 +129,28 @@ class PodcastViewModel {
         
         do {
             let response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest, authToken: token)
-            let updatedPodcast = Podcast(from: response)
+            
+            // Update the existing podcast instead of creating a new one
+            podcast.title = response.title
+            podcast.about = response.description
+            podcast.format = response.format
+            podcast.name1 = response.name1
+            podcast.voice1 = response.voice1
+            podcast.name2 = response.name2
+            podcast.voice2 = response.voice2
+            podcast.imageURL = response.imageURL
+            podcast.updatedAt = response.updatedAt
+            
+            // Update color channels if provided
             if let channels = colorChannels {
-                updatedPodcast.colorRed = channels.red
-                updatedPodcast.colorGreen = channels.green
-                updatedPodcast.colorBlue = channels.blue
+                podcast.colorRed = channels.red
+                podcast.colorGreen = channels.green
+                podcast.colorBlue = channels.blue
             }
-            context.insert(updatedPodcast)
+            
             try context.save()
         } catch {
-            print("Failed to refresh podcasts: \(error)")
+            print("Failed to update podcast: \(error)")
         }
     }
 
@@ -148,14 +160,40 @@ class PodcastViewModel {
         do {
             let response = try await client.getAllPodcasts(authToken: token)
             
+            // First, get existing podcasts to preserve local data
+            let descriptor = FetchDescriptor<Podcast>()
+            let existingPodcasts = try context.fetch(descriptor)
+            let existingPodcastMap = Dictionary(uniqueKeysWithValues: existingPodcasts.map { ($0.serverId, $0) })
+            
             for podcastResponse in response {
-                let podcast = Podcast(from: podcastResponse)
-                context.insert(podcast)
+                let podcast: Podcast
+                
+                // Check if we have an existing podcast with color data
+                if let existingPodcast = existingPodcastMap[podcastResponse.id] {
+                    // Update fields from response but preserve color data
+                    existingPodcast.title = podcastResponse.title
+                    existingPodcast.about = podcastResponse.description
+                    existingPodcast.format = podcastResponse.format
+                    existingPodcast.name1 = podcastResponse.name1
+                    existingPodcast.voice1 = podcastResponse.voice1
+                    existingPodcast.name2 = podcastResponse.name2
+                    existingPodcast.voice2 = podcastResponse.voice2
+                    existingPodcast.imageURL = podcastResponse.imageURL
+                    existingPodcast.updatedAt = podcastResponse.updatedAt
+                    // colorRed, colorGreen, colorBlue are preserved
+                    podcast = existingPodcast
+                } else {
+                    // New podcast - create it
+                    podcast = Podcast(from: podcastResponse)
+                    context.insert(podcast)
+                }
+                
+                // Refresh episodes for this podcast
                 await refreshEpisodes(for: podcast, authManager: authManager, context: context)
             }
             try context.save()
         } catch {
-           print("Failed to refresh podcasts: \(error)")
+            print("Failed to refresh podcasts: \(error)")
         }
     }
     

@@ -47,15 +47,9 @@ struct PodcastDetail: View {
     }
     
     private var cover: some View {
-        AsyncImage(url: podcast.imageURL) { image in
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } placeholder: {
-            Color(.tertiarySystemFill)
-        }
-        .frame(width: 160, height: 160)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        PodcastAsyncImage(url: podcast.imageURL)
+            .frame(width: 160, height: 160)
+            .cornerRadius(16)
     }
     
     private var title: some View {

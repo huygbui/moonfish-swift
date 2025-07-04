@@ -12,16 +12,10 @@ struct PodcastCard: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            AsyncImage(url: podcast.imageURL) { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Color(.tertiarySystemFill)
-            }
-            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .aspectRatio(1, contentMode: .fit)
+            PodcastAsyncImage(url: podcast.imageURL)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                .cornerRadius(16)
+                .aspectRatio(1, contentMode: .fit)
             
             Text(podcast.title)
                 .font(.footnote)
