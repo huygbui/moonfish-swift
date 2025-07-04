@@ -130,11 +130,6 @@ struct PodcastCreateSheet: View {
                     let compressedData = uiImage.jpegData(compressionQuality: 0.8)
                     cover = Image(uiImage: uiImage)
                     coverData = compressedData ?? data
-                    
-                    // Extract and store the dominant color
-                    if let colorChannels = uiImage.averageColor {
-                        self.colorChannels = colorChannels
-                    }
                 }
             } catch {
                 print("Failed to load image data: \(error)")

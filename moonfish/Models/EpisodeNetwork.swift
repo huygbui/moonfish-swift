@@ -34,8 +34,6 @@ struct EpisodeResponse: Codable, Identifiable {
     
     var title: String?
     var summary: String?
-    var cover: String?
-    var coverDescription: String?
     
     var fileName: String?
     var duration: Double?
@@ -44,12 +42,11 @@ struct EpisodeResponse: Codable, Identifiable {
     var updatedAt: Date
     
     enum CodingKeys: String, CodingKey {
-        case id, topic, length, level, format, voice1, name1, voice2, name2, instruction, status, step, title, summary, cover, duration
+        case id, topic, length, level, format, voice1, name1, voice2, name2, instruction, status, step, title, summary, duration
         case podcastId = "podcast_id"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case fileName = "file_name"
-        case coverDescription = "cover_description"
     }
 }
 

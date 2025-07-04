@@ -20,11 +20,7 @@ final class Podcast {
     var voice2: EpisodeVoice?
     
     var imageURL: URL?
-    
-    var colorRed: Double?
-    var colorGreen: Double?
-    var colorBlue: Double?
-    
+   
     var createdAt: Date
     var updatedAt: Date
 
@@ -41,9 +37,6 @@ final class Podcast {
         name2: String? = nil,
         voice2: EpisodeVoice? = nil,
         imageURL: URL? = nil,
-        colorRed: Double? = nil,
-        colorGreen: Double? = nil,
-        colorBlue: Double? = nil,
         createdAt: Date,
         updatedAt: Date
     ) {
@@ -56,9 +49,6 @@ final class Podcast {
         self.name2 = name2
         self.voice2 = voice2
         self.imageURL = imageURL
-        self.colorRed = colorRed
-        self.colorGreen = colorGreen
-        self.colorBlue = colorBlue
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -77,13 +67,6 @@ final class Podcast {
             createdAt: createResponse.createdAt,
             updatedAt: createResponse.updatedAt,
         )
-    }
-    
-    var themeColor: Color? {
-        guard let r = colorRed,
-              let g = colorGreen,
-              let b = colorBlue else { return nil }
-        return Color(red: r, green: g, blue: b)
     }
 }
 

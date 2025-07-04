@@ -214,12 +214,6 @@ struct PodcastUpdateSheet: View {
                     newCover = Image(uiImage: uiImage)
                     newCoverData = data
                 }
-                
-                // Extract and store the dominant color
-                if let colorChannels = uiImage.averageColor {
-                    self.colorChannels = colorChannels
-                }
-                
             } catch {
                 print("Failed to process photo: \(error)")
             }
