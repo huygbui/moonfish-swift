@@ -82,6 +82,7 @@ class EpisodeViewModel {
     
     func removeDownload(for podcast: Episode) {
         downloads[podcast.serverId]?.cancel()
+        downloads[podcast.serverId] = nil
         try? FileManager.default.removeItem(at: podcast.fileURL)
         podcast.downloadState = .idle
         podcast.isDownloaded = false
