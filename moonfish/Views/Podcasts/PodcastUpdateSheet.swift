@@ -27,8 +27,6 @@ struct PodcastUpdateSheet: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var newCover: Image?
     @State private var newCoverData: Data?
-    @State private var existingCover: Image?
-    @State private var colorChannels: (red: Double, green: Double, blue: Double)?
 
     @State private var isProcessingNewCover: Bool = false
     @State private var isLoadingExistingCover: Bool = false
@@ -50,12 +48,7 @@ struct PodcastUpdateSheet: View {
         hasChanges &&
         !isSubmitting
     }
-    
-    // More performant: returns a pre-made image
-    private var coverToDisplay: Image? {
-        newCover ?? existingCover
-    }
-    
+   
     private var isCoverLoading: Bool {
         isLoadingExistingCover || isProcessingNewCover
     }
@@ -80,7 +73,7 @@ struct PodcastUpdateSheet: View {
     private var content: some View {
         Form {
             Section {
-                PodcastCoverImage(image: coverToDisplay, isLoading: isCoverLoading)
+                cover
                     .overlay(alignment: .center) {
                         PhotosPicker(selection: $selectedPhoto, matching: .images) {
                             Image(systemName: "camera.circle.fill")
@@ -137,6 +130,28 @@ struct PodcastUpdateSheet: View {
             }
         }
     }
+   
+    @ViewBuilder
+    private var cover: some View {
+        let size: CGFloat = 128
+        let cornerRadius: CGFloat = 16
+        
+        ZStack {
+            if let newCover {
+                newCover
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                PodcastAsyncImage(url: podcast.imageURL)
+            }
+            
+            if isProcessingNewCover {
+                ProgressView()
+            }
+        }
+        .frame(width: size, height: size)
+        .cornerRadius(cornerRadius)
+    }
     
     private var dismissButton: some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
@@ -168,21 +183,6 @@ struct PodcastUpdateSheet: View {
         name1 = podcast.name1?.localizedCapitalized ?? ""
         name2 = podcast.name2?.localizedCapitalized ?? ""
         description = podcast.about?.localizedCapitalized ?? ""
-        
-        if let imageURL = podcast.imageURL {
-            isLoadingExistingCover = true
-            defer { isLoadingExistingCover = false }
-            
-            do {
-                let (data, _) = try await URLSession.shared.data(from: imageURL)
-                
-                if let uiImage = UIImage(data: data) {
-                    self.existingCover = Image(uiImage: uiImage)
-                }
-            } catch {
-                print("Failed to load existing cover image: \(error)")
-            }
-        }
     }
     
     private func processSelectedPhoto(item: PhotosPickerItem?) {
@@ -250,7 +250,6 @@ struct PodcastUpdateSheet: View {
             await rootModel.update(
                 podcast,
                 from: updateRequest,
-                colorChannels: colorChannels,
                 authManager: authManager,
                 context: context
             )

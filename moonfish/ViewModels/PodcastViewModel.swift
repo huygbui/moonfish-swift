@@ -116,7 +116,6 @@ class PodcastViewModel {
     func update(
         _ podcast: Podcast,
         from updateRequest: PodcastUpdateRequest,
-        colorChannels: (red: Double, green: Double, blue: Double)?,
         authManager: AuthManager,
         context: ModelContext
     ) async {
