@@ -72,7 +72,7 @@ struct PodcastRoot: View {
     }
     
     private func refresh() async {
-        await rootModel.refresh(authManager: authManager, context: context)
+        await rootModel.refreshPodcasts(authManager: authManager, context: context)
     }
 }
 

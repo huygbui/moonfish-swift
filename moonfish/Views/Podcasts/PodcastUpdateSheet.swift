@@ -29,7 +29,6 @@ struct PodcastUpdateSheet: View {
     @State private var newCoverData: Data?
 
     @State private var isProcessingNewCover: Bool = false
-    @State private var isLoadingExistingCover: Bool = false
     @State private var isSubmitting: Bool = false
     
     private var hasChanges: Bool {
@@ -49,10 +48,6 @@ struct PodcastUpdateSheet: View {
         !isSubmitting
     }
    
-    private var isCoverLoading: Bool {
-        isLoadingExistingCover || isProcessingNewCover
-    }
-    
     var body: some View {
         NavigationStack {
             content
@@ -205,15 +200,8 @@ struct PodcastUpdateSheet: View {
                     return
                 }
                 
-                // Compress to JPEG with reasonable quality
-                if let compressedData = uiImage.jpegData(compressionQuality: 0.8) {
-                    newCover = Image(uiImage: uiImage)
-                    newCoverData = compressedData
-                } else {
-                    // Fallback to original data if compression fails
-                    newCover = Image(uiImage: uiImage)
-                    newCoverData = data
-                }
+                newCoverData = data
+                newCover = Image(uiImage: uiImage)
             } catch {
                 print("Failed to process photo: \(error)")
             }
@@ -223,7 +211,6 @@ struct PodcastUpdateSheet: View {
     
     private func submit() {
         guard canSubmit else { return }
-        
         isSubmitting = true
         
         Task {

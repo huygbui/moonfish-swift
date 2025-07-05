@@ -34,7 +34,10 @@ struct HomeRoot: View {
                 .sheet(isPresented: $showingSettingsSheet) { SettingsSheet() }
                 .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
 //              .refreshable { await podcastViewModel.refresh(authManager: authManager, context: context) }
-                .task { await podcastViewModel.refresh(authManager: authManager, context: context) }
+                .task {
+                    await podcastViewModel.refreshPodcasts(authManager: authManager, context: context)
+                    await podcastViewModel.refreshEpisodes(authManager: authManager, context: context)
+                }
         }
     }
     
@@ -59,16 +62,12 @@ struct HomeRoot: View {
             .safeAreaPadding(.horizontal, 16)
             .scrollIndicators(.hidden)
         } else {
-            emptyContent
+            ContentUnavailableView(
+                "No Podcasts",
+                systemImage: "",
+                description: Text("Go to \"Podcasts\" to create your first")
+            )
         }
-    }
-
-    private var emptyContent: some View {
-        ContentUnavailableView(
-            "No Podcasts",
-            systemImage: "",
-            description: Text("Go to \"Podcasts\" to create your first")
-        )
     }
    
     @ViewBuilder

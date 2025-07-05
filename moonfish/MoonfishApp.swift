@@ -21,7 +21,7 @@ struct MoonfishApp: App {
         WindowGroup {
             if authManager.isAuthenticated {
                 Root()
-                    .modelContainer(SampleData.shared.modelContainer)
+                    .modelContainer(for: Podcast.self)
                     .environment(audioManager)
                     .environment(authManager)
                     .environment(epísodeRootModel)

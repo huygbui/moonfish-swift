@@ -131,22 +131,41 @@ class PodcastViewModel {
         }
     }
 
-    func refresh(authManager: AuthManager, context: ModelContext) async {
+    func refreshPodcasts(authManager: AuthManager, context: ModelContext) async {
         guard let token = authManager.token else { return }
         
         do {
             let response = try await client.getAllPodcasts(authToken: token)
-          
             for podcastResponse in response {
                 let podcast = Podcast(from: podcastResponse)
                 context.insert(podcast)
-                
-                await refreshEpisodes(for: podcast, authManager: authManager, context: context)
             }
+            try context.save()
         } catch {
             print("Failed to refresh podcasts: \(error)")
         }
     }
+    
+    func refreshEpisodes(authManager: AuthManager, context: ModelContext) async {
+        guard let token = authManager.token else { return }
+        
+        do {
+            let descriptor = FetchDescriptor<Podcast>()
+            let podcasts = try context.fetch(descriptor)
+            
+            for podcast in podcasts {
+                let response = try await client.getAllEpisodes(for: podcast.serverId, authToken: token)
+                for episodeResponse in response {
+                    let episode = Episode(from: episodeResponse, for: podcast)
+                    context.insert(episode)
+                }
+            }
+            try context.save()
+        } catch {
+            print("Failed to refresh episodes: \(error)")
+        }
+    }
+    
     
     func refreshEpisodes(for podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
         guard let token = authManager.token else { return }

@@ -8,6 +8,18 @@
 import SwiftUI
 import SwiftData
 
+//struct EpisodeDetail: View {
+//    var episode: Episode
+//    
+//    var body: some View {
+//        content
+//    }
+//    
+//    var content: some View {
+//        Text(episode.title ?? "No title")
+//    }
+//}
+
 struct EpisodeDetail: View {
     var episode: Episode
     @Environment(AudioManager.self) private var audioManager
@@ -15,8 +27,6 @@ struct EpisodeDetail: View {
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
 
-    @State private var isExpanded = false
-    
     var body: some View {
         content
             .toolbar { ToolbarItem { EpisodeMenu(episode: episode) } }
@@ -104,4 +114,5 @@ struct EpisodeDetail: View {
     NavigationStack {
         EpisodeDetail(episode: .preview)
     }
+//    EpisodeDetail(episode: .preview)
 }
