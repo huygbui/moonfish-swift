@@ -25,12 +25,11 @@ struct PodcastCreateSheet: View {
     
     // Photo picker states
     @State private var selectedPhoto: PhotosPickerItem?
-    @State private var cover: Image?
-    @State private var coverData: Data?
-    @State private var colorChannels: (red: Double, green: Double, blue: Double)?
-
+    @State private var image: Image?
+    @State private var imageData: Data?
+    
+    @State private var isImageLoading: Bool = false
     @State private var isSubmitting: Bool = false
-    @State private var isCoverLoading: Bool = false
     
     private var canSubmit: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
@@ -40,7 +39,7 @@ struct PodcastCreateSheet: View {
     var body: some View {
         NavigationStack {
             Form {
-                PodcastCoverImage(image: cover, isLoading: isCoverLoading)
+                cover
                     .overlay(alignment: .center) {
                         PhotosPicker(selection: $selectedPhoto, matching: .images) {
                             Image(systemName: "camera.circle.fill")
@@ -113,24 +112,54 @@ struct PodcastCreateSheet: View {
                     .disabled(!canSubmit)
                 }
             }
+            .onChange(of: selectedPhoto) { _, newValue in
+                processSelectedPhoto(item: newValue)
+            }
         }
+    }
+    
+    @ViewBuilder
+    private var cover: some View {
+        let size: CGFloat = 128
+        let cornerRadius: CGFloat = 16
+        
+        ZStack {
+            if let image {
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } else {
+                Color(.tertiarySystemFill)
+            }
+            
+            if isImageLoading {
+                ProgressView()
+            }
+        }
+        .frame(width: size, height: size)
+        .cornerRadius(cornerRadius)
     }
     
     private func processSelectedPhoto(item: PhotosPickerItem?) {
         guard let item else { return }
         
         Task {
-            isCoverLoading = true
-            defer { isCoverLoading = false }
+            isImageLoading = true
+            defer { isImageLoading = false }
             
             do {
-                guard let data = try await item.loadTransferable(type: Data.self) else { return }
-                
-                if let uiImage = UIImage(data: data) {
-                    let compressedData = uiImage.jpegData(compressionQuality: 0.8)
-                    cover = Image(uiImage: uiImage)
-                    coverData = compressedData ?? data
+                guard let data = try await item.loadTransferable(type: Data.self) else {
+                    print("Failed to load image data")
+                    return
                 }
+                
+                guard let uiImage = UIImage(data: data) else {
+                    print("Invalid image data")
+                    return
+                }
+                
+                imageData = data
+                image = Image(uiImage: uiImage)
             } catch {
                 print("Failed to load image data: \(error)")
             }
@@ -154,8 +183,7 @@ struct PodcastCreateSheet: View {
                     voice2: voice2,
                     description: description
                 ),
-                imageData: coverData,
-                colorChannels: colorChannels,
+                imageData: imageData,
                 authManager: authManager,
                 context: context
             )

@@ -25,8 +25,8 @@ struct PodcastUpdateSheet: View {
     @State private var description: String = ""
     
     @State private var selectedPhoto: PhotosPickerItem?
-    @State private var newCover: Image?
-    @State private var newCoverData: Data?
+    @State private var newImage: Image?
+    @State private var newImageData: Data?
 
     @State private var isProcessingNewCover: Bool = false
     @State private var isSubmitting: Bool = false
@@ -39,7 +39,7 @@ struct PodcastUpdateSheet: View {
         voice2 != (podcast.voice2 ?? .female) ||
         name2 != (podcast.name2 ?? "") ||
         description != (podcast.about ?? "") ||
-        newCoverData != nil
+        newImageData != nil
     }
     
     private var canSubmit: Bool {
@@ -58,7 +58,7 @@ struct PodcastUpdateSheet: View {
                     dismissButton
                     submitButton
                 }
-                .task { await initFormData() }
+//                .task { await initFormData() }
                 .onChange(of: selectedPhoto) { _, newValue in
                     processSelectedPhoto(item: newValue)
                 }
@@ -132,8 +132,8 @@ struct PodcastUpdateSheet: View {
         let cornerRadius: CGFloat = 16
         
         ZStack {
-            if let newCover {
-                newCover
+            if let newImage {
+                newImage
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             } else {
@@ -188,20 +188,18 @@ struct PodcastUpdateSheet: View {
             defer { isProcessingNewCover = false }
             
             do {
-                // Load as Data directly
                 guard let data = try await item.loadTransferable(type: Data.self) else {
                     print("Failed to load image data")
                     return
                 }
                 
-                // Validate and compress the image
                 guard let uiImage = UIImage(data: data) else {
                     print("Invalid image data")
                     return
                 }
                 
-                newCoverData = data
-                newCover = Image(uiImage: uiImage)
+                newImageData = data
+                newImage = Image(uiImage: uiImage)
             } catch {
                 print("Failed to process photo: \(error)")
             }
@@ -216,7 +214,7 @@ struct PodcastUpdateSheet: View {
         Task {
             defer { isSubmitting = false }
             
-            if let imageData = newCoverData {
+            if let imageData = newImageData {
                 await rootModel.upload(
                     imageData: imageData,
                     podcastId: podcast.serverId,

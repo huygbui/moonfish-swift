@@ -16,7 +16,6 @@ class PodcastViewModel {
     func submit(
         _ createRequest: PodcastCreateRequest,
         imageData: Data?,
-        colorChannels: (red: Double, green: Double, blue: Double)?,
         authManager: AuthManager,
         context: ModelContext
     ) async {

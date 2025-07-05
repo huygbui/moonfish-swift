@@ -33,8 +33,7 @@ struct HomeRoot: View {
                 }
                 .sheet(isPresented: $showingSettingsSheet) { SettingsSheet() }
                 .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
-//              .refreshable { await podcastViewModel.refresh(authManager: authManager, context: context) }
-                .task {
+                .refreshable {
                     await podcastViewModel.refreshPodcasts(authManager: authManager, context: context)
                     await podcastViewModel.refreshEpisodes(authManager: authManager, context: context)
                 }
@@ -76,7 +75,7 @@ struct HomeRoot: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Newly Added").font(.headline)
                 ScrollView(.horizontal) {
-                    HStack(spacing: 8) {
+                    LazyHStack(spacing: 8) {
                         ForEach(recentEpisodes) { episode in
                             NavigationLink(value: episode) {
                                 EpisodeHighlight(episode: episode)
@@ -96,7 +95,7 @@ struct HomeRoot: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Your Favorite Shows").font(.headline)
                 ScrollView(.horizontal) {
-                    HStack(spacing: 8) {
+                    LazyHStack(spacing: 8) {
                         ForEach(podcasts) { podcast in
                             NavigationLink(value: podcast) {
                                 PodcastHighlight(podcast: podcast)
@@ -115,7 +114,7 @@ struct HomeRoot: View {
         if !pastEpisodes.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Listen Again").font(.headline)
-                VStack(spacing: 16) {
+                LazyVStack(spacing: 16) {
                     ForEach(pastEpisodes){ episode in
                         NavigationLink(value: episode) {
                             EpisodeCard(episode: episode)
