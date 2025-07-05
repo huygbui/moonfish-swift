@@ -16,35 +16,29 @@ struct PodcastUpdateSheet: View {
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) var dismiss
     
-    @State private var title: String = ""
-    @State private var format: EpisodeFormat = .narrative
-    @State private var voice1: EpisodeVoice = .male
-    @State private var voice2: EpisodeVoice = .female
-    @State private var name1: String = ""
-    @State private var name2: String = ""
-    @State private var description: String = ""
+    @State private var title: String
+    @State private var format: EpisodeFormat
+    @State private var voice1: EpisodeVoice
+    @State private var voice2: EpisodeVoice
+    @State private var description: String
     
     @State private var selectedPhoto: PhotosPickerItem?
-    @State private var newImage: Image?
-    @State private var newImageData: Data?
+    @State private var imageData: Data?
 
-    @State private var isProcessingNewCover: Bool = false
+    @State private var isImageLoading: Bool = false
     @State private var isSubmitting: Bool = false
     
-    private var hasChanges: Bool {
-        title != podcast.title ||
-        format != podcast.format ||
-        voice1 != podcast.voice1 ||
-        name1 != podcast.name1 ||
-        voice2 != (podcast.voice2 ?? .female) ||
-        name2 != (podcast.name2 ?? "") ||
-        description != (podcast.about ?? "") ||
-        newImageData != nil
+    init(podcast: Podcast) {
+        self.podcast = podcast
+        _title = State(initialValue: podcast.title)
+        _format = State(initialValue: podcast.format)
+        _voice1 = State(initialValue: podcast.voice1)
+        _voice2 = State(initialValue: podcast.voice2 ?? .female)
+        _description = State(initialValue: podcast.about ?? "")
     }
     
     private var canSubmit: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        hasChanges &&
         !isSubmitting
     }
    
@@ -58,28 +52,25 @@ struct PodcastUpdateSheet: View {
                     dismissButton
                     submitButton
                 }
-//                .task { await initFormData() }
                 .onChange(of: selectedPhoto) { _, newValue in
-                    processSelectedPhoto(item: newValue)
+                    processPhoto(item: newValue)
                 }
         }
     }
     
     private var content: some View {
         Form {
-            Section {
-                cover
-                    .overlay(alignment: .center) {
-                        PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                            Image(systemName: "camera.circle.fill")
-                                .font(.largeTitle)
-                                .foregroundStyle(.primary, Color(.secondarySystemBackground))
-                        }
-                        .buttonStyle(.plain)
+            cover
+                .overlay(alignment: .center) {
+                    PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                        Image(systemName: "camera.circle.fill")
+                            .font(.largeTitle)
+                            .foregroundStyle(.primary, Color(.secondarySystemBackground))
                     }
-                    .frame(maxWidth: .infinity, alignment: .center)
-            }
-            .listRowBackground(Color.clear)
+                    .buttonStyle(.plain)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .listRowBackground(Color.clear)
             
             Section("Title") {
                 TextField("Name your podcast", text: $title)
@@ -91,23 +82,15 @@ struct PodcastUpdateSheet: View {
                         Text(format.rawValue.localizedCapitalized).tag(format)
                     }
                 }
-            }
-            
-            Section("Host 1") {
-                TextField("Sam", text: $name1)
-                    .textInputAutocapitalization(.words)
-                Picker("Voice", selection: $voice1) {
+                
+                Picker("Host", selection: $voice1) {
                     ForEach(EpisodeVoice.allCases) { voice in
                         Text(voice.rawValue.localizedCapitalized).tag(voice)
                     }
                 }
-            }
-            
-            if format == .conversational {
-                Section("Host 2") {
-                    TextField("Alex", text: $name2)
-                        .textInputAutocapitalization(.words)
-                    Picker("Voice", selection: $voice2) {
+                
+                if format == .conversational {
+                    Picker("Co-host", selection: $voice2) {
                         ForEach(EpisodeVoice.allCases) { voice in
                             Text(voice.rawValue.localizedCapitalized).tag(voice)
                         }
@@ -132,15 +115,16 @@ struct PodcastUpdateSheet: View {
         let cornerRadius: CGFloat = 16
         
         ZStack {
-            if let newImage {
-                newImage
+            if let imageData,
+               let uiImage = UIImage(data: imageData) {
+                Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             } else {
                 PodcastAsyncImage(url: podcast.imageURL)
             }
             
-            if isProcessingNewCover {
+            if isImageLoading {
                 ProgressView()
             }
         }
@@ -170,39 +154,20 @@ struct PodcastUpdateSheet: View {
         }
     }
     
-    private func initFormData() async {
-        title = podcast.title
-        format = podcast.format
-        voice1 = podcast.voice1
-        voice2 = podcast.voice2 ?? .female
-        name1 = podcast.name1?.localizedCapitalized ?? ""
-        name2 = podcast.name2?.localizedCapitalized ?? ""
-        description = podcast.about?.localizedCapitalized ?? ""
-    }
-    
-    private func processSelectedPhoto(item: PhotosPickerItem?) {
+    private func processPhoto(item: PhotosPickerItem?) {
         guard let item else { return }
+        isImageLoading = true
         
         Task {
-            isProcessingNewCover = true
-            defer { isProcessingNewCover = false }
+            defer { isImageLoading = false }
             
-            do {
-                guard let data = try await item.loadTransferable(type: Data.self) else {
-                    print("Failed to load image data")
-                    return
-                }
-                
-                guard let uiImage = UIImage(data: data) else {
-                    print("Invalid image data")
-                    return
-                }
-                
-                newImageData = data
-                newImage = Image(uiImage: uiImage)
-            } catch {
-                print("Failed to process photo: \(error)")
+            guard let data = try await item.loadTransferable(type: Data.self),
+                  let uiImage = UIImage(data: data) else {
+                print("Failed to load image data")
+                return
             }
+            
+            imageData = uiImage.jpegData(compressionQuality: 0.8) ?? data
         }
     }
     
@@ -214,27 +179,18 @@ struct PodcastUpdateSheet: View {
         Task {
             defer { isSubmitting = false }
             
-            if let imageData = newImageData {
-                await rootModel.upload(
-                    imageData: imageData,
-                    podcastId: podcast.serverId,
-                    authManager: authManager
-                )
-            }
-            
             let updateRequest = PodcastUpdateRequest(
-                title: title != podcast.title ? title : nil,
-                format: format != podcast.format ? format : nil,
-                name1: name1 != podcast.name1 ? name1 : nil,
-                voice1: voice1 != podcast.voice1 ? voice1 : nil,
-                name2: format == .conversational && name2 != (podcast.name2 ?? "") ? name2 : nil,
-                voice2: format == .conversational && voice2 != (podcast.voice2 ?? .female) ? voice2 : nil,
-                description: description != (podcast.about ?? "") ? description : nil
+                title: title.trimmingCharacters(in: .whitespacesAndNewlines),
+                format: format,
+                voice1: voice1,
+                voice2: format == .conversational ? voice2 : nil,
+                description: description.trimmingCharacters(in: .whitespacesAndNewlines)
             )
             
             await rootModel.update(
                 podcast,
-                from: updateRequest,
+                updateRequest: updateRequest,
+                imageData: imageData,
                 authManager: authManager,
                 context: context
             )

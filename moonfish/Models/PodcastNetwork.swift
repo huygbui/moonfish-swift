@@ -54,11 +54,9 @@ struct PodcastImageUploadURLResponse: Codable {
 }
 
 struct PodcastUpdateRequest: Codable {
-    let title: String?
-    let format: EpisodeFormat?
-    let name1: String?
-    let voice1: EpisodeVoice?
-    let name2: String?
+    let title: String
+    let format: EpisodeFormat
+    let voice1: EpisodeVoice
     let voice2: EpisodeVoice?
     let description: String?
     
@@ -68,9 +66,7 @@ struct PodcastUpdateRequest: Codable {
         
         try container.encodeIfPresent(title, forKey: .title)
         try container.encodeIfPresent(format, forKey: .format)
-        try container.encodeIfPresent(name1, forKey: .name1)
         try container.encodeIfPresent(voice1, forKey: .voice1)
-        try container.encodeIfPresent(name2, forKey: .name2)
         try container.encodeIfPresent(voice2, forKey: .voice2)
         try container.encodeIfPresent(description, forKey: .description)
     }

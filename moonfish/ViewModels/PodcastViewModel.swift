@@ -114,13 +114,28 @@ class PodcastViewModel {
     
     func update(
         _ podcast: Podcast,
-        from updateRequest: PodcastUpdateRequest,
+        updateRequest: PodcastUpdateRequest,
+        imageData: Data?,
         authManager: AuthManager,
         context: ModelContext
     ) async {
         guard let token = authManager.token else { return }
         
         do {
+            if let imageData {
+                let uploadURLResponse = try await client.createPodcastImageUploadURL(
+                    podcastId: podcast.serverId,
+                    authToken: token
+                )
+                
+                var request = URLRequest(url: uploadURLResponse.url)
+                request.httpMethod = "PUT"
+                request.httpBody = imageData
+                request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+                
+                let (_, _) = try await URLSession.shared.data(for: request)
+            }
+            
             let response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest, authToken: token)
             let updatedPodcast = Podcast(from: response)
             context.insert(updatedPodcast)

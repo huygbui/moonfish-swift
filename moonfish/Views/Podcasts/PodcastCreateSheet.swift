@@ -25,7 +25,6 @@ struct PodcastCreateSheet: View {
     
     // Photo picker states
     @State private var selectedPhoto: PhotosPickerItem?
-    @State private var image: Image?
     @State private var imageData: Data?
     
     @State private var isImageLoading: Bool = false
@@ -64,27 +63,22 @@ struct PodcastCreateSheet: View {
                             Text(format.rawValue.localizedCapitalized).tag(format)
                         }
                     }
-                }
-                
-                Section("Host 1") {
-                    TextField("Sam", text: $name1)
-                    Picker("Voice", selection: $voice1) {
+                    
+                    Picker("Host", selection: $voice1) {
                         ForEach(EpisodeVoice.allCases) { voice in
                             Text(voice.rawValue.localizedCapitalized).tag(voice)
                         }
                     }
-                }
-                
-                if format == .conversational {
-                    Section("Host 2") {
-                        TextField("Alex", text: $name2)
-                        Picker("Voice", selection: $voice2) {
+                    
+                    if format == .conversational {
+                        Picker("Co-host", selection: $voice2) {
                             ForEach(EpisodeVoice.allCases) { voice in
                                 Text(voice.rawValue.localizedCapitalized).tag(voice)
                             }
                         }
                     }
                 }
+                
                 
                 Section("Description") {
                     TextField(
@@ -113,7 +107,7 @@ struct PodcastCreateSheet: View {
                 }
             }
             .onChange(of: selectedPhoto) { _, newValue in
-                processSelectedPhoto(item: newValue)
+                processPhoto(item: newValue)
             }
         }
     }
@@ -124,8 +118,9 @@ struct PodcastCreateSheet: View {
         let cornerRadius: CGFloat = 16
         
         ZStack {
-            if let image {
-                image
+            if let imageData,
+               let uiImage = UIImage(data: imageData) {
+                Image(uiImage: uiImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
             } else {
@@ -140,29 +135,20 @@ struct PodcastCreateSheet: View {
         .cornerRadius(cornerRadius)
     }
     
-    private func processSelectedPhoto(item: PhotosPickerItem?) {
+    private func processPhoto(item: PhotosPickerItem?) {
         guard let item else { return }
+        isImageLoading = true
         
         Task {
-            isImageLoading = true
             defer { isImageLoading = false }
             
-            do {
-                guard let data = try await item.loadTransferable(type: Data.self) else {
-                    print("Failed to load image data")
-                    return
-                }
-                
-                guard let uiImage = UIImage(data: data) else {
-                    print("Invalid image data")
-                    return
-                }
-                
-                imageData = data
-                image = Image(uiImage: uiImage)
-            } catch {
-                print("Failed to load image data: \(error)")
+            guard let data = try await item.loadTransferable(type: Data.self),
+                  let uiImage = UIImage(data: data) else {
+                print("Failed to load image data")
+                return
             }
+                
+            imageData = uiImage.jpegData(compressionQuality: 0.8) ?? data
         }
     }
     
