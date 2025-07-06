@@ -95,7 +95,7 @@ struct EpisodeRow: View {
    
     @ViewBuilder
     private var menuButton: some View {
-        if episode.isCompleted {
+        if episode.status == EpisodeStatus.completed.rawValue {
             EpisodeMenu(episode: episode)
                 .foregroundStyle(.secondary)
         } else {

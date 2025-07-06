@@ -27,8 +27,8 @@ struct EpisodeResponse: Codable, Identifiable {
     var voice1: String
     var voice2: String?
     
-    var status: EpisodeStatus
-    var step: EpisodeStep?
+    var status: String
+    var step: String?
     
     var title: String?
     var summary: String?

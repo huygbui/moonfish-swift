@@ -19,10 +19,21 @@ struct PodcastDetail: View {
     @State private var showingEpisodeCreate: Bool = false
     @State private var showingPodcastUpdate: Bool = false
     
-    private var episodes: [Episode] {
-        podcast.episodes
-            .filter { $0.status != EpisodeStatus.failed.rawValue && $0.status != EpisodeStatus.cancelled.rawValue }
-            .sorted { $0.createdAt > $1.createdAt }
+    @Query private var episodes: [Episode]
+    
+    init(podcast: Podcast) {
+        self.podcast = podcast
+        
+        let podcastID = podcast.persistentModelID
+        _episodes = Query(
+            filter: #Predicate<Episode> {
+                $0.podcast.persistentModelID == podcastID &&
+                $0.status != "failed" &&
+                $0.status != "cancelled"
+            },
+            sort: \Episode.createdAt,
+            order: .reverse
+        )
     }
     
     var body: some View {
@@ -70,7 +81,7 @@ struct PodcastDetail: View {
     }
 
     private var episodeList: some View {
-        VStack(spacing: 8) {
+        LazyVStack(spacing: 8) {
             ForEach(episodes) { episode in
                 if episode.status == EpisodeStatus.completed.rawValue {
                     NavigationLink(destination: EpisodeDetail(episode: episode)) {
@@ -109,10 +120,6 @@ struct PodcastDetail: View {
 
 #Preview(traits: .audioPlayerTrait) {
     NavigationStack {
-        ZStack {
-//            Color(.secondarySystemBackground)
-//                .ignoresSafeArea()
-            PodcastDetail(podcast: .preview)
-        }
+        PodcastDetail(podcast: .preview)
     }
 }

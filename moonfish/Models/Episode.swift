@@ -118,8 +118,8 @@ final class Episode {
             voice1: response.voice1,
             voice2: response.voice2,
            
-            status: response.status.rawValue,
-            step: response.step?.rawValue,
+            status: response.status,
+            step: response.step,
             
             title: response.title,
             summary: response.summary,

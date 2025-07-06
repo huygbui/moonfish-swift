@@ -23,13 +23,10 @@ struct PlayerFull: View {
                 Spacer()
                 
                 // Album art placeholder
-                Image(systemName: "waveform")
-                    .font(.largeTitle)
+                PodcastAsyncImage(url: episode.podcast.imageURL)
                     .frame(width: 256, height: 256)
-                    .foregroundStyle(.secondary)
-                    .background(Color.secondary.opacity(0.1), in: .rect(cornerRadius: 16))
+                    .cornerRadius(16)
                 
-                // PodcastCover()
                 
                 // Track info
                 VStack(spacing: 8) {
