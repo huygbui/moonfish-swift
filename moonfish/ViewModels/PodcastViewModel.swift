@@ -26,25 +26,29 @@ class PodcastViewModel {
                 from: createRequest,
                 authToken: token)
             
-            if let imageData {
+            let podcast = Podcast(from: response)
+            
+            if let imageData,
+               let uploadURL = response.imageUploadURL {
                 do {
-                    let uploadURLResponse = try await client.createPodcastImageUploadURL(
-                        podcastId: response.id,
-                        authToken: token
-                    )
-                    
-                    var request = URLRequest(url: uploadURLResponse.url)
+                    var request = URLRequest(url: uploadURL)
                     request.httpMethod = "PUT"
                     request.httpBody = imageData
                     request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
                     
-                    let (_, _) = try await URLSession.shared.data(for: request)
+                    let (_, uploadResponse) = try await URLSession.shared.data(for: request)
+                    
+                    // Check if upload was successful (2xx status code)
+                    if let httpResponse = uploadResponse as? HTTPURLResponse,
+                       (200...299).contains(httpResponse.statusCode) {
+                        // Use the display URL we already have
+                        podcast.imageURL = response.imageURL
+                    }
                 } catch {
                     print("Failed to upload image: \(error)")
                 }
             }
             
-            let podcast = Podcast(from: response)
             context.insert(podcast)
             try context.save()
         } catch {
@@ -74,32 +78,6 @@ class PodcastViewModel {
         }
     }
     
-    func upload(
-        imageData: Data,
-        podcastId: Int,
-        authManager: AuthManager
-    ) async {
-        guard let token = authManager.token else { return }
-        
-        do {
-            let uploadURLResponse = try await client.createPodcastImageUploadURL(
-                podcastId: podcastId,
-                authToken: token
-            )
-            
-            var request = URLRequest(url: uploadURLResponse.url)
-            request.httpMethod = "PUT"
-            request.httpBody = imageData
-            request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
-            
-            let (_, _) = try await URLSession.shared.data(for: request)
-        } catch {
-            // Log but don't fail podcast creation
-            print("Failed to upload image: \(error)")
-        }
-    }
-        
-    
     func delete(_ podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
         guard let token = authManager.token else { return }
         
@@ -122,13 +100,9 @@ class PodcastViewModel {
         guard let token = authManager.token else { return }
         
         do {
-            if let imageData {
-                let uploadURLResponse = try await client.createPodcastImageUploadURL(
-                    podcastId: podcast.serverId,
-                    authToken: token
-                )
-                
-                var request = URLRequest(url: uploadURLResponse.url)
+            if let imageData,
+               let uploadURL = podcast.imageURL {
+                var request = URLRequest(url: uploadURL)
                 request.httpMethod = "PUT"
                 request.httpBody = imageData
                 request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")

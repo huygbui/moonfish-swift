@@ -123,42 +123,8 @@ final class BackendClient: Sendable {
         }
     }
     
-    // MARK: - Create Podcast Upload Image URL
-    func createPodcastImageUploadURL(
-        podcastId: Int,
-        authToken: String
-    ) async throws -> PodcastImageUploadURLResponse {
-        var request = try createRequest(
-            for: "podcasts/\(podcastId)/image_upload",
-            method: "POST",
-            authToken: authToken
-        )
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let (data, response) = try await session.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw ClientError.invalidResponse
-        }
-        
-        switch httpResponse.statusCode {
-        case 200:
-            do {
-                return try decoder.decode(PodcastImageUploadURLResponse.self, from: data)
-            } catch {
-                throw ClientError.decodingError(error.localizedDescription)
-            }
-        case 401:
-            throw ClientError.unauthorized
-        case 500...509:
-            throw ClientError.serverError
-        default:
-            throw ClientError.unexpectedError
-        }
-    }
-    
     // MARK: - Create Podcast
-    func createPodcast(from podcastCreateRequest: PodcastCreateRequest, authToken: String) async throws -> PodcastCreateResponse {
+    func createPodcast(from podcastCreateRequest: PodcastCreateRequest, authToken: String) async throws -> PodcastResponse {
         var request = try createRequest(for: "podcasts", method: "POST", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(podcastCreateRequest)
@@ -172,7 +138,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(PodcastCreateResponse.self, from: data)
+                return try decoder.decode(PodcastResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -186,7 +152,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get All Podcasts
-    func getPodcast(id: Int, authToken: String) async throws -> PodcastCreateResponse {
+    func getPodcast(id: Int, authToken: String) async throws -> PodcastResponse {
         var request = try createRequest(for: "podcasts/\(id)", method: "GET", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
@@ -199,7 +165,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(PodcastCreateResponse.self, from: data)
+                return try decoder.decode(PodcastResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -213,7 +179,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get All Podcasts
-    func getAllPodcasts(authToken: String) async throws -> [PodcastCreateResponse] {
+    func getAllPodcasts(authToken: String) async throws -> [PodcastResponse] {
         var request = try createRequest(for: "podcasts", method: "GET", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
@@ -226,7 +192,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode([PodcastCreateResponse].self, from: data)
+                return try decoder.decode([PodcastResponse].self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
@@ -265,7 +231,7 @@ final class BackendClient: Sendable {
         with id: Int,
         from updateRequest: PodcastUpdateRequest,
         authToken: String
-    ) async throws -> PodcastCreateResponse {
+    ) async throws -> PodcastResponse {
         var request = try createRequest(for: "podcasts/\(id)", method: "PATCH", authToken: authToken)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try encoder.encode(updateRequest)
@@ -279,7 +245,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(PodcastCreateResponse.self, from: data)
+                return try decoder.decode(PodcastResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }
