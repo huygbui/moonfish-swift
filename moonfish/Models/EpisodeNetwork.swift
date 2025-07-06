@@ -25,9 +25,7 @@ struct EpisodeResponse: Codable, Identifiable {
     
     var format: String
     var voice1: String
-    var name1: String?
     var voice2: String?
-    var name2: String?
     
     var status: EpisodeStatus
     var step: EpisodeStep?
@@ -42,7 +40,7 @@ struct EpisodeResponse: Codable, Identifiable {
     var updatedAt: Date
     
     enum CodingKeys: String, CodingKey {
-        case id, topic, length, level, format, voice1, name1, voice2, name2, instruction, status, step, title, summary, duration
+        case id, topic, length, level, format, voice1, voice2, instruction, status, step, title, summary, duration
         case podcastId = "podcast_id"
         case createdAt = "created_at"
         case updatedAt = "updated_at"

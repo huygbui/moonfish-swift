@@ -38,9 +38,6 @@ struct PodcastHighlight: View {
     }
 }
 
-   
-
-
 #Preview {
     ScrollView(.horizontal) {
         HStack(alignment: .top, spacing: 16) {

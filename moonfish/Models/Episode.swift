@@ -19,9 +19,7 @@ final class Episode {
     
     var format: String
     var voice1: String
-    var name1: String?
     var voice2: String?
-    var name2: String?
    
     var status: String?
     var step: String?
@@ -54,9 +52,7 @@ final class Episode {
         
         format: String,
         voice1: String,
-        name1: String? = nil,
         voice2: String? = nil,
-        name2: String? = nil,
         
         status: String? = nil,
         step: String? = nil,
@@ -86,9 +82,7 @@ final class Episode {
         self.instruction = instruction
         
         self.format = format
-        self.name1 = name1
         self.voice1 = voice1
-        self.name2 = name1
         self.voice2 = voice1
         
         self.status = status
@@ -122,9 +116,7 @@ final class Episode {
             
             format: response.format,
             voice1: response.voice1,
-            name1: response.name1,
             voice2: response.voice2,
-            name2: response.name2,
            
             status: response.status.rawValue,
             step: response.step?.rawValue,
@@ -214,9 +206,7 @@ extension Episode {
         
         format: "conversational",
         voice1: "male",
-        name1: "John",
         voice2: "female",
-        name2: "Jane",
         
         status: EpisodeStatus.active.rawValue,
         step: EpisodeStep.voice.rawValue,

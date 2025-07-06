@@ -22,9 +22,7 @@ struct PodcastResponse: Codable, Identifiable {
     
     var title: String
     var format: EpisodeFormat
-    var name1: String
     var voice1: EpisodeVoice
-    var name2: String?
     var voice2: EpisodeVoice?
     var description: String?
 
@@ -35,7 +33,7 @@ struct PodcastResponse: Codable, Identifiable {
     var imageUploadURL: URL?
     
     enum CodingKeys: String, CodingKey {
-        case id, title, format, name1, voice1, name2, voice2, description
+        case id, title, format, voice1, voice2, description
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case imageURL = "image_url"
