@@ -13,12 +13,12 @@ struct PodcastAsyncImage: View {
    
     var body: some View {
         KFImage(url)
+            .placeholder { Color(.tertiarySystemFill) }
+            .downsampling(size: CGSize(width: 256, height: 256))
+            .scaleFactor(UIScreen.main.scale)
+            .cacheOriginalImage(true)
             .resizable()
-            .placeholder {
-                Color(.tertiarySystemFill)
-            }
             .aspectRatio(contentMode: .fill)
-            
     }
 }
 

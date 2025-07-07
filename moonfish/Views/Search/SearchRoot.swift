@@ -76,7 +76,6 @@ struct SearchRoot: View {
             .scrollIndicators(.hidden)
             .searchable(text: $searchText)
             .refreshable { await refresh() }
-            .task { await refresh() }
         }
     }
     
