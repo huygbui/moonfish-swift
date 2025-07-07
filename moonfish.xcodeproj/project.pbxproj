@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3425FDA72E165FAA0041B7A1 /* moonfish.icon in Resources */ = {isa = PBXBuildFile; fileRef = 3425FDA62E165FAA0041B7A1 /* moonfish.icon */; };
+		34E4A2922E1B661F00A8ECC4 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 34E4A2912E1B661F00A8ECC4 /* Kingfisher */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34E4A2922E1B661F00A8ECC4 /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +87,7 @@
 			);
 			name = moonfish;
 			packageProductDependencies = (
+				34E4A2912E1B661F00A8ECC4 /* Kingfisher */,
 			);
 			productName = moonfish;
 			productReference = 34E966562D5BAE0200EE4AED /* moonfish.app */;
@@ -114,6 +117,9 @@
 			);
 			mainGroup = 34E9664D2D5BAE0200EE4AED;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				34E4A2902E1B661F00A8ECC4 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 34E966572D5BAE0200EE4AED /* Products */;
 			projectDirPath = "";
@@ -361,6 +367,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		34E4A2902E1B661F00A8ECC4 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		34E4A2912E1B661F00A8ECC4 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34E4A2902E1B661F00A8ECC4 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 34E9664E2D5BAE0200EE4AED /* Project object */;
 }

@@ -6,18 +6,19 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct PodcastAsyncImage: View {
     var url: URL?
    
     var body: some View {
-        AsyncImage(url: url) { image in
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } placeholder: {
-            Color(.tertiarySystemFill)
-        }
+        KFImage(url)
+            .resizable()
+            .placeholder {
+                Color(.tertiarySystemFill)
+            }
+            .aspectRatio(contentMode: .fill)
+            
     }
 }
 
