@@ -105,15 +105,7 @@ struct EpisodeRow: View {
     }
     
     private func handlePlayButtonTap() {
-        Task {
-            await rootModel.refreshAudioURL(
-                episode,
-                modelContext: context,
-                authManager: authManager
-            )
-            
-            audioManager.toggle(episode)
-        }
+        audioManager.toggle(episode)
     }
 }
 

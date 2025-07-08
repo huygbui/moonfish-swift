@@ -37,11 +37,6 @@ class PodcastViewModel {
                     request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
                     
                     let (_, uploadResponse) = try await URLSession.shared.data(for: request)
-                    
-                    if let httpResponse = uploadResponse as? HTTPURLResponse,
-                       (200...299).contains(httpResponse.statusCode) {
-                        podcast.imageURL = response.imageURL
-                    }
                 } catch {
                     print("Failed to upload image: \(error)")
                 }
@@ -99,7 +94,6 @@ class PodcastViewModel {
         
         do {
             let response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest, authToken: token)
-            let existingURL = podcast.imageURL
             let updatedPodcast = Podcast(from: response)
             
             if let imageData,
@@ -111,16 +105,9 @@ class PodcastViewModel {
                     request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
                     
                     let (_, uploadResponse) = try await URLSession.shared.data(for: request)
-                    
-                    if let httpResponse = uploadResponse as? HTTPURLResponse,
-                       (200...299).contains(httpResponse.statusCode) {
-                        updatedPodcast.imageURL = response.imageURL
-                    }
                 } catch {
                     print("Failed to upload new image: \(error)")
                 }
-            } else {
-                updatedPodcast.imageURL = existingURL
             }
             
             context.insert(updatedPodcast)

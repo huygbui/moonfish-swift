@@ -69,15 +69,8 @@ struct PlayerFull: View {
                                 .font(.title)
                         }
                         
-                        Button{
-                            Task {
-                                await viewModel.refreshAudioURL(
-                                    episode,
-                                    modelContext: context,
-                                    authManager: authManager
-                                )
-                                audioPlayer.toggle(episode)
-                            }
+                        Button {
+                            audioPlayer.toggle(episode)
                         } label: {
                             Image(systemName: audioPlayer.isPlaying(episode) ? "pause.circle.fill" : "play.circle.fill")
                                 .font(.system(size: 64))

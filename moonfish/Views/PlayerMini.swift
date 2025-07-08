@@ -27,14 +27,7 @@ struct PlayerMini: View {
             Spacer()
             
             Button {
-                Task {
-                    await viewModel.refreshAudioURL(
-                        episode,
-                        modelContext: context,
-                        authManager: authManager
-                    )
-                    audioPlayer.toggle(episode)
-                }
+                audioPlayer.toggle(episode)
             } label: {
                 Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
             }

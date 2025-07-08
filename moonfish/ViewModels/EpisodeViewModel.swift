@@ -17,21 +17,6 @@ class EpisodeViewModel {
     private let client = BackendClient()
     private var downloads: [Int:Download] = [:]
     
-    func refreshAudioURL(_ episode: Episode, modelContext: ModelContext, authManager: AuthManager) async {
-        guard let token = authManager.token else { return }
-
-        if episode.expiresAt == nil || Date() > episode.expiresAt! {
-            do {
-                let audio = try await client.getEpisodeAudio(id: episode.serverId, authToken: token)
-                episode.audioURL = audio.url
-                episode.expiresAt = audio.expiresAt
-                try modelContext.save()
-            } catch {
-                print("Failed to fetch podcast audio: \(error)")
-            }
-        }
-    }
-    
     func cancel(_ episode: Episode, authManager: AuthManager, context: ModelContext) async {
         guard let token = authManager.token else { return }
        
