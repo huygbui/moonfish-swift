@@ -33,7 +33,7 @@ struct EpisodeCard: View {
                 // Card title
                 Text(episode.title ?? "")
                     .font(.footnote)
-                    .lineLimit(2)
+                    .lineLimit(1)
                 
                 Spacer()
                 
