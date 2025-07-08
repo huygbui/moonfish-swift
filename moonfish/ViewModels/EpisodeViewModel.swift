@@ -81,7 +81,7 @@ class EpisodeViewModel {
             print(episode.downloadProgress)
         case let .completed(url):
             episode.downloadState = .idle
-            defer { try? FileManager.default.removeItem(at: url) } // Clean up temp file
+            defer { try? FileManager.default.removeItem(at: url) }
             let didSave = save(episode, from: url)
             episode.isDownloaded = didSave
         case .canceled:

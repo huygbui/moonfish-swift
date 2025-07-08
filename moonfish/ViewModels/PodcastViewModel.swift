@@ -127,10 +127,22 @@ class PodcastViewModel {
         
         do {
             let response = try await client.getAllPodcasts(authToken: token)
+            let serverIDs = Set(response.map { $0.id })
+            
             for podcastResponse in response {
                 let podcast = Podcast(from: podcastResponse)
                 context.insert(podcast)
             }
+            
+            let descriptor = FetchDescriptor<Podcast>()
+            let localPodcasts = try context.fetch(descriptor)
+            
+            for localPodcast in localPodcasts {
+                if !serverIDs.contains(localPodcast.serverId) {
+                    context.delete(localPodcast)
+                }
+            }
+            
             try context.save()
         } catch {
             print("Failed to refresh podcasts: \(error)")
