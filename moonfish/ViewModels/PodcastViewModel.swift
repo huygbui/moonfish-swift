@@ -33,10 +33,10 @@ class PodcastViewModel {
                 do {
                     var request = URLRequest(url: uploadURL)
                     request.httpMethod = "PUT"
-                    request.httpBody = imageData
                     request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
-                    
-                    let (_, uploadResponse) = try await URLSession.shared.data(for: request)
+                    request.setValue("\(imageData.count)", forHTTPHeaderField: "Content-Length")
+
+                    let (_, _) = try await URLSession.shared.upload(for: request, from: imageData)
                 } catch {
                     print("Failed to upload image: \(error)")
                 }
@@ -93,23 +93,28 @@ class PodcastViewModel {
         guard let token = authManager.token else { return }
         
         do {
-            let response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest, authToken: token)
-            let updatedPodcast = Podcast(from: response)
+            var response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest, authToken: token)
             
             if let imageData,
                let uploadURL = response.imageUploadURL {
                 do {
                     var request = URLRequest(url: uploadURL)
                     request.httpMethod = "PUT"
-                    request.httpBody = imageData
                     request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+                    request.setValue("\(imageData.count)", forHTTPHeaderField: "Content-Length")
+
+                    let (_, uploadResponse) = try await URLSession.shared.upload(for: request, from: imageData)
                     
-                    let (_, uploadResponse) = try await URLSession.shared.data(for: request)
+                    if let httpResponse = uploadResponse as? HTTPURLResponse,
+                       (200...299).contains(httpResponse.statusCode) {
+                        response = try await client.completeImageUpload(with: podcast.serverId, authToken: token)
+                    }
                 } catch {
                     print("Failed to upload new image: \(error)")
                 }
             }
-            
+          
+            let updatedPodcast = Podcast(from: response)
             context.insert(updatedPodcast)
             try context.save()
         } catch {

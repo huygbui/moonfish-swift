@@ -258,6 +258,36 @@ final class BackendClient: Sendable {
         }
     }
     
+    // MARK: - Update Podcast Upload Success
+    func completeImageUpload(
+        with id: Int,
+        authToken: String
+    ) async throws -> PodcastResponse {
+        var request = try createRequest(for: "podcasts/\(id)/upload_success", method: "POST", authToken: authToken)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode(PodcastResponse.self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
+        }
+    }
+    
     // MARK: - Get Episodes Podcasts
     func getAllEpisodes(for podcastId: Int, authToken: String) async throws -> [EpisodeResponse] {
         let request = try createRequest(for: "podcasts/\(podcastId)/episodes", authToken: authToken)
