@@ -33,7 +33,7 @@ struct EpisodeResponse: Codable, Identifiable {
     var title: String?
     var summary: String?
     
-    var fileName: String?
+    var audioURL: URL?
     var duration: Double?
     
     var createdAt: Date
@@ -44,7 +44,7 @@ struct EpisodeResponse: Codable, Identifiable {
         case podcastId = "podcast_id"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
-        case fileName = "file_name"
+        case audioURL = "audio_url"
     }
 }
 
@@ -62,6 +62,3 @@ struct EpisodeContentResponse: Codable {
     }
 }
 
-struct EpisodeAudioResponse: Codable {
-    var url: URL
-}

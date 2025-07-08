@@ -60,15 +60,12 @@ final class Episode {
         title: String? = nil,
         summary: String? = nil,
        
-        fileName: String? = nil,
+        audioURL: URL? = nil,
         duration: Double? = nil,
         createdAt: Date,
         
         isFavorite: Bool = false,
         isDownloaded: Bool = false,
-        
-        audioURL: URL? = nil,
-        expiresAt: Date? = nil,
         
         downloadState: DownloadState = .idle,
         
@@ -91,14 +88,11 @@ final class Episode {
         self.title = title
         self.summary = summary
        
-        self.fileName = fileName
+        self.audioURL = audioURL
         self.duration = duration
         self.createdAt = createdAt
         self.isFavorite = isFavorite
         self.isDownloaded = isDownloaded
-        
-        self.audioURL = audioURL
-        self.expiresAt = expiresAt
         
         self.downloadState = downloadState
         
@@ -123,7 +117,8 @@ final class Episode {
             
             title: response.title,
             summary: response.summary,
-            fileName: response.fileName,
+            
+            audioURL: response.audioURL,
             duration: response.duration,
             
             createdAt: response.createdAt,
@@ -213,7 +208,7 @@ extension Episode {
         
         title: "Beginner's Guide to Gardening in the Far East",
         summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
-        fileName: "gardening_beginner.mp3",
+        audioURL: URL(string:"http://localhost:8000/gardening_beginner.mp3")!,
         duration: 620, // about 10 minutes
         createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600),
         isDownloaded: true,
