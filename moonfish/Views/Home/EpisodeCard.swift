@@ -44,7 +44,8 @@ struct EpisodeCard: View {
                     Spacer()
                     
                     downloadIndicator
-                    
+                        .frame(width: 16, height: 16)
+
                     EpisodeMenu(episode: episode)
                 }
                 .foregroundStyle(.secondary)
