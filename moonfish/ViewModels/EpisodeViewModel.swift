@@ -47,13 +47,12 @@ class EpisodeViewModel {
     }
     
     func download(_ episode: Episode, authManager: AuthManager) async throws {
-        guard downloads[episode.serverId] == nil,
+        guard let url = episode.audioURL,
+              downloads[episode.serverId] == nil,
               episode.isDownloaded == false
         else { return }
         
-        let request = try client.createRequest(for: "podcasts/\(episode.serverId)/download")
-        
-        let download = Download(request: request)
+        let download = Download(url: url)
         
         downloads[episode.serverId] = download
         download.start()
