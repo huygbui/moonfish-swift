@@ -27,7 +27,7 @@ struct PodcastUpdateSheet: View {
 
     @State private var isImageLoading: Bool = false
     @State private var isSubmitting: Bool = false
-    
+
     init(podcast: Podcast) {
         self.podcast = podcast
         _title = State(initialValue: podcast.title)
@@ -37,9 +37,21 @@ struct PodcastUpdateSheet: View {
         _description = State(initialValue: podcast.about ?? "")
     }
     
+    private var hasChanges: Bool {
+        let titleChanged = title.trimmingCharacters(in: .whitespacesAndNewlines) != podcast.title
+        let formatChanged = format != podcast.format
+        let voice1Changed = voice1 != podcast.voice1
+        let voice2Changed = voice2 != (podcast.voice2 ?? .female)
+        let descriptionChanged = description.trimmingCharacters(in: .whitespacesAndNewlines) != (podcast.about ?? "")
+        let imageChanged = imageData != nil
+        
+        return titleChanged || formatChanged || voice1Changed || voice2Changed || descriptionChanged || imageChanged
+    }
+    
     private var canSubmit: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !isSubmitting
+        !isSubmitting &&
+        hasChanges
     }
    
     var body: some View {
