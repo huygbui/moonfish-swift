@@ -29,7 +29,9 @@ struct HomeRoot: View {
                 .navigationDestination(for: Episode.self, destination: EpisodeDetail.init)
                 .navigationDestination(for: Podcast.self, destination: PodcastDetail.init)
                 .toolbar {
-                    settingButton
+                    SettingToolbarItem { showingSettingsSheet = true }
+                    if #available(iOS 26.0, *) { ToolbarSpacer() }
+                    CreateToolbarItem { showingCreateSheet = true }
                 }
                 .sheet(isPresented: $showingSettingsSheet) { SettingsSheet() }
                 .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
@@ -122,14 +124,6 @@ struct HomeRoot: View {
                         .buttonStyle(.plain)
                     }
                 }
-            }
-        }
-    }
-    
-    private var settingButton: some ToolbarContent {
-        ToolbarItem {
-            Button(action: { showingSettingsSheet = true }) {
-                Label("Setting", systemImage: "person")
             }
         }
     }

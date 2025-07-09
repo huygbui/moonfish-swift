@@ -14,8 +14,9 @@ struct PodcastRoot: View {
     @Environment(AuthManager.self) private var authManager
     @Environment(\.modelContext) private var context
 
-    @State private var showCreateSheet = false
-    
+    @State private var showingSettingSheet = false
+    @State private var showingCreateSheet = false
+
     private var columns: [GridItem] {
         [.init(.adaptive(minimum: 128, maximum: 512), spacing: 16)]
     }
@@ -25,8 +26,13 @@ struct PodcastRoot: View {
             content
                 .navigationTitle("Podcasts")
                 .navigationDestination(for: Podcast.self, destination: PodcastDetail.init)
-                .toolbar { createButton }
-                .sheet(isPresented: $showCreateSheet) { PodcastCreateSheet() }
+                .toolbar {
+                    SettingToolbarItem { showingSettingSheet = true }
+                    if #available(iOS 26.0, *) { ToolbarSpacer() }
+                    CreateToolbarItem { showingCreateSheet = true }
+                }
+                .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
+                .sheet(isPresented: $showingSettingSheet) { SettingsSheet() }
                 .refreshable { await refresh() }
         }
     }
@@ -61,14 +67,6 @@ struct PodcastRoot: View {
             systemImage: "",
             description: Text("Tap + to create your first podcast")
         )
-    }
-    
-    private var createButton: some ToolbarContent {
-        ToolbarItem(placement: .primaryAction) {
-            Button("Create", systemImage: "plus") {
-                showCreateSheet = true
-            }
-        }
     }
     
     private func refresh() async {
