@@ -20,7 +20,8 @@ final class AudioManager {
     
     private let player = AVPlayer()
     private var timeObserver: Any?
-    
+    private var observationTask: Task<Void, Never>?  // New: For async observation
+
     init() {
         setupAudioSession()
         addPeriodicTimeObserver()
@@ -58,6 +59,8 @@ final class AudioManager {
         player.rate = Float(playbackRate)
         player.play()
         isPlaying = true
+        
+        startObservingPlaybackEnd()
     }
 
     func pause() {
@@ -135,6 +138,7 @@ final class AudioManager {
     }
     
     private func resetPlayer() {
+        stopObserving()
         player.pause()
         player.replaceCurrentItem(with: nil)
         
@@ -142,5 +146,23 @@ final class AudioManager {
         isPlaying = false
         currentTime = 0.0
         duration = 0.0
+    }
+    
+    
+    private func startObservingPlaybackEnd() {
+        observationTask?.cancel()
+        
+        observationTask = Task {
+            for await _ in NotificationCenter.default.notifications(named: .AVPlayerItemDidPlayToEndTime, object: player.currentItem) {
+                // When playback ends, just reset to beginning and pause
+                isPlaying = false
+                seek(to: 0)
+            }
+        }
+    }
+    
+    func stopObserving() {
+        observationTask?.cancel()
+        observationTask = nil
     }
 }

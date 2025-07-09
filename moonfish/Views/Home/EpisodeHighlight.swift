@@ -81,29 +81,17 @@ struct EpisodeHighlight: View {
     
     private var playButton: some View {
         Button(action: onPlayButtonTap) {
-            if audioManager.currentEpisode != episode {
-                if audioManager.isPlaying(episode) {
-                    HStack {
-                        Image(systemName: "pause.fill")
-                        ProgressView(value: audioManager.currentProgress)
-                            .frame(width: 36)
-                        Text(audioManager.timeRemaining.hoursMinutesCompact)
-                    }
-                } else {
-                    HStack {
-                        Image(systemName: "play.fill")
-                        Text(episode.duration?.hoursMinutesCompact ?? "")
-                    }
-                }
-            } else {
-                HStack {
-                    Image(systemName: audioManager.isPlaying(episode) ? "pause.fill" : "play.fill")
+            HStack {
+                Image(systemName: audioManager.isPlaying(episode) ? "pause.fill" : "play.fill")
+                if audioManager.currentEpisode == episode {
                     ProgressView(value: audioManager.currentProgress)
                         .frame(width: 36)
+                    
                     Text(audioManager.timeRemaining.hoursMinutesCompact)
+                } else {
+                    Text(episode.duration?.hoursMinutesCompact ?? "")
                 }
             }
-            
         }
         .font(.caption)
         .buttonStyle(.bordered)
