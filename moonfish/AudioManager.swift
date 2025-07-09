@@ -14,7 +14,6 @@ final class AudioManager {
     private(set) var timer: Double = 0.0
     private(set) var playbackRate: Double = 1.0
     private(set) var currentEpisode: Episode?
-    private(set) var isPlaying = false
     private(set) var currentTime: Double = 0.0
     private(set) var duration: Double = 0.0
     
@@ -25,6 +24,10 @@ final class AudioManager {
     init() {
         setupAudioSession()
         addPeriodicTimeObserver()
+    }
+    
+    var isPlaying: Bool {
+        player.timeControlStatus == .playing
     }
     
     var currentProgress: Double {
@@ -44,7 +47,6 @@ final class AudioManager {
         if currentEpisode == episode {
             if !isPlaying {
                 player.play()
-                isPlaying = true
             }
             return
         }
@@ -58,14 +60,12 @@ final class AudioManager {
 
         player.rate = Float(playbackRate)
         player.play()
-        isPlaying = true
         
         startObservingPlaybackEnd()
     }
 
     func pause() {
         player.pause()
-        isPlaying = false
     }
     
     func toggle(_ episode: Episode) {
@@ -143,7 +143,6 @@ final class AudioManager {
         player.replaceCurrentItem(with: nil)
         
         currentEpisode = nil
-        isPlaying = false
         currentTime = 0.0
         duration = 0.0
     }
@@ -155,7 +154,6 @@ final class AudioManager {
         observationTask = Task {
             for await _ in NotificationCenter.default.notifications(named: .AVPlayerItemDidPlayToEndTime, object: player.currentItem) {
                 // When playback ends, just reset to beginning and pause
-                isPlaying = false
                 seek(to: 0)
             }
         }
