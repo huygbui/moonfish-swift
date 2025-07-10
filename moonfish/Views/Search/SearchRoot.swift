@@ -69,7 +69,6 @@ struct SearchRoot: View {
                 }())
             }
             .foregroundStyle(.primary)
-            .background(Color(.secondarySystemBackground))
             .safeAreaPadding(.horizontal, 16)
             .navigationTitle("All Podcasts")
             .navigationBarTitleDisplayMode(.inline)

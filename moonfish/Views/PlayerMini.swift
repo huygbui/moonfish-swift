@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct PlayerMini: View {
-    var episode: Episode
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(AuthManager.self) private var authManager
@@ -18,8 +17,8 @@ struct PlayerMini: View {
     @State private var isPresented = false
     
     var body: some View {
-        HStack(spacing: 12) {
-            Text(episode.title ?? "")
+        HStack(spacing: 16) {
+            Text(audioPlayer.currentEpisode?.title ?? "")
                 .font(.footnote)
                 .fontWeight(.medium)
                 .lineLimit(1)
@@ -27,15 +26,17 @@ struct PlayerMini: View {
             Spacer()
             
             Button {
-                audioPlayer.toggle(episode)
+                audioPlayer.toggle()
             } label: {
                 Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
             }
-            
+            .foregroundStyle(.primary)
+
             // Forward 15 seconds
             Button(action: audioPlayer.skipForward) {
                 Image(systemName: "goforward.15")
             }
+            .foregroundStyle(.primary)
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
@@ -49,5 +50,5 @@ struct PlayerMini: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PlayerMini(episode: .preview)
+    PlayerMini()
 }

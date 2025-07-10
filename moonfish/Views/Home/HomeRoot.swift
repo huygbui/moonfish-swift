@@ -51,13 +51,6 @@ struct HomeRoot: View {
                     podcastHighlight
                     episodePast
                 }
-                .padding(.bottom, {
-                    if #available(iOS 26.0, *) {
-                        return 0
-                    } else {
-                        return 128
-                    }
-                }())
             }
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
