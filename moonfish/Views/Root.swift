@@ -20,7 +20,9 @@ struct Root: View {
             }
             .tabBarMinimizeBehavior(.onScrollDown)
             .tabViewBottomAccessory {
-                PlayerMini()
+                if audioPlayer.currentEpisode != nil {
+                    PlayerMini()
+                }
             }
         } else {
             TabView {
@@ -45,7 +47,7 @@ struct Root: View {
             Divider()
         }
         .background(.thickMaterial)
-        .offset(y: -49)
+        .padding(.bottom, 49)
     }
         
     @ViewBuilder
@@ -55,6 +57,7 @@ struct Root: View {
         @ViewBuilder content: () -> Content
     ) -> some View {
         content()
+            .padding(.bottom, audioPlayer.currentEpisode != nil ? 52 : 0)
             .tabItem {
                 Label(title, systemImage: systemImage)
             }

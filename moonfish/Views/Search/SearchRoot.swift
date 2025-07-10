@@ -60,13 +60,6 @@ struct SearchRoot: View {
                         }
                     }
                 }
-                .padding(.bottom, {
-                    if #available(iOS 26.0, *) {
-                        return 0
-                    } else {
-                        return 128
-                    }
-                }())
             }
             .foregroundStyle(.primary)
             .safeAreaPadding(.horizontal, 16)
