@@ -23,19 +23,20 @@ struct PlayerMini: View {
                 .fontWeight(.medium)
                 .lineLimit(1)
             
-            Spacer()
+            Spacer(minLength: 0)
             
-            Button {
-                audioPlayer.toggle()
-            } label: {
-                Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
+            Group {
+                Button {
+                    audioPlayer.toggle()
+                } label: {
+                    Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
+                }
+                // Forward 15 seconds
+                Button(action: audioPlayer.skipForward) {
+                    Image(systemName: "goforward.15")
+                }
             }
-            .foregroundStyle(.primary)
-
-            // Forward 15 seconds
-            Button(action: audioPlayer.skipForward) {
-                Image(systemName: "goforward.15")
-            }
+            .font(.title3)
             .foregroundStyle(.primary)
         }
         .padding(.vertical, 12)
