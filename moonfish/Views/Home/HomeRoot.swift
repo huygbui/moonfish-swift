@@ -54,6 +54,7 @@ struct HomeRoot: View {
             .contentMargins(.vertical, 8)
             .safeAreaPadding(.horizontal, 16)
             .scrollIndicators(.hidden)
+            .conditionalSafeAreaBottomPadding()
         } else {
             ContentUnavailableView(
                 "No Podcasts",

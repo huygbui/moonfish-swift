@@ -55,6 +55,7 @@ struct PodcastDetail: View {
         }
         .safeAreaPadding(.horizontal)
         .scrollIndicators(.hidden)
+        .conditionalSafeAreaBottomPadding()
     }
     
     private var cover: some View {

@@ -59,6 +59,7 @@ struct PodcastRoot: View {
         }
         .safeAreaPadding(.horizontal)
         .scrollIndicators(.hidden)
+        .conditionalSafeAreaBottomPadding()
     }
     
     private var podcastEmpty: some View {

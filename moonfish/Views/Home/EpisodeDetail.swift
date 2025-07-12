@@ -8,18 +8,6 @@
 import SwiftUI
 import SwiftData
 
-//struct EpisodeDetail: View {
-//    var episode: Episode
-//    
-//    var body: some View {
-//        content
-//    }
-//    
-//    var content: some View {
-//        Text(episode.title ?? "No title")
-//    }
-//}
-
 struct EpisodeDetail: View {
     var episode: Episode
     @Environment(AudioManager.self) private var audioManager
@@ -44,6 +32,7 @@ struct EpisodeDetail: View {
         }
         .safeAreaPadding(.horizontal)
         .scrollIndicators(.hidden)
+        .conditionalSafeAreaBottomPadding()
     }
    
     private var cover: some View {
