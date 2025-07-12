@@ -18,7 +18,7 @@ struct PlayerMini: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            Text(audioPlayer.currentEpisode?.title ?? "")
+            Text(audioPlayer.currentEpisode?.title ?? "No Podcast Playing")
                 .font(.footnote)
                 .fontWeight(.medium)
                 .lineLimit(1)

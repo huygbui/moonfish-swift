@@ -20,9 +20,7 @@ struct Root: View {
             }
             .tabBarMinimizeBehavior(.onScrollDown)
             .tabViewBottomAccessory {
-                if audioPlayer.currentEpisode != nil {
                     PlayerMini()
-                }
             }
         } else {
             TabView {
@@ -30,41 +28,48 @@ struct Root: View {
                 CustomTab("Podcasts", systemImage: "play.square.stack") { PodcastRoot() }
                 CustomTab("Search", systemImage: "magnifyingglass") { SearchRoot() }
             }
-            .safeAreaInset(edge: .bottom) {
-                if audioPlayer.currentEpisode != nil {
-                    PlayerBar()
-                }
+            .overlay(alignment: .bottom) {
+                CustomPlayerBar
             }
         }
     }
     
-    @ViewBuilder
-    func PlayerBar() -> some View {
-        ZStack(alignment: .bottom) {
-            PlayerMini()
-                .frame(height: 52)
-            
-            Divider()
-        }
-        .background(.thickMaterial)
-        .padding(.bottom, 49)
+    private var CustomPlayerBar: some View {
+        PlayerMini()
+            .frame(height: 52)
+            .background(.bar, in: .rect(cornerRadius: 16))
+            .brightness(0.1)
+            .shadow(color: .black.opacity(0.25), radius: 16)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                LinearGradient(
+                    colors: [
+                        Color(.secondarySystemBackground).opacity(0.0),
+                        Color(.secondarySystemBackground),
+                        Color(.secondarySystemBackground),
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+            .padding(.bottom, 48)
     }
-        
-    @ViewBuilder
+    
     func CustomTab<Content: View>(
         _ title: String,
         systemImage: String,
         @ViewBuilder content: () -> Content
     ) -> some View {
         content()
-            .padding(.bottom, audioPlayer.currentEpisode != nil ? 52 : 0)
             .tabItem {
                 Label(title, systemImage: systemImage)
             }
             .toolbarBackground(.visible, for: .tabBar)
-            .toolbarBackground(.thickMaterial, for: .tabBar)
+            .toolbarBackground(Color(.secondarySystemBackground), for: .tabBar)
     }
 }
+    
 
 #Preview(traits: .audioPlayerTrait) {
     Root()
