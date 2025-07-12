@@ -165,7 +165,8 @@ class PodcastViewModel {
                     context.insert(episode)
                 }
                 
-                let descriptor = FetchDescriptor<Episode>()
+                let podcastID = podcast.id
+                let descriptor = FetchDescriptor<Episode>(predicate: #Predicate<Episode> { $0.podcast.persistentModelID == podcastID })
                 let localEpisodes = try context.fetch(descriptor)
                 
                 for localEpisode in localEpisodes {
@@ -193,7 +194,8 @@ class PodcastViewModel {
                 context.insert(episode)
             }
             
-            let descriptor = FetchDescriptor<Episode>()
+            let podcastID = podcast.id
+            let descriptor = FetchDescriptor<Episode>(predicate: #Predicate<Episode> { $0.podcast.persistentModelID == podcastID })
             let localEpisodes = try context.fetch(descriptor)
             
             for localEpisode in localEpisodes {
