@@ -12,87 +12,89 @@ struct SearchView: View {
     @Environment(EpisodeViewModel.self) private var viewModel
     @Environment(AudioManager.self) private var audioPlayer
     @Environment(\.modelContext) private var modelContext: ModelContext
-    @Query(sort: \Episode.createdAt, order: .reverse) private var episodes: [Episode]
     
     @State private var apiPodcasts: [EpisodeResponse] = []
     @State private var searchText: String = ""
-    @State private var selectedFilter: FilterItem = .all
-    
-    var filteredPodcasts: [Episode] {
-        var filtered = episodes
-        
-        // Apply tab filter
-        switch selectedFilter {
-        case .all:
-            filtered = episodes
-        case .downloaded:
-            filtered = episodes.filter { $0.isDownloaded }
-        case .favorite:
-            filtered = episodes.filter { $0.isFavorite }
-        }
-        
-        // Apply search filter if search text is not empty
-        if !searchText.isEmpty {
-            filtered = filtered.filter {
-                guard let title = $0.title else { return false }
-                return title.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-        
-        return filtered
-    }
+    @State private var searchStatus: SearchStatusEnum = .completed
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    Picker("Filter", selection: $selectedFilter) {
-                        ForEach(FilterItem.allCases) { tab in
-                            Text(tab.rawValue).tag(tab)
-                        }
+            VStack(spacing: 16) {
+                Picker("Filter", selection: $searchStatus) {
+                    ForEach(SearchStatusEnum.allCases) { tab in
+                        Text(tab.rawValue).tag(tab)
                     }
-                    .pickerStyle(.segmented)
-                    .controlSize(.large)
-                    
-                    LazyVStack(alignment: .leading) {
-                        ForEach(filteredPodcasts) { episode in
-                            EpisodeCard(episode: episode)
-                        }
+                }
+                .pickerStyle(.segmented)
+                .controlSize(.large)
+                .padding(.horizontal, 16)
+                
+                EpisodeList(searchText: searchText, searchStatus: searchStatus)
+                    .navigationTitle("All Podcasts")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .searchable(text: $searchText)
+            }
+        }
+    }
+}
+
+struct EpisodeList: View {
+    @Query private var episodes: [Episode]
+
+    init(searchText: String, searchStatus: SearchStatusEnum) {
+        let statusString = searchStatus.statusString
+        let sortDescriptor = SortDescriptor(\Episode.createdAt, order: .reverse)
+        
+        let predicate: Predicate<Episode>
+        if searchText.isEmpty {
+            predicate = #Predicate<Episode> {
+                $0.status == statusString
+            }
+        } else {
+            predicate = #Predicate<Episode> {
+                $0.status == statusString &&
+                $0.title?.localizedStandardContains(searchText) == true
+            }
+        }
+        
+        _episodes = Query(filter: predicate, sort: [sortDescriptor])
+    }
+    
+    var body: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 8) {
+                ForEach(episodes.indices, id: \.self) { index in
+                    EpisodeCard(episode: episodes[index])
+                    if index < episodes.count - 1 {
+                        Divider()
                     }
                 }
             }
-            .foregroundStyle(.primary)
-            .safeAreaPadding(.horizontal, 16)
-            .navigationTitle("All Podcasts")
-            .navigationBarTitleDisplayMode(.inline)
-            .scrollIndicators(.hidden)
-            .conditionalSafeAreaBottomPadding()
-            .searchable(text: $searchText)
-            .refreshable { await refresh() }
         }
-    }
-    
-    func refresh() async {
-//        do {
-//            apiPodcasts = try await client.getCompletedPodcasts()
-//            for apiPodcast in apiPodcasts {
-//                if let podcast = Podcast(from: apiPodcast) {
-//                    modelContext.insert(podcast)
-//                }
-//            }
-//            try modelContext.save()
-//        } catch {
-//            print("Failed to fetch podcasts: \(error)")
-//        }
+        .foregroundStyle(.primary)
+        .safeAreaPadding(.horizontal, 16)
+        .scrollIndicators(.hidden)
+        .conditionalSafeAreaBottomPadding()
     }
 }
     
-enum FilterItem: String, Identifiable, CaseIterable {
-    case all = "All"
-    case favorite = "Favorite"
-    case downloaded = "Downloaded"
-
+enum SearchStatusEnum: String, Identifiable, CaseIterable {
+    case completed = "Completed"
+    case running = "Running"
+    case failed = "Failed"
+    
     var id: Self { self }
+    
+    var statusString: String {
+        switch self {
+        case .completed:
+            "completed"
+        case .running:
+            "active"
+        case .failed:
+            "failed"
+        }
+    }
 }
 
 #Preview(traits: .audioPlayerTrait) {
