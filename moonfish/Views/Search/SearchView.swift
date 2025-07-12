@@ -63,11 +63,9 @@ struct EpisodeList: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 8) {
-                ForEach(episodes.indices, id: \.self) { index in
-                    EpisodeCard(episode: episodes[index])
-                    if index < episodes.count - 1 {
-                        Divider()
-                    }
+                ForEach(episodes) {episode in
+                    EpisodeCard(episode: episode)
+                    Divider()
                 }
             }
         }

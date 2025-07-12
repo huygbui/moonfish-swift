@@ -110,15 +110,13 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Listen Again").font(.headline)
                 LazyVStack(spacing: 8) {
-                    ForEach(pastEpisodes.indices, id: \.self){ id in
-                        NavigationLink(value: pastEpisodes[id]) {
-                            EpisodeCard(episode: pastEpisodes[id])
+                    ForEach(pastEpisodes) { episode in
+                        NavigationLink(value: episode) {
+                            EpisodeCard(episode: episode)
                         }
                         .buttonStyle(.plain)
                         
-                        if id < pastEpisodes.count - 1 {
-                            Divider()
-                        }
+                        Divider()
                     }
                 }
             }
