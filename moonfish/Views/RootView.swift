@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct Root: View {
+struct RootView: View {
     @Environment(AudioManager.self) private var audioPlayer
     
     var body: some View {
@@ -72,5 +72,5 @@ struct Root: View {
     
 
 #Preview(traits: .audioPlayerTrait) {
-    Root()
+    RootView()
 }

@@ -20,7 +20,7 @@ struct MoonfishApp: App {
     var body: some Scene {
         WindowGroup {
             if authManager.isAuthenticated {
-                Root()
+                RootView()
                     .modelContainer(for: Podcast.self)
                     .environment(audioManager)
                     .environment(authManager)
