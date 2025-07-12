@@ -67,38 +67,25 @@ struct EpisodeCard: View {
     }
     
     private var playButton: some View {
-        Button(action: onPlayButtonTap) {
-            if audioManager.currentEpisode != episode {
-                if audioManager.isPlaying(episode) {
-                    HStack {
-                        Image(systemName: "pause.fill")
-                        ProgressView(value: audioManager.currentProgress)
-                            .frame(width: 36)
-                        Text(audioManager.timeRemaining.hoursMinutesCompact)
-                    }
-                } else {
-                    HStack {
-                        Image(systemName: "play.fill")
-                        Text(episode.duration?.hoursMinutesCompact ?? "")
-                    }
-                }
-            } else {
-                HStack {
-                    Image(systemName: audioManager.isPlaying(episode) ? "pause.fill" : "play.fill")
+        Button(action: { audioManager.toggle(episode) }) {
+            HStack(alignment: .center) {
+                Image(systemName: audioManager.isPlaying(episode) ? "pause.fill" : "play.fill")
+                if audioManager.currentEpisode == episode {
                     ProgressView(value: audioManager.currentProgress)
                         .frame(width: 36)
+                    
                     Text(audioManager.timeRemaining.hoursMinutesCompact)
+                } else {
+                    if let duration = episode.duration {
+                        Text(duration.hoursMinutesCompact)
+                    }
                 }
             }
-            
+            .frame(height: 16)
         }
         .font(.caption)
         .buttonStyle(.bordered)
         .foregroundStyle(.primary)
-    }
-    
-    private func onPlayButtonTap() {
-        audioManager.toggle(episode)
     }
 }
 

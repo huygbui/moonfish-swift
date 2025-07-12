@@ -27,7 +27,7 @@ struct EpisodeHighlight: View {
             endPoint: .bottom
         )
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             // Card header
@@ -36,7 +36,7 @@ struct EpisodeHighlight: View {
                 .cornerRadius(16)
                 .padding(.top, 16)
                 .frame(maxWidth: .infinity)
-
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(episode.title ?? "")
                     .font(.footnote)
@@ -44,9 +44,9 @@ struct EpisodeHighlight: View {
                 
                 (Text(episode.duration?.hoursMinutes ?? "") + Text(" • ") +
                  Text(episode.summary ?? ""))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(3, reservesSpace: true)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(3, reservesSpace: true)
             }
             
             // Card footer
@@ -80,8 +80,8 @@ struct EpisodeHighlight: View {
     }
     
     private var playButton: some View {
-        Button(action: onPlayButtonTap) {
-            HStack {
+        Button(action: { audioManager.toggle(episode) }) {
+            HStack(alignment: .center) {
                 Image(systemName: audioManager.isPlaying(episode) ? "pause.fill" : "play.fill")
                 if audioManager.currentEpisode == episode {
                     ProgressView(value: audioManager.currentProgress)
@@ -89,17 +89,16 @@ struct EpisodeHighlight: View {
                     
                     Text(audioManager.timeRemaining.hoursMinutesCompact)
                 } else {
-                    Text(episode.duration?.hoursMinutesCompact ?? "")
+                    if let duration = episode.duration {
+                        Text(duration.hoursMinutesCompact)
+                    }
                 }
             }
+            .frame(height: 16)
         }
         .font(.caption)
         .buttonStyle(.bordered)
         .foregroundStyle(.primary)
-    }
-    
-    private func onPlayButtonTap() {
-        audioManager.toggle(episode)
     }
 }
 
