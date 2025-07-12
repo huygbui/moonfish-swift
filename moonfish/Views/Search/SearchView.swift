@@ -66,6 +66,7 @@ struct SearchView: View {
             .navigationTitle("All Podcasts")
             .navigationBarTitleDisplayMode(.inline)
             .scrollIndicators(.hidden)
+            .conditionalSafeAreaBottomPadding()
             .searchable(text: $searchText)
             .refreshable { await refresh() }
         }
