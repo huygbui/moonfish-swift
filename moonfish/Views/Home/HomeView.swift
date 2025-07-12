@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct HomeRoot: View {
+struct HomeView: View {
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(PodcastViewModel.self) private var podcastViewModel
     @Environment(AudioManager.self) private var audioPlayer
@@ -26,8 +26,8 @@ struct HomeRoot: View {
         NavigationStack {
             content
                 .navigationTitle("Home")
-                .navigationDestination(for: Episode.self, destination: EpisodeDetail.init)
-                .navigationDestination(for: Podcast.self, destination: PodcastDetail.init)
+                .navigationDestination(for: Episode.self, destination: EpisodeDetailView.init)
+                .navigationDestination(for: Podcast.self, destination: PodcastDetailView.init)
                 .toolbar {
                     SettingToolbarItem { showingSettingsSheet = true }
                     if #available(iOS 26.0, *) { ToolbarSpacer() }
@@ -123,5 +123,5 @@ struct HomeRoot: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    HomeRoot()
+    HomeView()
 }

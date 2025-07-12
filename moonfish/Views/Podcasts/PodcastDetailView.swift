@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct PodcastDetail: View {
+struct PodcastDetailView: View {
     let podcast: Podcast
     @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
@@ -85,7 +85,7 @@ struct PodcastDetail: View {
         LazyVStack(spacing: 8) {
             ForEach(episodes) { episode in
                 if episode.status == EpisodeStatus.completed.rawValue {
-                    NavigationLink(destination: EpisodeDetail(episode: episode)) {
+                    NavigationLink(destination: EpisodeDetailView(episode: episode)) {
                         EpisodeRow(episode: episode)
                     }
                     .buttonStyle(.plain)
@@ -121,6 +121,6 @@ struct PodcastDetail: View {
 
 #Preview(traits: .audioPlayerTrait) {
     NavigationStack {
-        PodcastDetail(podcast: .preview)
+        PodcastDetailView(podcast: .preview)
     }
 }

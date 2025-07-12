@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct EpisodeDetail: View {
+struct EpisodeDetailView: View {
     var episode: Episode
     @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
@@ -94,7 +94,7 @@ struct EpisodeDetail: View {
 
 #Preview(traits: .audioPlayerTrait) {
     NavigationStack {
-        EpisodeDetail(episode: .preview)
+        EpisodeDetailView(episode: .preview)
     }
 //    EpisodeDetail(episode: .preview)
 }

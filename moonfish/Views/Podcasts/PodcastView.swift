@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct PodcastRoot: View {
+struct PodcastView: View {
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
     @Environment(PodcastViewModel.self) private var rootModel
     @Environment(AuthManager.self) private var authManager
@@ -25,7 +25,7 @@ struct PodcastRoot: View {
         NavigationStack{
             content
                 .navigationTitle("Podcasts")
-                .navigationDestination(for: Podcast.self, destination: PodcastDetail.init)
+                .navigationDestination(for: Podcast.self, destination: PodcastDetailView.init)
                 .toolbar {
                     SettingToolbarItem { showingSettingSheet = true }
                     if #available(iOS 26.0, *) { ToolbarSpacer() }
@@ -76,5 +76,5 @@ struct PodcastRoot: View {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PodcastRoot()
+    PodcastView()
 }

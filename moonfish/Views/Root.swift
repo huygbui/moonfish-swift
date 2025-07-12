@@ -14,9 +14,9 @@ struct Root: View {
     var body: some View {
         if #available(iOS 26.0, *) {
             TabView {
-                Tab("Home", systemImage: "house") { HomeRoot() }
-                Tab("Podcasts", systemImage: "play.square.stack") { PodcastRoot() }
-                Tab(role: .search) { SearchRoot() }
+                Tab("Home", systemImage: "house") { HomeView() }
+                Tab("Podcasts", systemImage: "play.square.stack") { PodcastView() }
+                Tab(role: .search) { SearchView() }
             }
             .tabBarMinimizeBehavior(.onScrollDown)
             .tabViewBottomAccessory {
@@ -24,9 +24,9 @@ struct Root: View {
             }
         } else {
             TabView {
-                CustomTab("Home", systemImage: "house") { HomeRoot() }
-                CustomTab("Podcasts", systemImage: "play.square.stack") { PodcastRoot() }
-                CustomTab("Search", systemImage: "magnifyingglass") { SearchRoot() }
+                CustomTab("Home", systemImage: "house") { HomeView() }
+                CustomTab("Podcasts", systemImage: "play.square.stack") { PodcastView() }
+                CustomTab("Search", systemImage: "magnifyingglass") { SearchView() }
             }
             .overlay(alignment: .bottom) {
                 CustomPlayerBar
