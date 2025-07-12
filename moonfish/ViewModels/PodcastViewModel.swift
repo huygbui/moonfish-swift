@@ -158,9 +158,20 @@ class PodcastViewModel {
             
             for podcast in podcasts {
                 let response = try await client.getAllEpisodes(for: podcast.serverId, authToken: token)
+                let serverIDs = Set(response.map { $0.id })
+               
                 for episodeResponse in response {
                     let episode = Episode(from: episodeResponse, for: podcast)
                     context.insert(episode)
+                }
+                
+                let descriptor = FetchDescriptor<Episode>()
+                let localEpisodes = try context.fetch(descriptor)
+                
+                for localEpisode in localEpisodes {
+                    if !serverIDs.contains(localEpisode.serverId) {
+                        context.delete(localEpisode)
+                    }
                 }
             }
             try context.save()
@@ -175,9 +186,20 @@ class PodcastViewModel {
         
         do {
             let response = try await client.getAllEpisodes(for: podcast.serverId, authToken: token)
+            let serverIDs = Set(response.map { $0.id })
+            
             for episodeResponse in response {
                 let episode = Episode(from: episodeResponse, for: podcast)
                 context.insert(episode)
+            }
+            
+            let descriptor = FetchDescriptor<Episode>()
+            let localEpisodes = try context.fetch(descriptor)
+            
+            for localEpisode in localEpisodes {
+                if !serverIDs.contains(localEpisode.serverId) {
+                    context.delete(localEpisode)
+                }
             }
             try context.save()
         } catch {
