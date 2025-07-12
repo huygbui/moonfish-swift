@@ -37,7 +37,6 @@ struct HomeRoot: View {
                 .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
                 .refreshable {
                     await podcastViewModel.refreshPodcasts(authManager: authManager, context: context)
-                    await podcastViewModel.refreshEpisodes(authManager: authManager, context: context)
                 }
         }
     }
@@ -59,7 +58,7 @@ struct HomeRoot: View {
             ContentUnavailableView(
                 "No Podcasts",
                 systemImage: "",
-                description: Text("Go to \"Podcasts\" to create your first")
+                description: Text("Tap + to create your first podcast")
             )
         }
     }
