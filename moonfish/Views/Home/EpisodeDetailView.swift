@@ -56,12 +56,15 @@ struct EpisodeDetailView: View {
     
     private var play: some View {
         Button(action: onPlayButtonTap) {
-            let isPlaying = audioManager.isPlaying(episode)
-            Label(
-                isPlaying ? "Pause" : "Play",
-                systemImage: audioManager.isPlaying(episode)
-                ? "pause.fill" : "play.fill"
-            )
+            if episode == audioManager.currentEpisode {
+                if audioManager.isPlaying {
+                    Label("Pause", systemImage: "pause.fill")
+                } else {
+                    Label("Resume", systemImage: "play.fill")
+                }
+            } else {
+                Label("Play", systemImage: "play.fill")
+            }
         }
         .font(.subheadline)
         .controlSize(.large)
