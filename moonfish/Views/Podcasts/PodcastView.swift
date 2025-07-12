@@ -48,7 +48,7 @@ struct PodcastView: View {
     
     private var podcastGrid: some View {
         ScrollView {
-            LazyVGrid(columns: columns) {
+            LazyVGrid(columns: columns, spacing: 16) {
                 ForEach(podcasts) { podcast in
                     NavigationLink(value: podcast) {
                         PodcastCard(podcast: podcast)

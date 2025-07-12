@@ -22,7 +22,9 @@ struct PodcastCard: View {
                 .fontWeight(.medium)
                 .lineLimit(1)
             
-            Spacer()
+            Text(podcast.format.rawValue.localizedCapitalized)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 }
@@ -32,7 +34,7 @@ struct PodcastCard: View {
         [.init(.adaptive(minimum: 150, maximum: 200), spacing: 16)]
     }
     ScrollView {
-        LazyVGrid(columns: columns) {
+        LazyVGrid(columns: columns, spacing: 16) {
             ForEach(1..<5) { _ in
                 PodcastCard(podcast: .preview)
             }
