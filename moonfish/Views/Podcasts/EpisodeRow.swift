@@ -39,7 +39,7 @@ struct EpisodeRow: View {
                 .foregroundStyle(.secondary)
             
             // Title
-            Text(episode.title ?? "")
+            Text(episode.title ?? "Untitled")
                 .lineLimit(2, reservesSpace: true)
         }
     }

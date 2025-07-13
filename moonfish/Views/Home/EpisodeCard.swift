@@ -46,7 +46,7 @@ struct EpisodeCard: View {
     }
     
     private var episodeTitle: some View {
-        Text(episode.title ?? "")
+        Text(episode.title ?? "Untitled")
             .font(.footnote)
             .lineLimit(1)
     }
