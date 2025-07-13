@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct RootView: View {
-    @Environment(AudioManager.self) private var audioPlayer
+    @Environment(AudioManager.self) private var audioManager
     
     var body: some View {
         if #available(iOS 26.0, *) {
@@ -20,7 +20,9 @@ struct RootView: View {
             }
             .tabBarMinimizeBehavior(.onScrollDown)
             .tabViewBottomAccessory {
-                    PlayerMini()
+                if audioManager.currentEpisode != nil {
+                    CustomPlayerBar
+                }
             }
         } else {
             TabView {
@@ -29,7 +31,9 @@ struct RootView: View {
                 CustomTab("Search", systemImage: "magnifyingglass") { SearchView() }
             }
             .overlay(alignment: .bottom) {
-                CustomPlayerBar
+                if audioManager.currentEpisode != nil {
+                    CustomPlayerBar
+                }
             }
         }
     }
