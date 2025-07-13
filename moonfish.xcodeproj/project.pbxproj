@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		3425FDA72E165FAA0041B7A1 /* moonfish.icon in Resources */ = {isa = PBXBuildFile; fileRef = 3425FDA62E165FAA0041B7A1 /* moonfish.icon */; };
+		34CF9D512E239F6300646BD7 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34CF9D502E239F6300646BD7 /* StoreKit.framework */; };
 		34E4A2922E1B661F00A8ECC4 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 34E4A2912E1B661F00A8ECC4 /* Kingfisher */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		3425FDA62E165FAA0041B7A1 /* moonfish.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = moonfish.icon; sourceTree = "<group>"; };
+		34CF9D502E239F6300646BD7 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		34E966562D5BAE0200EE4AED /* moonfish.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = moonfish.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -44,18 +46,28 @@
 			buildActionMask = 2147483647;
 			files = (
 				34E4A2922E1B661F00A8ECC4 /* Kingfisher in Frameworks */,
+				34CF9D512E239F6300646BD7 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		34CF9D4F2E239F6300646BD7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				34CF9D502E239F6300646BD7 /* StoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		34E9664D2D5BAE0200EE4AED = {
 			isa = PBXGroup;
 			children = (
 				34E966582D5BAE0200EE4AED /* moonfish */,
 				34E966572D5BAE0200EE4AED /* Products */,
 				3425FDA62E165FAA0041B7A1 /* moonfish.icon */,
+				34CF9D4F2E239F6300646BD7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
