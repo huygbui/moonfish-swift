@@ -1,5 +1,5 @@
 //
-//  CardMenu.swift
+//  EpisodeMenu.swift
 //  moonfish
 //
 //  Created by Huy Bui on 13/6/25.
@@ -10,74 +10,131 @@ import SwiftData
 
 struct EpisodeMenu: View {
     let episode: Episode
-   
+    
     @Environment(AudioManager.self) private var audioManager
     @Environment(AuthManager.self) private var authManager
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     
     @State private var showDeleteConfirmation = false
+    @State private var showCancelConfirmation = false
     
     var body: some View {
         Menu {
-            Button(action: onFavoriteButtonTap) {
-                Label(
-                    episode.isFavorite ? "Remove Favorite" : "Add to Favorites",
-                    systemImage: episode.isFavorite ? "heart.fill" : "heart"
-                )}
-            
-            Button(action: onDownloadButtonTap) {
-                Label(
-                    episode.isDownloaded ? "Remove Download" : "Download Episode",
-                    systemImage: episode.isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle"
-                )}
-            
-            Button(role: .destructive, action: onDeleteButtonTap) {
-                Label(
-                    "Delete Episode",
-                    systemImage: "trash"
-                )}
-            
+            menuActions
         } label: {
             Image(systemName: "ellipsis")
                 .font(.footnote)
         }
-        .confirmationDialog(
-            "Delete Episode",
-            isPresented: $showDeleteConfirmation,
-            titleVisibility: .visible
-        ) {
-            Button("Delete", role: .destructive) { onConfirmedDeleteButtonTap() }
-            Button("Cancel", role: .cancel) { }
+        .confirmationDialog("Delete Episode", isPresented: $showDeleteConfirmation) {
+            Button("Delete", role: .destructive, action: deleteEpisode)
         } message: {
             Text("This episode will be deleted permanently.")
         }
-    }
-
-    private func onDeleteButtonTap() {
-        showDeleteConfirmation = true
-    }
-
-    private func onFavoriteButtonTap() {
-        rootModel.toggleFavorite(episode)
-    }
-    
-    private func onDownloadButtonTap() {
-        if episode.isDownloaded {
-            rootModel.removeDownload(for: episode)
-        } else {
-            Task { try? await rootModel.download(episode, authManager: authManager) }
+        .confirmationDialog("Cancel Episode", isPresented: $showCancelConfirmation) {
+            Button("Cancel Episode", role: .destructive, action: cancelEpisode)
+        } message: {
+            Text("This episode will be canceled.")
         }
     }
     
-    private func onConfirmedDeleteButtonTap() {
+    // MARK: - Menu Actions
+    
+    @ViewBuilder
+    private var menuActions: some View {
+        switch episode.status {
+        case "completed":
+            completedEpisodeActions
+        case "active":
+            activeEpisodeActions
+        case "failed":
+            failedEpisodeActions
+        default:
+            EmptyView()
+        }
+    }
+    
+    @ViewBuilder
+    private var completedEpisodeActions: some View {
+        Button(action: toggleFavorite) {
+            Label(
+                episode.isFavorite ? "Remove Favorite" : "Add to Favorites",
+                systemImage: episode.isFavorite ? "heart.fill" : "heart"
+            )
+        }
+        
+        Button(action: toggleDownload) {
+            Label(
+                episode.isDownloaded ? "Remove Download" : "Download Episode",
+                systemImage: episode.isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle"
+            )
+        }
+        
+        Button(role: .destructive) {
+            showDeleteConfirmation = true
+        } label: {
+            Label("Delete Episode", systemImage: "trash")
+        }
+    }
+    
+    @ViewBuilder
+    private var activeEpisodeActions: some View {
+        Button(role: .destructive) {
+            showCancelConfirmation = true
+        } label: {
+            Label("Cancel Episode", systemImage: "trash")
+        }
+    }
+    
+    @ViewBuilder
+    private var failedEpisodeActions: some View {
+        Button(role: .destructive) {
+            showDeleteConfirmation = true
+        } label: {
+            Label("Delete Episode", systemImage: "trash")
+        }
+    }
+    
+    // MARK: - Actions
+    
+    private func toggleFavorite() {
+        rootModel.toggleFavorite(episode)
+    }
+    
+    private func toggleDownload() {
+        if episode.isDownloaded {
+            rootModel.removeDownload(for: episode)
+        } else {
+            Task {
+                try? await rootModel.download(episode, authManager: authManager)
+            }
+        }
+    }
+    
+    private func deleteEpisode() {
         Task {
             await rootModel.delete(episode, context: context, authManager: authManager)
             audioManager.handleDeletion(of: episode)
         }
     }
+    
+    private func cancelEpisode() {
+        Task {
+            await rootModel.cancel(episode, authManager: authManager, context: context)
+        }
+    }
 }
 
-#Preview(traits: .audioPlayerTrait) {
-    EpisodeMenu(episode: .preview)
+// MARK: - Previews
+
+#Preview("Completed Episode", traits: .audioPlayerTrait) {
+    EpisodeMenu(episode: .previewCompleted)
+}
+
+#Preview("Active Episode", traits: .audioPlayerTrait) {
+    EpisodeMenu(episode: .previewActive)
+}
+
+#Preview("Failed Episode", traits: .audioPlayerTrait) {
+    EpisodeMenu(episode: .previewFailed)
 }

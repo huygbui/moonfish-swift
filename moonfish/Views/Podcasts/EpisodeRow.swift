@@ -93,15 +93,9 @@ struct EpisodeRow: View {
         .foregroundStyle(.secondary)
     }
    
-    @ViewBuilder
     private var menuButton: some View {
-        if episode.status == EpisodeStatus.completed.rawValue {
-            EpisodeMenu(episode: episode)
-                .foregroundStyle(.secondary)
-        } else {
-            OngoingEpisodeMenu(episode: episode)
-                .foregroundStyle(.secondary)
-        }
+        EpisodeMenu(episode: episode)
+            .foregroundStyle(.secondary)
     }
     
     private func handlePlayButtonTap() {
@@ -112,7 +106,7 @@ struct EpisodeRow: View {
 #Preview(traits: .audioPlayerTrait) {
     ZStack {
         Color(.secondarySystemBackground)
-        EpisodeRow(episode: .preview)
+        EpisodeRow(episode: .previewCompleted)
             .padding()
     }
     .ignoresSafeArea()

@@ -106,7 +106,7 @@ struct EpisodeHighlight: View {
     ZStack {
 //        Color(.secondarySystemBackground)
         
-        EpisodeHighlight(episode: .preview)
+        EpisodeHighlight(episode: .previewCompleted)
     }
     .ignoresSafeArea()
 }

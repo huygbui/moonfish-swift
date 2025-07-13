@@ -29,7 +29,7 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
             .preferredColorScheme(colorSchemePreference.colorScheme)
             .modelContainer(context)
             .task {
-                let episode: Episode = .preview
+                let episode: Episode = .previewCompleted
                 
                 await MainActor.run {
                     audioPlayer.play(episode)

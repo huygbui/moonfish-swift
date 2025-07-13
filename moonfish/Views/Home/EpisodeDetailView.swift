@@ -97,7 +97,7 @@ struct EpisodeDetailView: View {
 
 #Preview(traits: .audioPlayerTrait) {
     NavigationStack {
-        EpisodeDetailView(episode: .preview)
+        EpisodeDetailView(episode: .previewCompleted)
     }
 //    EpisodeDetail(episode: .preview)
 }

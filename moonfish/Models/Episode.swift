@@ -193,7 +193,7 @@ extension Episode {
 
 extension Episode {
     @MainActor
-    static var preview = Episode(
+    static var previewCompleted = Episode(
         serverId: 0,
         topic: "Sustainable Urban Gardening",
         length: "short",
@@ -203,10 +203,58 @@ extension Episode {
         voice1: "male",
         voice2: "female",
         
-        status: EpisodeStatus.active.rawValue,
-        step: EpisodeStep.voice.rawValue,
+        status: EpisodeStatus.completed.rawValue,
         
         title: "Beginner's Guide to Gardening in the Far East",
+        summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
+        audioURL: URL(string:"http://localhost:8000/gardening_beginner.mp3")!,
+        duration: 620, // about 10 minutes
+        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600),
+        isDownloaded: true,
+        downloadState: .downloading,
+        
+        podcast: Podcast.preview
+    )
+    
+    @MainActor
+    static var previewFailed = Episode(
+        serverId: 1,
+        topic: "Ths History of Coffee",
+        length: "short",
+        level: "beginner",
+        
+        format: "conversational",
+        voice1: "male",
+        voice2: "female",
+        
+        status: EpisodeStatus.failed.rawValue,
+        
+        title: "A Short Trip Down Memory Lane",
+        summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
+        audioURL: URL(string:"http://localhost:8000/gardening_beginner.mp3")!,
+        duration: 620, // about 10 minutes
+        createdAt: Date(timeIntervalSinceNow: -86400 * 6 + 3600),
+        isDownloaded: true,
+        downloadState: .downloading,
+        
+        podcast: Podcast.preview
+    )
+    
+     @MainActor
+    static var previewActive = Episode(
+        serverId: 1,
+        topic: "Ths History of Coffee",
+        length: "short",
+        level: "beginner",
+        
+        format: "conversational",
+        voice1: "male",
+        voice2: "female",
+        
+        status: EpisodeStatus.active.rawValue,
+        step: EpisodeStep.research.rawValue,
+        
+        title: "A Short Trip Down Memory Lane",
         summary: "A simple guide to get you started with urban gardening. This podcast explores practical tips for cultivating plants in small spaces, navigating the unique climates and seasons of the Far East, and selecting beginner-friendly crops suited to the region. Learn how to maximize limited space, source affordable tools, and embrace sustainable practices to create your own thriving garden, whether on a balcony, rooftop, or tiny backyard.",
         audioURL: URL(string:"http://localhost:8000/gardening_beginner.mp3")!,
         duration: 620, // about 10 minutes

@@ -157,5 +157,5 @@ private func formatTimer(_ time: Double) -> String {
 }
 
 #Preview(traits: .audioPlayerTrait) {
-    PlayerFull(episode: .preview)
+    PlayerFull(episode: .previewCompleted)
 }

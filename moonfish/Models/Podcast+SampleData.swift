@@ -72,7 +72,7 @@ extension Podcast {
                 format: EpisodeFormat.conversational.rawValue,
                 voice1: EpisodeVoice.female.rawValue,
                 voice2: EpisodeVoice.male.rawValue,
-                status: EpisodeStatus.completed.rawValue,
+                status: EpisodeStatus.failed.rawValue,
                 title: "Urban Gardening Success",
                 summary: "Your guide to a thriving city garden, from a completed request.",
                 audioURL: URL(string:"http://localhost:8000/gardening_beginner.mp3")!,
