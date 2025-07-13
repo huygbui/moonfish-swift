@@ -32,6 +32,7 @@ struct SearchView: View {
                 EpisodeList(searchText: searchText, searchStatus: searchStatus)
                     .navigationTitle("All Podcasts")
                     .navigationBarTitleDisplayMode(.inline)
+                    .navigationDestination(for: Episode.self, destination: EpisodeDetailView.init)
                     .searchable(text: $searchText)
             }
         }
@@ -64,7 +65,15 @@ struct EpisodeList: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 8) {
                 ForEach(episodes) {episode in
-                    EpisodeCard(episode: episode)
+                    if episode.status == "completed" {
+                        NavigationLink(value: episode) {
+                            EpisodeCard(episode: episode)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        EpisodeCard(episode: episode)
+                    }
+                    
                     Divider()
                 }
             }
