@@ -7,25 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3425FDA72E165FAA0041B7A1 /* moonfish.icon in Resources */ = {isa = PBXBuildFile; fileRef = 3425FDA62E165FAA0041B7A1 /* moonfish.icon */; };
 		34CF9D512E239F6300646BD7 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34CF9D502E239F6300646BD7 /* StoreKit.framework */; };
 		34E4A2922E1B661F00A8ECC4 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 34E4A2912E1B661F00A8ECC4 /* Kingfisher */; };
-		34EF89802E24143600F0C12F /* Configurations.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 34EF897F2E24143600F0C12F /* Configurations.storekit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3425FDA62E165FAA0041B7A1 /* moonfish.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = moonfish.icon; sourceTree = "<group>"; };
 		34CF9D502E239F6300646BD7 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		34E966562D5BAE0200EE4AED /* moonfish.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = moonfish.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		34EF897F2E24143600F0C12F /* Configurations.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Configurations.storekit; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		34F991C52DFC362C009F76D8 /* Exceptions for "moonfish" folder in "moonfish" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Debug.xcconfig,
-				Info.plist,
+				App/Info.plist,
+				Resources/Config/Debug.xcconfig,
 			);
 			target = 34E966552D5BAE0200EE4AED /* moonfish */;
 		};
@@ -66,10 +62,8 @@
 		34E9664D2D5BAE0200EE4AED = {
 			isa = PBXGroup;
 			children = (
-				34EF897F2E24143600F0C12F /* Configurations.storekit */,
 				34E966582D5BAE0200EE4AED /* moonfish */,
 				34E966572D5BAE0200EE4AED /* Products */,
-				3425FDA62E165FAA0041B7A1 /* moonfish.icon */,
 				34CF9D4F2E239F6300646BD7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -150,8 +144,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				34EF89802E24143600F0C12F /* Configurations.storekit in Resources */,
-				3425FDA72E165FAA0041B7A1 /* moonfish.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -171,7 +163,7 @@
 		34E966622D5BAE0300EE4AED /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = 34E966582D5BAE0200EE4AED /* moonfish */;
-			baseConfigurationReferenceRelativePath = Debug.xcconfig;
+			baseConfigurationReferenceRelativePath = Resources/Config/Debug.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -237,7 +229,7 @@
 		34E966632D5BAE0300EE4AED /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReferenceAnchor = 34E966582D5BAE0200EE4AED /* moonfish */;
-			baseConfigurationReferenceRelativePath = Release.xcconfig;
+			baseConfigurationReferenceRelativePath = Resources/Config/Release.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -298,15 +290,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = moonfish;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = moonfish/moonfish.entitlements;
+				CODE_SIGN_ENTITLEMENTS = moonfish/app/moonfish.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"moonfish/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"moonfish/resources/Preview Content\"";
 				DEVELOPMENT_TEAM = GB45YV36YU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = moonfish/Info.plist;
+				INFOPLIST_FILE = moonfish/app/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Moonfish;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -332,15 +324,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = moonfish;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = moonfish/moonfish.entitlements;
+				CODE_SIGN_ENTITLEMENTS = moonfish/app/moonfish.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"moonfish/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"moonfish/resources/Preview Content\"";
 				DEVELOPMENT_TEAM = GB45YV36YU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = moonfish/Info.plist;
+				INFOPLIST_FILE = moonfish/app/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Moonfish;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
