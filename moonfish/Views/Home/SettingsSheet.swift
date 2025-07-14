@@ -15,6 +15,7 @@ struct SettingsSheet: View {
     @AppStorage("notificationPreference") private var notificationPreference: Bool = true
     
     @State private var showSubscriptionSheet: Bool = false
+    @State private var showLogoutConfirmation: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -67,7 +68,7 @@ struct SettingsSheet: View {
                     }
                 }
                 
-                Button(action: { sessionManager.signOut(context: context) }) {
+                Button(action: { showLogoutConfirmation = true }) {
                     Label("Log out", systemImage: "rectangle.portrait.and.arrow.right")
                 }
                 .foregroundStyle(.red)
@@ -75,6 +76,12 @@ struct SettingsSheet: View {
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showSubscriptionSheet) { SubscriptionView() }
+            .confirmationDialog("Log Out", isPresented: $showLogoutConfirmation) {
+                Button("Log Out", role: .destructive) { sessionManager.signOut(context: context) }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Are you sure you want to log out?")
+            }
             .preferredColorScheme(colorSchemePreference.colorScheme)
             .toolbar {
                 ToolbarItem {
