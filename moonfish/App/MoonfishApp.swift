@@ -35,7 +35,7 @@ struct MoonfishApp: App {
         }
     }
     
-    init() {
-        print(URL.applicationSupportDirectory.path(percentEncoded: false))
-    }
+//    init() {
+//        print(URL.applicationSupportDirectory.path(percentEncoded: false))
+//    }
 }

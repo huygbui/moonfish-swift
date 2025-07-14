@@ -11,7 +11,7 @@ import SwiftData
 @MainActor
 @Observable
 class PodcastViewModel {
-    private let client = BackendClient()
+    private let client = NetworkClient()
     
     func submit(
         _ createRequest: PodcastCreateRequest,

@@ -23,14 +23,14 @@ final class SessionManager {
     
     var currentToken: String? {
 #if DEBUG
-        return APIConfig.shared.apiToken
+        return AppConfig.shared.apiToken
 #else
         return keychain.retrieve(key: Keys.token)
 #endif
     }
     
     // MARK: - Private Properties
-    private let client = BackendClient()
+    private let client = NetworkClient()
     private let keychain = KeychainHelper.self
     private var subscriptionListener: Task<Void, Never>?
     
@@ -129,7 +129,7 @@ final class SessionManager {
     // MARK: - Private Methods
     private func checkAuthenticationStatus() {
 #if DEBUG
-        if let token = APIConfig.shared.apiToken {
+        if let token = AppConfig.shared.apiToken {
             isAuthenticated = true
             Task { await refreshSubscriptionStatus() }
             return
@@ -193,7 +193,7 @@ final class SessionManager {
         }
         
         do {
-            let response = try await client.getSubscriptionLimits(
+            let response = try await client.getSubscriptionTier(
                 tier: subscriptionTier.rawValue,
                 authToken: token
             )
