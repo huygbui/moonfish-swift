@@ -24,7 +24,7 @@
     "_developerTeamID" : "GB45YV36YU",
     "_disableDialogs" : false,
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 774116409.83144498,
+    "_lastSynchronizedDate" : 774158173.540658,
     "_locale" : "en_US",
     "_renewalBillingIssuesEnabled" : false,
     "_storefront" : "USA",
@@ -39,7 +39,7 @@
       "localizations" : [
 
       ],
-      "name" : "Premium Subscriptions",
+      "name" : "Moonfish Premium",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -55,7 +55,7 @@
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Premium Annual",
+              "description" : "Premium features with 20% savings.",
               "displayName" : "Moonfish Premium Annual",
               "locale" : "en_US"
             }
@@ -83,7 +83,7 @@
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "Premium Monthly",
+              "description" : "Extended podcast generation for power users.",
               "displayName" : "Moonfish Premium Monthly",
               "locale" : "en_US"
             }

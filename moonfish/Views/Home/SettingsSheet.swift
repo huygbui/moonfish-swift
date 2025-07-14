@@ -20,15 +20,22 @@ struct SettingsSheet: View {
             List {
                 Section("Account") {
                     LabeledContent {
-                        Text(authManager.email ?? "")
+                        Text(authManager.email ?? "user@example.com")
+                            .foregroundStyle(.secondary)
                     } label: {
                         Label("Email", systemImage: "envelope")
                     }
                     
-                    Label("Subscription", systemImage: "dollarsign.circle")
-                        .onTapGesture {
-                            showSubscriptionSheet = true
-                        }
+                    LabeledContent {
+                        Text("Free Plan")
+                    } label: {
+                        Label("Subscription", systemImage: "plus.circle")
+                    }
+                    .onTapGesture {
+                        showSubscriptionSheet = true
+                    }
+                    
+                    Label("Restore Purchases", systemImage: "arrow.clockwise")
                 }
                 
                 Section("App") {
