@@ -14,7 +14,6 @@ import StoreKit
 final class SessionManager {
     // MARK: - Published State
     private(set) var isAuthenticated = false
-    private(set) var isLoading = false
     private(set) var subscriptionTier: Tier = .free
     private(set) var limits = Limits.loading
     
@@ -48,8 +47,6 @@ final class SessionManager {
     
     // MARK: - Public Methods
     func signIn(appleId: String, email: String?, fullName: String?) async throws {
-        isLoading = true
-        defer { isLoading = false }
         
         let request = AppleSignInRequest(
             appleId: appleId,
@@ -81,9 +78,6 @@ final class SessionManager {
     func refreshSubscriptionStatus() async {
         guard isAuthenticated else { return }
         
-        isLoading = true
-        defer { isLoading = false }
-        
         // Check StoreKit for subscription status
         let hasSubscription = await checkStoreKitSubscription()
         subscriptionTier = hasSubscription ? .premium : .free
@@ -94,7 +88,7 @@ final class SessionManager {
     
     // MARK: - Usage Checks
     func canCreate(_ type: ContentType, in context: ModelContext) -> Bool {
-        guard !isLoading, isAuthenticated else { return false }
+        guard isAuthenticated else { return false }
         
         let usage = UsageTracker.current(in: context)
         
@@ -118,7 +112,7 @@ final class SessionManager {
     }
     
     func usageText(for type: ContentType, in context: ModelContext) -> String {
-        guard !isLoading, isAuthenticated else { return "Loading..." }
+        guard isAuthenticated else { return "Loading..." }
         
         let usage = UsageTracker.current(in: context)
         
