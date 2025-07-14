@@ -10,6 +10,7 @@ import SwiftUI
 struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AuthManager.self) private var authManager
+    @Environment(SubscriptionManager.self) private var subscriptionManager
     @AppStorage("colorSchemePreference") private var colorSchemePreference: ColorSchemePreference = .automatic
     @AppStorage("notificationPreference") private var notificationPreference: Bool = true
     
@@ -27,7 +28,7 @@ struct SettingsSheet: View {
                     }
                     
                     LabeledContent {
-                        Text("Free Plan")
+                        Text(subscriptionManager.subscriptionDisplayName)
                     } label: {
                         Label("Subscription", systemImage: "plus.circle")
                     }

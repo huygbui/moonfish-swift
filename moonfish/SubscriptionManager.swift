@@ -109,18 +109,24 @@ final class SubscriptionManager {
             return
         }
         
+        // 1. Check StoreKit for actual subscription status (source of truth)
+        let hasActiveSubscription = await checkForActiveSubscription()
+        subscriptionTier = hasActiveSubscription ? .premium : .free
+        
+        // 2. Fetch limits from backend based on determined tier
         do {
-            let response = try await client.getSubscriptionLimits(tier: subscriptionTier.rawValue, authToken: token)
+            let response = try await client.getSubscriptionLimits(
+                tier: subscriptionTier.rawValue,
+                authToken: token
+            )
+            
             maxPodcasts = response.maxPodcasts
             maxDailyEpisodes = response.maxDailyEpisodes
             maxDailyExtendedEpisodes = response.maxDailyExtendedEpisodes
             
-            if let serverTier = SubscriptionTier(rawValue: response.tier) {
-                subscriptionTier = serverTier
-            }
         } catch {
             print("Failed to fetch limits: \(error)")
-            applyDefaultLimits()
+            applyDefaultLimits() // Fallback to hardcoded limits
         }
     }
     
