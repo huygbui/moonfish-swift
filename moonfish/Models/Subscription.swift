@@ -8,7 +8,7 @@
 import Foundation
 
 struct SubscriptionTierResponse: Codable {
-    let tier: SubscriptionTier
+    let tier: Tier
     let maxPodcasts: Int
     let maxDailyEpisodes: Int
     let maxDailyExtendedEpisodes: Int
@@ -21,7 +21,7 @@ struct SubscriptionTierResponse: Codable {
     }
 }
 
-enum SubscriptionTier: String, Codable, CaseIterable {
+enum Tier: String, Codable, CaseIterable {
     case free = "free"
     case premium = "premium"
     

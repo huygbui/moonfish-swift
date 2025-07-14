@@ -15,7 +15,7 @@ final class SessionManager {
     // MARK: - Published State
     private(set) var isAuthenticated = false
     private(set) var isLoading = false
-    private(set) var subscriptionTier: SubscriptionTier = .free
+    private(set) var subscriptionTier: Tier = .free
     private(set) var limits = Limits.loading
     
     // MARK: - Computed Properties

@@ -32,7 +32,7 @@ struct AppleSignInRequest: Codable {
 
 struct AuthResponse: Codable {
     let token: Token
-    let user: UserInfo
+    let user: User
 }
 
 struct Token: Codable {
@@ -45,7 +45,7 @@ struct Token: Codable {
     }
 }
 
-struct UserInfo: Codable {
+struct User: Codable {
     let id: Int
     let appleId: String
     let email: String?
