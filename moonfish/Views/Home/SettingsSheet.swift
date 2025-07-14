@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
     @Environment(AuthManager.self) private var authManager
     @Environment(SubscriptionManager.self) private var subscriptionManager
     @AppStorage("colorSchemePreference") private var colorSchemePreference: ColorSchemePreference = .automatic
@@ -37,6 +38,19 @@ struct SettingsSheet: View {
                     }
                     
                     Label("Restore Purchases", systemImage: "arrow.clockwise")
+                    
+                    NavigationLink {
+                        List {
+                            LabeledContent("Podcasts", value: String(subscriptionManager.podcastUsageText(in: context)))
+                            LabeledContent("Daily Episodes", value: String(subscriptionManager.episodeUsageText(in: context)))
+                            LabeledContent("Daily Extended Episodes", value: String(subscriptionManager.extendedEpisodeUsageText(in: context)))
+                        }
+                        .navigationTitle("Usage")
+                        .navigationBarTitleDisplayMode(.inline)
+                        
+                    } label: {
+                        Label("Usage", systemImage: "gauge.with.needle")
+                    }
                 }
                 
                 Section("App") {
@@ -76,10 +90,9 @@ struct SettingsSheet: View {
 
 
 
-#Preview {
+#Preview(traits: .audioPlayerTrait) {
     @Previewable @AppStorage("colorSchemePreference") var colorSchemePreference: ColorSchemePreference = .automatic
     
     SettingsSheet()
-        .environment(AuthManager())
         .preferredColorScheme(colorSchemePreference.colorScheme)
 }

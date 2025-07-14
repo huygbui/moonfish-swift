@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import StoreKit
 
 @MainActor
@@ -47,17 +48,50 @@ final class SubscriptionManager {
         applyDefaultLimits()
     }
     
-    // MARK: - Public Interface
-    func canCreatePodcast(currentCount: Int) -> Bool {
-        currentCount < maxPodcasts
+    // MARK: - Limit Checking with Current Usage
+    func canCreatePodcast(in context: ModelContext) -> Bool {
+        guard isInitialized else { return false }
+        let current = UsageTracker.totalPodcasts(in: context)
+        return current < maxPodcasts
     }
     
-    func canCreateEpisode(episodesToday: Int) -> Bool {
-        episodesToday < maxDailyEpisodes
+    func canCreateEpisode(in context: ModelContext) -> Bool {
+        guard isInitialized else { return false }
+        let current = UsageTracker.dailyEpisodes(in: context)
+        return current < maxDailyEpisodes
     }
     
-    func canCreateExtendedEpisode(extendedEpisodesToday: Int) -> Bool {
-        extendedEpisodesToday < maxDailyExtendedEpisodes
+    func canCreateExtendedEpisode(in context: ModelContext) -> Bool {
+        guard isInitialized else { return false }
+        let current = UsageTracker.dailyExtendedEpisodes(in: context)
+        return current < maxDailyExtendedEpisodes
+    }
+    
+    func canCreateEpisode(length: EpisodeLength, in context: ModelContext) -> Bool {
+        switch length {
+        case .long:
+            return canCreateExtendedEpisode(in: context)
+        case .short, .medium:
+            return canCreateEpisode(in: context)
+        }
+    }
+    
+    func podcastUsageText(in context: ModelContext) -> String {
+        guard isInitialized else { return "Loading..." }
+        let current = UsageTracker.totalPodcasts(in: context)
+        return "\(current)/\(maxPodcasts)"
+    }
+    
+    func episodeUsageText(in context: ModelContext) -> String {
+        guard isInitialized else { return "Loading..." }
+        let current = UsageTracker.dailyEpisodes(in: context)
+        return "\(current)/\(maxDailyEpisodes)"
+    }
+    
+    func extendedEpisodeUsageText(in context: ModelContext) -> String {
+        guard isInitialized else { return "Loading..." }
+        let current = UsageTracker.dailyExtendedEpisodes(in: context)
+        return "\(current)/\(maxDailyExtendedEpisodes)"
     }
     
     var isSubscribed: Bool {
