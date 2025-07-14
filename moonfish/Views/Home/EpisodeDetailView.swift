@@ -11,7 +11,6 @@ import SwiftData
 struct EpisodeDetailView: View {
     var episode: Episode
     @Environment(AudioManager.self) private var audioManager
-    @Environment(AuthManager.self) private var authManager
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
 

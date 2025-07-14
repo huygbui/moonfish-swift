@@ -12,7 +12,7 @@ struct EpisodeRow: View {
     let episode: Episode
     
     @Environment(AudioManager.self) private var audioManager
-    @Environment(AuthManager.self) private var authManager
+    @Environment(SessionManager.self) private var sessionManager
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
 

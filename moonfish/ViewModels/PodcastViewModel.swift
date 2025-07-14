@@ -16,10 +16,10 @@ class PodcastViewModel {
     func submit(
         _ createRequest: PodcastCreateRequest,
         imageData: Data?,
-        authManager: AuthManager,
+        sessionManager: SessionManager,
         context: ModelContext
     ) async {
-        guard let token = authManager.token else { return }
+        guard let token = sessionManager.currentToken else { return }
         
         do {
             let response = try await client.createPodcast(
@@ -52,10 +52,10 @@ class PodcastViewModel {
     func submit(
         _ request: EpisodeCreateRequest,
         podcast: Podcast,
-        authManager: AuthManager,
+        sessionManager: SessionManager,
         context: ModelContext
     ) async {
-        guard let token = authManager.token else { return }
+        guard let token = sessionManager.currentToken else { return }
         
         do {
             let response = try await client.createEpisode(
@@ -71,8 +71,8 @@ class PodcastViewModel {
         }
     }
     
-    func delete(_ podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
-        guard let token = authManager.token else { return }
+    func delete(_ podcast: Podcast, sessionManager: SessionManager, context: ModelContext) async {
+        guard let token = sessionManager.currentToken else { return }
         
         do {
             try await client.deletePodcast(with: podcast.serverId, authToken: token)
@@ -87,10 +87,10 @@ class PodcastViewModel {
         _ podcast: Podcast,
         updateRequest: PodcastUpdateRequest,
         imageData: Data?,
-        authManager: AuthManager,
+        sessionManager: SessionManager,
         context: ModelContext
     ) async {
-        guard let token = authManager.token else { return }
+        guard let token = sessionManager.currentToken else { return }
         
         do {
             var response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest, authToken: token)
@@ -122,8 +122,8 @@ class PodcastViewModel {
         }
     }
 
-    func refreshPodcasts(authManager: AuthManager, context: ModelContext) async {
-        guard let token = authManager.token else { return }
+    func refreshPodcasts(sessionManager: SessionManager, context: ModelContext) async {
+        guard let token = sessionManager.currentToken else { return }
         
         do {
             let response = try await client.getAllPodcasts(authToken: token)
@@ -149,8 +149,8 @@ class PodcastViewModel {
         }
     }
     
-    func refreshEpisodes(authManager: AuthManager, context: ModelContext) async {
-        guard let token = authManager.token else { return }
+    func refreshEpisodes(sessionManager: SessionManager, context: ModelContext) async {
+        guard let token = sessionManager.currentToken else { return }
         
         do {
             let descriptor = FetchDescriptor<Podcast>()
@@ -182,8 +182,8 @@ class PodcastViewModel {
     }
     
     
-    func refreshEpisodes(for podcast: Podcast, authManager: AuthManager, context: ModelContext) async {
-        guard let token = authManager.token else { return }
+    func refreshEpisodes(for podcast: Podcast, sessionManager: SessionManager, context: ModelContext) async {
+        guard let token = sessionManager.currentToken else { return }
         
         do {
             let response = try await client.getAllEpisodes(for: podcast.serverId, authToken: token)

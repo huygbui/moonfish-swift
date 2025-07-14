@@ -17,8 +17,8 @@ class EpisodeViewModel {
     private let client = BackendClient()
     private var downloads: [Int:Download] = [:]
     
-    func cancel(_ episode: Episode, authManager: AuthManager, context: ModelContext) async {
-        guard let token = authManager.token else { return }
+    func cancel(_ episode: Episode, sessionManager: SessionManager, context: ModelContext) async {
+        guard let token = sessionManager.currentToken else { return }
        
         do {
             try await client.cancelOngoingEpisode(id: episode.serverId, authToken: token)
@@ -29,8 +29,8 @@ class EpisodeViewModel {
         }
     }
     
-    func delete(_ episode: Episode, context: ModelContext, authManager: AuthManager) async {
-        guard let token = authManager.token else { return }
+    func delete(_ episode: Episode, context: ModelContext, sessionManager: SessionManager) async {
+        guard let token = sessionManager.currentToken else { return }
         
         do {
             try await client.deleteEpisode(id: episode.serverId, authToken: token)
@@ -46,7 +46,7 @@ class EpisodeViewModel {
         podcast.isFavorite.toggle()
     }
     
-    func download(_ episode: Episode, authManager: AuthManager) async throws {
+    func download(_ episode: Episode) async throws {
         guard let url = episode.audioURL,
               downloads[episode.serverId] == nil,
               episode.isDownloaded == false

@@ -20,37 +20,15 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
         let audioPlayer = AudioManager() // Use the same instance
         let episodeRootModel = EpisodeViewModel()
         let podcastRootModel = PodcastViewModel()
-        let subscriptionManager = SubscriptionManager()
-        let authManager = AuthManager()
+        let sessionManager = SessionManager()
 
         return content
             .environment(audioPlayer)
             .environment(episodeRootModel)
             .environment(podcastRootModel)
-            .environment(authManager)
-            .environment(subscriptionManager)
+            .environment(sessionManager)
             .preferredColorScheme(colorSchemePreference.colorScheme)
             .modelContainer(context)
-            .task {
-                let episode: Episode = .previewCompleted
-                
-                await MainActor.run {
-                    audioPlayer.play(episode)
-                }
-            }
-            .onChange(of: authManager.isAuthenticated) { oldValue, newValue in
-                if newValue {
-                    // User just signed in
-                    Task {
-                        await subscriptionManager.setAuthManager(authManager)
-                    }
-                } else {
-                    // User just signed out
-                    Task {
-                        await subscriptionManager.clearAuth()
-                    }
-                }
-            }
     }
 }
 

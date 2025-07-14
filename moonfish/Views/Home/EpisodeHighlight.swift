@@ -12,7 +12,6 @@ struct EpisodeHighlight: View {
     var episode: Episode
     
     @Environment(EpisodeViewModel.self) private var rootModel
-    @Environment(AuthManager.self) private var authManager
     @Environment(AudioManager.self) private var audioManager
     @Environment(\.modelContext) private var context: ModelContext
     

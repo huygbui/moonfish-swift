@@ -10,8 +10,7 @@ import SwiftData
 import PhotosUI
 
 struct PodcastCreateSheet: View {
-    @Environment(AuthManager.self) var authManager
-    @Environment(SubscriptionManager.self) var subscriptionManager
+    @Environment(SessionManager.self) var sessionManager
     @Environment(PodcastViewModel.self) var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) var dismiss
@@ -32,7 +31,7 @@ struct PodcastCreateSheet: View {
     @State private var isSubmitting: Bool = false
     
     private var canCreatePodcast: Bool {
-        subscriptionManager.canCreatePodcast(in: context)
+        sessionManager.canCreate(.podcast, in: context)
     }
     
     private var canSubmit: Bool {
@@ -176,7 +175,7 @@ struct PodcastCreateSheet: View {
                     description: description
                 ),
                 imageData: imageData,
-                authManager: authManager,
+                sessionManager: sessionManager,
                 context: context
             )
             dismiss()

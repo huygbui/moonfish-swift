@@ -10,8 +10,7 @@ import SwiftUI
 struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
-    @Environment(AuthManager.self) private var authManager
-    @Environment(SubscriptionManager.self) private var subscriptionManager
+    @Environment(SessionManager.self) private var sessionManager
     @AppStorage("colorSchemePreference") private var colorSchemePreference: ColorSchemePreference = .automatic
     @AppStorage("notificationPreference") private var notificationPreference: Bool = true
     
@@ -22,14 +21,14 @@ struct SettingsSheet: View {
             List {
                 Section("Account") {
                     LabeledContent {
-                        Text(authManager.email ?? "user@example.com")
+                        Text(sessionManager.email ?? "user@example.com")
                             .foregroundStyle(.secondary)
                     } label: {
                         Label("Email", systemImage: "envelope")
                     }
                     
                     LabeledContent {
-                        Text(subscriptionManager.subscriptionDisplayName)
+                        Text(sessionManager.subscriptionTier.displayName)
                     } label: {
                         Label("Subscription", systemImage: "plus.circle")
                     }
@@ -41,9 +40,9 @@ struct SettingsSheet: View {
                     
                     NavigationLink {
                         List {
-                            LabeledContent("Podcasts", value: String(subscriptionManager.podcastUsageText(in: context)))
-                            LabeledContent("Daily Episodes", value: String(subscriptionManager.episodeUsageText(in: context)))
-                            LabeledContent("Daily Extended Episodes", value: String(subscriptionManager.extendedEpisodeUsageText(in: context)))
+                            LabeledContent("Podcasts", value: sessionManager.usageText(for: .podcast, in: context))
+                            LabeledContent("Daily Episodes", value: sessionManager.usageText(for: .episode, in: context))
+                            LabeledContent("Daily Extended Episodes", value: sessionManager.usageText(for: .extendedEpisode, in: context))
                         }
                         .navigationTitle("Usage")
                         .navigationBarTitleDisplayMode(.inline)
@@ -68,7 +67,7 @@ struct SettingsSheet: View {
                     }
                 }
                 
-                Button(action: authManager.signOut) {
+                Button(action: sessionManager.signOut) {
                     Label("Log out", systemImage: "rectangle.portrait.and.arrow.right")
                 }
                 .foregroundStyle(.red)

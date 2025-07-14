@@ -12,7 +12,7 @@ struct PlayerFull: View {
     var episode: Episode
     @Environment(EpisodeViewModel.self) private var viewModel
     @Environment(AudioManager.self) private var audioPlayer
-    @Environment(AuthManager.self) private var authManager
+    @Environment(SessionManager.self) private var sessionManager
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) private var dismiss
     @State private var isPresented: Bool = false

@@ -11,7 +11,6 @@ import SwiftData
 struct PlayerMini: View {
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(AudioManager.self) private var audioPlayer
-    @Environment(AuthManager.self) private var authManager
     @Environment(EpisodeViewModel.self) private var viewModel
     
     @State private var isPresented = false

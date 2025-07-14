@@ -12,7 +12,7 @@ struct EpisodeMenu: View {
     let episode: Episode
     
     @Environment(AudioManager.self) private var audioManager
-    @Environment(AuthManager.self) private var authManager
+    @Environment(SessionManager.self) private var sessionManager
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     
@@ -106,21 +106,21 @@ struct EpisodeMenu: View {
             rootModel.removeDownload(for: episode)
         } else {
             Task {
-                try? await rootModel.download(episode, authManager: authManager)
+                try? await rootModel.download(episode)
             }
         }
     }
     
     private func deleteEpisode() {
         Task {
-            await rootModel.delete(episode, context: context, authManager: authManager)
+            await rootModel.delete(episode, context: context, sessionManager: sessionManager)
             audioManager.handleDeletion(of: episode)
         }
     }
     
     private func cancelEpisode() {
         Task {
-            await rootModel.cancel(episode, authManager: authManager, context: context)
+            await rootModel.cancel(episode, sessionManager: sessionManager, context: context)
         }
     }
 }
