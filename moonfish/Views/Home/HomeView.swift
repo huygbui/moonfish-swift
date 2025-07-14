@@ -43,25 +43,25 @@ struct HomeView: View {
     
     @ViewBuilder
     private var content: some View {
-        if !podcasts.isEmpty {
-            ScrollView {
+        ScrollView {
+            if !podcasts.isEmpty {
                 VStack(alignment: .leading, spacing: 16) {
                     episodeHighlight
                     podcastHighlight
                     episodePast
                 }
+            } else {
+                ContentUnavailableView(
+                    "No Podcasts",
+                    systemImage: "",
+                    description: Text("Tap + to create your first podcast")
+                )
             }
-            .contentMargins(.vertical, 8)
-            .safeAreaPadding(.horizontal, 16)
-            .scrollIndicators(.hidden)
-            .conditionalSafeAreaBottomPadding()
-        } else {
-            ContentUnavailableView(
-                "No Podcasts",
-                systemImage: "",
-                description: Text("Tap + to create your first podcast")
-            )
         }
+        .contentMargins(.vertical, 8)
+        .safeAreaPadding(.horizontal, 16)
+        .scrollIndicators(.hidden)
+        .conditionalSafeAreaBottomPadding()
     }
    
     @ViewBuilder

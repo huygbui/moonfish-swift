@@ -39,27 +39,27 @@ struct PodcastView: View {
    
     @ViewBuilder
     private var content: some View {
-        if podcasts.isEmpty {
-            podcastEmpty
-        } else {
-            podcastGrid
-        }
-    }
-    
-    private var podcastGrid: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(podcasts) { podcast in
-                    NavigationLink(value: podcast) {
-                        PodcastCard(podcast: podcast)
-                    }
-                    .buttonStyle(.plain)
-                }
+            if podcasts.isEmpty {
+                podcastEmpty
+            } else {
+                podcastGrid
             }
         }
         .safeAreaPadding(.horizontal)
         .scrollIndicators(.hidden)
         .conditionalSafeAreaBottomPadding()
+    }
+    
+    private var podcastGrid: some View {
+        LazyVGrid(columns: columns, spacing: 16) {
+            ForEach(podcasts) { podcast in
+                NavigationLink(value: podcast) {
+                    PodcastCard(podcast: podcast)
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
     
     private var podcastEmpty: some View {

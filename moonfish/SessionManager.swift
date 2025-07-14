@@ -96,7 +96,14 @@ final class SessionManager {
         await refreshSubscriptionStatus()
     }
     
-    func signOut() {
+    func signOut(context: ModelContext) {
+        do {
+            try context.delete(model: Podcast.self)
+            try context.save()
+        } catch {
+            print("Failed to clear local database on logout: \(error)")
+        }
+        
         clearCredentials()
         resetToDefaults()
     }

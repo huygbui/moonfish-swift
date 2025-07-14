@@ -67,7 +67,7 @@ struct SettingsSheet: View {
                     }
                 }
                 
-                Button(action: sessionManager.signOut) {
+                Button(action: { sessionManager.signOut(context: context) }) {
                     Label("Log out", systemImage: "rectangle.portrait.and.arrow.right")
                 }
                 .foregroundStyle(.red)
