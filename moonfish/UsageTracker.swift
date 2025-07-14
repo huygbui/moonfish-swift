@@ -19,13 +19,12 @@ struct UsageTracker {
         let today = Calendar.current.startOfDay(for: Date())
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today) ?? Date()
         
-        let completedStatusString = EpisodeStatus.completed.rawValue
-        let cancelledStatusString = EpisodeStatus.cancelled.rawValue
+        let failedStatusString = EpisodeStatus.failed.rawValue
         let predicate = #Predicate<Episode> { episode in
             episode.createdAt >= today &&
             episode.createdAt < tomorrow &&
             episode.length != "long" &&
-            (episode.status == completedStatusString || episode.status == cancelledStatusString)
+            episode.status != failedStatusString
         }
         
         let descriptor = FetchDescriptor<Episode>(predicate: predicate)
@@ -36,13 +35,12 @@ struct UsageTracker {
         let today = Calendar.current.startOfDay(for: Date())
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today) ?? Date()
         
-        let completedStatusString = EpisodeStatus.completed.rawValue
-        let cancelledStatusString = EpisodeStatus.cancelled.rawValue
+        let failedStatusString = EpisodeStatus.failed.rawValue
         let predicate = #Predicate<Episode> { episode in
             episode.createdAt >= today &&
             episode.createdAt < tomorrow &&
             episode.length == "long" &&
-            (episode.status == completedStatusString || episode.status == cancelledStatusString)
+            episode.status != failedStatusString
         }
         
         let descriptor = FetchDescriptor<Episode>(predicate: predicate)

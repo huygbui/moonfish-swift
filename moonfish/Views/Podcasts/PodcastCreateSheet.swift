@@ -11,6 +11,7 @@ import PhotosUI
 
 struct PodcastCreateSheet: View {
     @Environment(AuthManager.self) var authManager
+    @Environment(SubscriptionManager.self) var subscriptionManager
     @Environment(PodcastViewModel.self) var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) var dismiss
@@ -30,9 +31,14 @@ struct PodcastCreateSheet: View {
     @State private var isImageLoading: Bool = false
     @State private var isSubmitting: Bool = false
     
+    private var canCreatePodcast: Bool {
+        subscriptionManager.canCreatePodcast(in: context)
+    }
+    
     private var canSubmit: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !isSubmitting
+        !isSubmitting &&
+        canCreatePodcast
     }
     
     var body: some View {

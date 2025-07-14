@@ -10,6 +10,7 @@ import SwiftUI
 struct EpisodeCreateSheet: View {
     var podcast: Podcast
     @Environment(AuthManager.self) var authManager
+    @Environment(SubscriptionManager.self) var subscriptionManager
     @Environment(PodcastViewModel.self) var rootModel
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var context
@@ -21,9 +22,14 @@ struct EpisodeCreateSheet: View {
     
     @State private var isSubmitting: Bool = false
     
+    private var canCreateEpisode: Bool {
+        subscriptionManager.canCreateEpisode(length: length, in: context)
+    }
+    
     private var canSubmit: Bool {
         !topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !isSubmitting
+        !isSubmitting &&
+        canCreateEpisode
     }
     
     var body: some View {
