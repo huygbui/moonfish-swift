@@ -124,7 +124,7 @@ final class BackendClient: Sendable {
     }
     
     // MARK: - Get user's subscription limits
-    func getSubscriptionLimits(tier: String, authToken: String) async throws -> SubscriptionLimitsResponse {
+    func getSubscriptionLimits(tier: String, authToken: String) async throws -> SubscriptionTierResponse {
         let request = try createRequest(for: "subscriptions/\(tier)", authToken: authToken)
         let (data, response) = try await session.data(for: request)
         
@@ -135,7 +135,7 @@ final class BackendClient: Sendable {
         switch httpResponse.statusCode {
         case 200:
             do {
-                return try decoder.decode(SubscriptionLimitsResponse.self, from: data)
+                return try decoder.decode(SubscriptionTierResponse.self, from: data)
             } catch {
                 throw ClientError.decodingError(error.localizedDescription)
             }

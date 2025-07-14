@@ -12,44 +12,6 @@ import StoreKit
 @MainActor
 @Observable
 final class SessionManager {
-    
-    // MARK: - Types
-    enum SubscriptionTier: String, CaseIterable {
-        case free = "free"
-        case premium = "premium"
-        
-        var displayName: String {
-            switch self {
-            case .free: return "Free Plan"
-            case .premium: return "Premium Plan"
-            }
-        }
-    }
-    
-    struct Limits {
-        let maxPodcasts: Int
-        let maxDailyEpisodes: Int
-        let maxDailyExtendedEpisodes: Int
-        
-        static let free = Limits(
-            maxPodcasts: 3,
-            maxDailyEpisodes: 3,
-            maxDailyExtendedEpisodes: 1
-        )
-        
-        static let premium = Limits(
-            maxPodcasts: 12,
-            maxDailyEpisodes: 12,
-            maxDailyExtendedEpisodes: 3
-        )
-        
-        static let loading = Limits(
-            maxPodcasts: 0,
-            maxDailyEpisodes: 0,
-            maxDailyExtendedEpisodes: 0
-        )
-    }
-    
     // MARK: - Published State
     private(set) var isAuthenticated = false
     private(set) var isLoading = false
@@ -59,6 +21,14 @@ final class SessionManager {
     // MARK: - Computed Properties
     var isSubscribed: Bool { subscriptionTier == .premium }
     var email: String? { keychain.retrieve(key: Keys.email) }
+    
+    var currentToken: String? {
+#if DEBUG
+        return APIConfig.shared.apiToken
+#else
+        return keychain.retrieve(key: Keys.token)
+#endif
+    }
     
     // MARK: - Private Properties
     private let client = BackendClient()
@@ -164,13 +134,13 @@ final class SessionManager {
     
     // MARK: - Private Methods
     private func checkAuthenticationStatus() {
-        #if DEBUG
+#if DEBUG
         if let token = APIConfig.shared.apiToken {
             isAuthenticated = true
             Task { await refreshSubscriptionStatus() }
             return
         }
-        #endif
+#endif
         
         if keychain.retrieve(key: Keys.token) != nil {
             isAuthenticated = true
@@ -246,13 +216,6 @@ final class SessionManager {
         }
     }
     
-    var currentToken: String? {
-        #if DEBUG
-        return APIConfig.shared.apiToken
-        #else
-        return keychain.retrieve(key: Keys.token)
-        #endif
-    }
 }
 
 // MARK: - Supporting Types
@@ -262,19 +225,26 @@ enum ContentType {
     case extendedEpisode
 }
 
-// Simplified usage tracker
-extension UsageTracker {
-    struct Usage {
-        let totalPodcasts: Int
-        let dailyEpisodes: Int
-        let dailyExtendedEpisodes: Int
-    }
+struct Limits {
+    let maxPodcasts: Int
+    let maxDailyEpisodes: Int
+    let maxDailyExtendedEpisodes: Int
     
-    static func current(in context: ModelContext) -> Usage {
-        Usage(
-            totalPodcasts: totalPodcasts(in: context),
-            dailyEpisodes: dailyEpisodes(in: context),
-            dailyExtendedEpisodes: dailyExtendedEpisodes(in: context)
-        )
-    }
+    static let free = Limits(
+        maxPodcasts: 3,
+        maxDailyEpisodes: 3,
+        maxDailyExtendedEpisodes: 1
+    )
+    
+    static let premium = Limits(
+        maxPodcasts: 12,
+        maxDailyEpisodes: 12,
+        maxDailyExtendedEpisodes: 3
+    )
+    
+    static let loading = Limits(
+        maxPodcasts: 0,
+        maxDailyEpisodes: 0,
+        maxDailyExtendedEpisodes: 0
+    )
 }

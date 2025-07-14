@@ -10,6 +10,20 @@ import SwiftData
 
 
 struct UsageTracker {
+    struct Usage {
+        let totalPodcasts: Int
+        let dailyEpisodes: Int
+        let dailyExtendedEpisodes: Int
+    }
+    
+    static func current(in context: ModelContext) -> Usage {
+        Usage(
+            totalPodcasts: totalPodcasts(in: context),
+            dailyEpisodes: dailyEpisodes(in: context),
+            dailyExtendedEpisodes: dailyExtendedEpisodes(in: context)
+        )
+    }
+    
     static func totalPodcasts(in context: ModelContext) -> Int {
         let descriptor = FetchDescriptor<Podcast>()
         return (try? context.fetchCount(descriptor)) ?? 0
