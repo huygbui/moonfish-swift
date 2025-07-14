@@ -117,7 +117,7 @@ final class SessionManager {
     
     // MARK: - Usage Checks
     func canCreate(_ type: ContentType, in context: ModelContext) -> Bool {
-        guard !isLoading else { return false }
+        guard !isLoading, isAuthenticated else { return false }
         
         let usage = UsageTracker.current(in: context)
         
@@ -141,7 +141,7 @@ final class SessionManager {
     }
     
     func usageText(for type: ContentType, in context: ModelContext) -> String {
-        guard !isLoading else { return "Loading..." }
+        guard !isLoading, isAuthenticated else { return "Loading..." }
         
         let usage = UsageTracker.current(in: context)
         
