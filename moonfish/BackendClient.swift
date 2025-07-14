@@ -123,6 +123,31 @@ final class BackendClient: Sendable {
         }
     }
     
+    // MARK: - Get user's subscription limits
+    func getSubscriptionLimits(tier: String, authToken: String) async throws -> SubscriptionLimitsResponse {
+        let request = try createRequest(for: "subscriptions/\(tier)", authToken: authToken)
+        let (data, response) = try await session.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw ClientError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200:
+            do {
+                return try decoder.decode(SubscriptionLimitsResponse.self, from: data)
+            } catch {
+                throw ClientError.decodingError(error.localizedDescription)
+            }
+        case 401:
+            throw ClientError.unauthorized
+        case 500...509:
+            throw ClientError.serverError
+        default:
+            throw ClientError.unexpectedError
+        }
+    }
+    
     // MARK: - Create Podcast
     func createPodcast(from podcastCreateRequest: PodcastCreateRequest, authToken: String) async throws -> PodcastResponse {
         var request = try createRequest(for: "podcasts", method: "POST", authToken: authToken)
@@ -509,4 +534,6 @@ final class BackendClient: Sendable {
             throw ClientError.unexpectedError
         }
     }
+    
+    
 }
