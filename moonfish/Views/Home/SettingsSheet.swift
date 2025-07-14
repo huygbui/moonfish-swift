@@ -12,23 +12,26 @@ struct SettingsSheet: View {
     @Environment(AuthManager.self) private var authManager
     @AppStorage("colorSchemePreference") private var colorSchemePreference: ColorSchemePreference = .automatic
     @AppStorage("notificationPreference") private var notificationPreference: Bool = true
+    
+    @State private var showSubscriptionSheet: Bool = false
 
     var body: some View {
         NavigationStack {
             List {
-                Text(authManager.email ?? "")
-                
-                Section {
-                    NavigationLink { Text("Profile") } label: {
-                        Label("Profile", systemImage: "person.circle")
+                Section("Account") {
+                    LabeledContent {
+                        Text(authManager.email ?? "")
+                    } label: {
+                        Label("Email", systemImage: "envelope")
                     }
                     
-                    NavigationLink { Text("Billing") } label: {
-                        Label("Billing", systemImage: "dollarsign.circle")
-                    }
+                    Label("Subscription", systemImage: "dollarsign.circle")
+                        .onTapGesture {
+                            showSubscriptionSheet = true
+                        }
                 }
                 
-                Section {
+                Section("App") {
                     Toggle(isOn: $notificationPreference) {
                         Label("Notification", systemImage: "bell")
                     }
@@ -50,9 +53,10 @@ struct SettingsSheet: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showSubscriptionSheet) { SubscriptionView() }
             .preferredColorScheme(colorSchemePreference.colorScheme)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem {
                     Button { dismiss() } label: {
                         Label("Dismiss", systemImage: "xmark")
                     }
