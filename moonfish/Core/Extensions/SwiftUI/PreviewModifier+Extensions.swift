@@ -1,12 +1,9 @@
-//
-//  AudioPlayerPreviewModifier.swift
-//  moonfish
-//
-//  Created by Huy Bui on 15/6/25.
-//
-
 import SwiftUI
 import SwiftData
+
+extension PreviewTrait where T == Preview.ViewTraits {
+    @MainActor static var audioPlayerTrait: Self = .modifier(AudioPlayerPreviewModifier())
+}
 
 struct AudioPlayerPreviewModifier: PreviewModifier {
     static func makeSharedContext() async throws -> ModelContainer {
@@ -32,7 +29,4 @@ struct AudioPlayerPreviewModifier: PreviewModifier {
     }
 }
 
-// Extension for easy access
-extension PreviewTrait where T == Preview.ViewTraits {
-    @MainActor static var audioPlayerTrait: Self = .modifier(AudioPlayerPreviewModifier())
-}
+

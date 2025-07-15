@@ -25,19 +25,15 @@ struct SignInView: View {
             
             // Sign in section
             VStack(spacing: 16) {
-                SignInWithAppleButton(
-                    onRequest: { request in
-                        request.requestedScopes = [.fullName, .email]
-                    },
-                    onCompletion: { result in
-                        handleSignInResult(result)
-                    }
-                )
+                SignInWithAppleButton(.signIn) {
+                    $0.requestedScopes = [.fullName, .email]
+                } onCompletion: {
+                    handle($0)
+                }
                 .frame(height: 48)
                 .clipShape(Capsule())
                 .disabled(isSigningIn)
                 
-               
                 if let errorMessage {
                     Text(errorMessage)
                         .font(.caption)
@@ -51,8 +47,10 @@ struct SignInView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
+}
     
-    private func handleSignInResult(_ result: Result<ASAuthorization, Error>) {
+private extension SignInView {
+    func handle(_ result: Result<ASAuthorization, Error>) {
         switch result {
         case .success(let auth):
             guard let credential = auth.credential as? ASAuthorizationAppleIDCredential else {
