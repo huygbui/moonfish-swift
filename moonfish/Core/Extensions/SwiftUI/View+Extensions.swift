@@ -1,11 +1,10 @@
-//
-//  SwiftUIView.swift
-//  moonfish
-//
-//  Created by Huy Bui on 12/7/25.
-//
-
 import SwiftUI
+
+extension View {
+    func conditionalSafeAreaBottomPadding(_ length: CGFloat = 60) -> some View {
+        modifier(ConditionalSafeAreaBottomPadding(60))
+    }
+}
 
 struct ConditionalSafeAreaBottomPadding: ViewModifier {
     let length: CGFloat
@@ -21,11 +20,5 @@ struct ConditionalSafeAreaBottomPadding: ViewModifier {
             content
                 .safeAreaPadding(.bottom, length)
         }
-    }
-}
-
-extension View {
-    func conditionalSafeAreaBottomPadding(_ length: CGFloat = 60) -> some View {
-        modifier(ConditionalSafeAreaBottomPadding(60))
     }
 }

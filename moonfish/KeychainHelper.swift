@@ -8,7 +8,7 @@
 import Foundation
 import Security
 
-class KeychainHelper {
+struct KeychainHelper {
     static func store(key: String, value: String) -> Bool {
         guard let data = value.data(using: .utf8) else { return false }
         

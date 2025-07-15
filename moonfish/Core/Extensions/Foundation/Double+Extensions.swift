@@ -1,10 +1,3 @@
-//
-//  Duration+FormatStyle.swift
-//  moonfish
-//
-//  Created by Huy Bui on 20/6/25.
-//
-
 import Foundation
 
 extension Double {
@@ -22,15 +15,5 @@ extension Double {
         case (let h, 0): "\(h)h"
         case (let h, let m): "\(h)h\(m)m"
         }
-    }
-}
-
-extension Date {
-    var compact: String {
-        self.formatted(Date.FormatStyle().year(.twoDigits).month().day())
-    }
-    
-    var relative: String {
-        self.formatted(Date.RelativeFormatStyle())
     }
 }
