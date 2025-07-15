@@ -10,7 +10,7 @@ import SwiftData
 
 @MainActor
 @Observable
-final class UsageLimitsManager {
+final class UsageManager {
     private(set) var limits = Limits.loading
     private let client = NetworkClient()
     

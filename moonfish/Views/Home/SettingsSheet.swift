@@ -22,7 +22,7 @@ struct SettingsSheet: View {
             List {
                 Section("Account") {
                     LabeledContent {
-                        Text(sessionManager.email ?? "user@example.com")
+                        Text("user@example.com")
                             .foregroundStyle(.secondary)
                     } label: {
                         Label("Email", systemImage: "envelope")
@@ -77,7 +77,13 @@ struct SettingsSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showSubscriptionSheet) { SubscriptionView() }
             .confirmationDialog("Log Out", isPresented: $showLogoutConfirmation) {
-                Button("Log Out", role: .destructive) { sessionManager.signOut(context: context) }
+                Button("Log Out", role: .destructive) {
+                    do {
+                        try sessionManager.signOut(context: context)
+                    } catch {
+                        print("Logout failed: \(error)")
+                    }
+                }
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text("Are you sure you want to log out?")

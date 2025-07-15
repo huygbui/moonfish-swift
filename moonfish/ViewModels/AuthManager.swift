@@ -11,31 +11,16 @@ import Foundation
 @Observable
 final class AuthManager {
     private(set) var isAuthenticated = false
-    private let keychain = KeychainHelper.self
     private let client = NetworkClient()
     
-    private enum Keys {
-        static let token = "auth-token"
-        static let email = "user-email"
-    }
-    
-    var email: String? {
-        keychain.retrieve(key: Keys.email)
-    }
-    
-    var currentToken: String? {
-        #if DEBUG
-        return AppConfig.shared.apiToken
-        #else
-        return keychain.retrieve(key: Keys.token)
-        #endif
-    }
+    private let tokenKey = "auth-token"
+    var currentToken: String? { try? Keychain.retrieve(key: tokenKey) }
     
     init() {
-        checkAuthenticationStatus()
+        isAuthenticated = (try? Keychain.retrieve(key: tokenKey)) != nil
     }
     
-    func signIn(appleId: String, email: String?, fullName: String?) async throws -> String {
+    func signIn(appleId: String, email: String?, fullName: String?) async throws {
         let request = AppleSignInRequest(
             appleId: appleId,
             email: email,
@@ -44,38 +29,12 @@ final class AuthManager {
         
         let response = try await client.getAuthToken(for: request)
         
-        // Store credentials
-        storeCredentials(token: response.token.accessToken, email: email)
-        
-        return response.token.accessToken
-    }
-    
-    func signOut() {
-        clearCredentials()
-    }
-    
-    private func checkAuthenticationStatus() {
-        #if DEBUG
-        if AppConfig.shared.apiToken != nil {
-            isAuthenticated = true
-            return
-        }
-        #endif
-        
-        isAuthenticated = keychain.retrieve(key: Keys.token) != nil
-    }
-    
-    private func storeCredentials(token: String, email: String?) {
-        _ = keychain.store(key: Keys.token, value: token)
-        if let email {
-            _ = keychain.store(key: Keys.email, value: email)
-        }
+        try Keychain.store(key: tokenKey, value: response.token.accessToken)
         isAuthenticated = true
     }
     
-    private func clearCredentials() {
-        _ = keychain.delete(key: Keys.token)
-        _ = keychain.delete(key: Keys.email)
+    func signOut() throws {
+        try Keychain.delete(key: tokenKey)
         isAuthenticated = false
     }
 }

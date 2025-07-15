@@ -9,14 +9,13 @@ final class SessionManager {
     // Managers
     private let auth = AuthManager()
     private let subscription = SubscriptionManager()
-    private let usageLimits = UsageLimitsManager()
+    private let usageLimits = UsageManager()
     
     // Expose state for backward compatibility
     var isAuthenticated: Bool { auth.isAuthenticated }
     var subscriptionTier: Tier { subscription.tier }
     var limits: Limits { usageLimits.limits }
     var isSubscribed: Bool { subscription.isSubscribed }
-    var email: String? { auth.email }
     var currentToken: String? { auth.currentToken }
     
     init() {
@@ -33,19 +32,12 @@ final class SessionManager {
         await refreshSubscriptionStatus()
     }
     
-    func signOut(context: ModelContext) {
-        // Clear local data
-        do {
-            try context.delete(model: Podcast.self)
-            try context.save()
-        } catch {
-            print("Failed to clear local database on logout: \(error)")
-        }
+    func signOut(context: ModelContext) throws {
+        try context.delete(model: Podcast.self)
+        try context.save()
         
-        // Sign out
-        auth.signOut()
+        try auth.signOut()
         
-        // Reset to defaults
         Task {
             await subscription.refresh()
             await usageLimits.refreshLimits(tier: .free, token: nil)
