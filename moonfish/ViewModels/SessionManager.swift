@@ -6,20 +6,17 @@ import SwiftData
 @MainActor
 @Observable
 final class SessionManager {
-    // Managers
     private let auth = AuthManager()
     private let subscription = SubscriptionManager()
-    private let usageLimits = UsageManager()
+    private let usage = UsageManager()
     
-    // Expose state for backward compatibility
     var isAuthenticated: Bool { auth.isAuthenticated }
     var subscriptionTier: Tier { subscription.tier }
-    var limits: Limits { usageLimits.limits }
+    var limits: Limits { usage.limits }
     var isSubscribed: Bool { subscription.isSubscribed }
     var currentToken: String? { auth.currentToken }
     
     init() {
-        // If already authenticated, refresh everything
         if auth.isAuthenticated {
             Task {
                 await refreshSubscriptionStatus()
@@ -35,66 +32,20 @@ final class SessionManager {
     func signOut(context: ModelContext) throws {
         try context.delete(model: Podcast.self)
         try context.save()
-        
         try auth.signOut()
-        
-        Task {
-            await subscription.refresh()
-            await usageLimits.refreshLimits(tier: .free, token: nil)
-        }
     }
     
     func refreshSubscriptionStatus() async {
         guard isAuthenticated else { return }
-        
         await subscription.refresh()
-        await usageLimits.refreshLimits(tier: subscription.tier, token: currentToken)
+        await usage.refreshLimits(tier: subscription.tier, token: currentToken)
     }
     
-    // Delegate usage checks to UsageLimitsManager
     func canCreate(_ type: ContentType, in context: ModelContext) -> Bool {
-        guard isAuthenticated else { return false }
-        return usageLimits.canCreate(type, in: context)
+        isAuthenticated && usage.canCreate(type, in: context)
     }
     
     func canCreateEpisode(length: EpisodeLength, in context: ModelContext) -> Bool {
-        guard isAuthenticated else { return false }
-        return usageLimits.canCreateEpisode(length: length, in: context)
+        isAuthenticated && usage.canCreateEpisode(length: length, in: context)
     }
-    
-    func usageText(for type: ContentType, in context: ModelContext) -> String {
-        guard isAuthenticated else { return "Loading..." }
-        return usageLimits.usageText(for: type, in: context)
-    }
-}
-
-// MARK: - Supporting Types (unchanged)
-enum ContentType {
-    case podcast
-    case episode
-    case extendedEpisode
-}
-
-struct Limits {
-    let maxPodcasts: Int
-    let maxDailyEpisodes: Int
-    let maxDailyExtendedEpisodes: Int
-    
-    static let free = Limits(
-        maxPodcasts: 3,
-        maxDailyEpisodes: 3,
-        maxDailyExtendedEpisodes: 1
-    )
-    
-    static let premium = Limits(
-        maxPodcasts: 12,
-        maxDailyEpisodes: 12,
-        maxDailyExtendedEpisodes: 3
-    )
-    
-    static let loading = Limits(
-        maxPodcasts: 0,
-        maxDailyEpisodes: 0,
-        maxDailyExtendedEpisodes: 0
-    )
 }

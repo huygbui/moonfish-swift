@@ -4,8 +4,9 @@ import SwiftData
 @MainActor
 @Observable
 final class UsageManager {
-    private(set) var limits: Limits = .loading
+    private(set) var limits: Limits = .free
     private let client = NetworkClient()
+    
 
     func refreshLimits(tier: Tier, token: String?) async {
         guard let token else {
@@ -41,8 +42,9 @@ final class UsageManager {
     }
 
     func canCreateEpisode(length: EpisodeLength, in context: ModelContext) -> Bool {
-        length == .long ? canCreate(.extendedEpisode, in: context)
-                        : canCreate(.episode,        in: context)
+        length == .long
+        ? canCreate(.extendedEpisode, in: context)
+        : canCreate(.episode, in: context)
     }
 
     func usageText(for type: ContentType, in context: ModelContext) -> String {
@@ -62,8 +64,7 @@ final class UsageManager {
         dailyEpisodes: Int,
         dailyExtendedEpisodes: Int
     ) {
-        let today = Calendar.current.startOfDay(for: .now)
-        let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today) ?? .now
+        let interval = Calendar.current.dateInterval(of: .day, for: .now)!
         let failed = EpisodeStatus.failed.rawValue
 
         let totalPodcasts = (try? context.fetchCount(FetchDescriptor<Podcast>())) ?? 0
@@ -71,7 +72,7 @@ final class UsageManager {
         let dailyEpisodes = countEpisodes(
             in: context,
             predicate: #Predicate<Episode> {
-                $0.createdAt >= today && $0.createdAt < tomorrow &&
+                $0.createdAt >= interval.start && $0.createdAt < interval.end &&
                 $0.length != "long" && $0.status != failed
             }
         )
@@ -79,7 +80,7 @@ final class UsageManager {
         let dailyExtendedEpisodes = countEpisodes(
             in: context,
             predicate: #Predicate<Episode> {
-                $0.createdAt >= today && $0.createdAt < tomorrow &&
+                $0.createdAt >= interval.start && $0.createdAt < interval.end &&
                 $0.length == "long" && $0.status != failed
             }
         )
@@ -94,3 +95,10 @@ final class UsageManager {
         (try? context.fetchCount(FetchDescriptor<Episode>(predicate: predicate))) ?? 0
     }
 }
+
+
+enum ContentType {
+    case podcast, episode, extendedEpisode
+}
+
+
