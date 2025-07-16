@@ -38,6 +38,19 @@ struct SettingsSheet: View {
                     }
                     
                     Label("Restore Purchases", systemImage: "arrow.clockwise")
+                    
+                    NavigationLink {
+                        List {
+                            LabeledContent("Podcasts") { Text(sessionManager.limits.maxPodcasts.description) }
+//                            LabeledContent("Daily Episodes", value: sessionManager.usageText(for: .episode, in: context))
+//                            LabeledContent("Daily Extended Episodes", value: sessionManager.usageText(for: .extendedEpisode, in: context))
+                        }
+                        .navigationTitle("Usage")
+                        .navigationBarTitleDisplayMode(.inline)
+                        
+                    } label: {
+                        Label("Usage", systemImage: "gauge.with.needle")
+                    }
                 }
                 
                 Section("App") {

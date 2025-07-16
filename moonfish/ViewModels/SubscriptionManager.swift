@@ -7,6 +7,7 @@ final class SubscriptionManager {
     private(set) var tier: Tier = .free
     private var listener: Task<Void, Never>?
     
+    var onTierChange: ((Tier) async -> Void)?
     var isSubscribed: Bool { tier == .premium }
     
     init() {
@@ -15,7 +16,12 @@ final class SubscriptionManager {
     
     func refresh() async {
         let hasSubscription = await checkStoreKitSubscription()
-        tier = hasSubscription ? .premium : .free
+        let newTier: Tier = hasSubscription ? .premium : .free
+        
+        if newTier != tier {
+            tier = newTier
+            await onTierChange?(newTier)
+        }
     }
     
     private func startListening() {

@@ -17,6 +17,14 @@ final class SessionManager {
     var currentToken: String? { auth.currentToken }
     
     init() {
+        subscription.onTierChange = { [weak self] newTier in
+            guard let self else { return }
+            await self.usage.refreshLimits(
+                tier: newTier,
+                token: self.auth.currentToken
+            )
+        }
+        
         if auth.isAuthenticated {
             Task {
                 await refreshSubscriptionStatus()
