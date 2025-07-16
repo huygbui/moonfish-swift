@@ -10,32 +10,34 @@ import SwiftData
 
 @main
 struct MoonfishApp: App {
-    @AppStorage("colorSchemePreference") var colorSchemePreference: ColorSchemePreference = .automatic
-    
-    @State private var audioManager = AudioManager()
+    @AppStorage("colorSchemePreference") private var colorSchemePreference = ColorSchemePreference.automatic
     @State private var sessionManager = SessionManager()
-    @State private var epísodeRootModel = EpisodeViewModel()
-    @State private var podcastRootModel = PodcastViewModel()
-
+    
     var body: some Scene {
         WindowGroup {
-            if sessionManager.isAuthenticated {
-                RootView()
-                    .modelContainer(for: Podcast.self)
-                    .environment(audioManager)
-                    .environment(sessionManager)
-                    .environment(epísodeRootModel)
-                    .environment(podcastRootModel)
-                    .preferredColorScheme(colorSchemePreference.colorScheme)
-            } else {
-                SignInView()
-                    .environment(sessionManager)
-                    .preferredColorScheme(colorSchemePreference.colorScheme)
-            }
+            AppRootView()
+                .modelContainer(for: Podcast.self)
+                .environment(sessionManager)
+                .preferredColorScheme(colorSchemePreference.colorScheme)
         }
     }
-    
-//    init() {
-//        print(URL.applicationSupportDirectory.path(percentEncoded: false))
-//    }
 }
+
+struct AppRootView: View {
+    @Environment(SessionManager.self) private var sessionManager
+    @State private var episodeViewModel = EpisodeViewModel()
+    @State private var podcastViewModel = PodcastViewModel()
+    @State private var audioManager = AudioManager()
+    
+    var body: some View {
+        if sessionManager.isAuthenticated {
+            MainTabView()
+                .environment(audioManager)
+                .environment(episodeViewModel)
+                .environment(podcastViewModel)
+        } else {
+            SignInView()
+        }
+    }
+}
+

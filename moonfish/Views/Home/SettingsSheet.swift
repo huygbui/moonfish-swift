@@ -41,7 +41,7 @@ struct SettingsSheet: View {
                     
                     NavigationLink {
                         List {
-                            LabeledContent("Podcasts") { Text(sessionManager.limits.maxPodcasts.description) }
+//                            LabeledContent("Podcasts") { Text(sessionManager.limits.maxPodcasts.description) }
 //                            LabeledContent("Daily Episodes", value: sessionManager.usageText(for: .episode, in: context))
 //                            LabeledContent("Daily Extended Episodes", value: sessionManager.usageText(for: .extendedEpisode, in: context))
                         }
