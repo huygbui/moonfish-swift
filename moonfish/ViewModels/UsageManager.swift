@@ -5,6 +5,7 @@ import SwiftData
 @Observable
 final class UsageManager {
     private(set) var limits: Limits = .free
+    private(set) var usage: Usage = .zero
     private let client = NetworkClient()
     
 

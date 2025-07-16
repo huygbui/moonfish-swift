@@ -24,3 +24,15 @@ struct Limits {
         maxDailyExtendedEpisodes: 3
     )
 }
+
+struct Usage {
+    let podcasts: Int
+    let dailyEpisodes: Int
+    let dailyExtendedEpisodes: Int
+    
+    static let zero = Usage(
+        podcasts: 0,
+        dailyEpisodes: 0,
+        dailyExtendedEpisodes: 0
+    )
+}
