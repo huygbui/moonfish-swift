@@ -30,14 +30,9 @@ struct PodcastCreateSheet: View {
     @State private var isImageLoading: Bool = false
     @State private var isSubmitting: Bool = false
     
-    private var canCreatePodcast: Bool {
-        sessionManager.canCreate(.podcast, in: context)
-    }
-    
     private var canSubmit: Bool {
         !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !isSubmitting &&
-        canCreatePodcast
+        !isSubmitting
     }
     
     var body: some View {
@@ -160,8 +155,13 @@ struct PodcastCreateSheet: View {
     
     private func submit() {
         guard canSubmit else { return }
-        isSubmitting = true
+        // Check creation limit here
+        guard sessionManager.canCreate(.podcast, in: context) else {
+            // Show error
+            return
+        }
         
+        isSubmitting = true
         Task {
             defer { isSubmitting = false }
             await rootModel.submit(

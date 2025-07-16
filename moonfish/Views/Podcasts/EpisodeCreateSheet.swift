@@ -21,14 +21,9 @@ struct EpisodeCreateSheet: View {
     
     @State private var isSubmitting: Bool = false
     
-    private var canCreateEpisode: Bool {
-        sessionManager.canCreateEpisode(length: length, in: context)
-    }
-    
     private var canSubmit: Bool {
         !topic.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !isSubmitting &&
-        canCreateEpisode
+        !isSubmitting
     }
     
     var body: some View {
@@ -84,6 +79,7 @@ struct EpisodeCreateSheet: View {
     
     func submit() {
         guard canSubmit else { return }
+        guard sessionManager.canCreateEpisode(length: .long, in: context) else { return }
         
         isSubmitting = true
 
