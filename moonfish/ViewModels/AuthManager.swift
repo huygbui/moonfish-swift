@@ -15,8 +15,8 @@ final class AuthManager {
     private let client = NetworkClient()
     
     init() {
-        isAuthenticated = (try? Keychain.retrieveToken()) != nil
-        email = try? Keychain.retrieveEmail()
+        isAuthenticated = (try? KeychainService.retrieveToken()) != nil
+        email = try? KeychainService.retrieveEmail()
     }
     
     func signIn(appleId: String, email: String?, fullName: String?) async throws {
@@ -31,14 +31,14 @@ final class AuthManager {
             throw AuthError.missing
         }
         
-        try Keychain.storeToken(value: response.token.accessToken)
-        try Keychain.storeEmail(value: currentEmail)
+        try KeychainService.storeToken(value: response.token.accessToken)
+        try KeychainService.storeEmail(value: currentEmail)
         isAuthenticated = true
     }
     
     func signOut() throws {
-        try Keychain.deleteToken()
-        try Keychain.deleteEmail()
+        try KeychainService.deleteToken()
+        try KeychainService.deleteEmail()
         isAuthenticated = false
     }
 }

@@ -33,7 +33,7 @@ final class NetworkClient: Sendable {
         }
         
         self.encoder = JSONEncoder()
-        self.token = try? Keychain.retrieveToken()
+        self.token = try? KeychainService.retrieveToken()
     }
     
     func buildRequest(for endpoint: String, method: HTTPMethod = .GET, authenticated: Bool = true) throws -> URLRequest {

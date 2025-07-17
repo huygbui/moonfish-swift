@@ -21,7 +21,7 @@ enum KeychainError: Error, CustomStringConvertible {
     }
 }
 
-struct Keychain {
+struct KeychainService {
     static func store(key: String, value: String) throws {
         guard let data = value.data(using: .utf8) else { throw KeychainError.store(status: errSecParam) }
         
@@ -68,7 +68,7 @@ struct Keychain {
     }
 }
 
-extension Keychain {
+extension KeychainService {
     static func retrieveToken() throws -> String {
         return try retrieve(key: "auth-token")
     }
