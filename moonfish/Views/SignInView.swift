@@ -2,7 +2,7 @@ import SwiftUI
 import AuthenticationServices
 
 struct SignInView: View {
-    @Environment(SessionManager.self) private var sessionManager
+    @Environment(AuthManager.self) private var authManager
     @State private var isSigningIn = false
     @State private var errorMessage: String?
     
@@ -71,7 +71,7 @@ private extension SignInView {
             
             Task {
                 do {
-                    try await sessionManager.signIn(
+                    try await authManager.signIn(
                         appleId: credential.user,
                         email: email,
                         fullName: fullName
@@ -92,5 +92,4 @@ private extension SignInView {
 
 #Preview {
     SignInView()
-        .environment(SessionManager())
 }

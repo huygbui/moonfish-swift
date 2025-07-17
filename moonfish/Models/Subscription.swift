@@ -7,14 +7,18 @@
 
 import Foundation
 
-struct SubscriptionTierResponse: Codable {
-    let tier: Tier
+struct UsageResponse: Codable {
+    let podcasts: Int
+    let dailyEpisodes: Int
+    let dailyExtendedEpisodes: Int
     let maxPodcasts: Int
     let maxDailyEpisodes: Int
     let maxDailyExtendedEpisodes: Int
 
     enum CodingKeys: String, CodingKey {
-        case tier
+        case podcasts
+        case dailyEpisodes = "daily_episodes"
+        case dailyExtendedEpisodes = "daily_extended_episodes"
         case maxPodcasts = "max_podcasts"
         case maxDailyEpisodes = "max_daily_episodes"
         case maxDailyExtendedEpisodes = "max_daily_extended_episodes"
@@ -33,8 +37,8 @@ enum Tier: String, Codable, CaseIterable {
     }
 }
 
-struct TierUpdateRequest: Codable {
-    let tier: String
+struct SubscriptionUpdateRequest: Codable {
+    let tier: Tier
 }
 
 

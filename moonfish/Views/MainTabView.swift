@@ -10,8 +10,17 @@ import SwiftData
 
 struct MainTabView: View {
     @Environment(AudioManager.self) private var audioManager
-    
+    @State private var episodeViewModel = EpisodeViewModel()
+    @State private var podcastViewModel = PodcastViewModel()
+       
     var body: some View {
+        content
+            .environment(episodeViewModel)
+            .environment(podcastViewModel)
+    }
+    
+    @ViewBuilder
+    private var content: some View {
         if #available(iOS 26.0, *) {
             TabView {
                 Tab("Home", systemImage: "house") { HomeView() }

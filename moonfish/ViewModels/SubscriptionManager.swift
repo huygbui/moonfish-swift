@@ -5,11 +5,7 @@ import StoreKit
 @Observable
 final class SubscriptionManager {
     private(set) var tier: Tier = .free
-    private var listener: Task<Void, Never>?
     private let client = NetworkClient()
-    
-    var onTierChange: ((Tier) async -> Void)?
-    var isSubscribed: Bool { tier == .premium }
     
     init() {
         startListening()
@@ -22,20 +18,17 @@ final class SubscriptionManager {
         if newTier != tier {
             tier = newTier
             do {
-              try await client.updateSubscription(tier: tier)
+                let updateRequest = SubscriptionUpdateRequest(tier: newTier)
+                try await client.updateSubscription(from: updateRequest)
             } catch {
                fatalError("Unable to update subscription")
             }
-            
-            await onTierChange?(newTier)
         }
     }
     
     private func startListening() {
-        listener = Task { [weak self] in
+        Task {
             for await result in Transaction.updates {
-                guard let self else { return }
-                
                 if case .verified(let transaction) = result {
                     await transaction.finish()
                     await self.refresh()

@@ -64,17 +64,18 @@ final class NetworkClient: Sendable {
     }
     
     
-    func getSubscriptionTier(tier: String) async throws -> SubscriptionTierResponse {
-        let request = try buildRequest(for: "subscriptions/\(tier)", authenticated: false)
+    func getUsage() async throws -> UsageResponse {
+        let request = try buildRequest(for: "users/usage", authenticated: true)
         let (data, response) = try await session.data(for: request)
         
         try validateResponse(response)
-        return try decoder.decode(SubscriptionTierResponse.self, from: data)
+        return try decoder.decode(UsageResponse.self, from: data)
     }
     
     
-    func updateSubscription(tier: Tier) async throws {
-        let request = try buildRequest(for: "users/\(tier)", method: .PUT, authenticated: true)
+    func updateSubscription(from updateRequest: SubscriptionUpdateRequest) async throws {
+        var request = try buildRequest(for: "users/subscription", method: .PUT, authenticated: true)
+        request.httpBody = try encoder.encode(updateRequest)
         let (_, response) = try await session.data(for: request)
         
         try validateResponse(response)

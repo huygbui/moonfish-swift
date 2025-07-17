@@ -10,7 +10,9 @@ import SwiftUI
 struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
-    @Environment(SessionManager.self) private var sessionManager
+    @Environment(AuthManager.self) private var authManager
+    @Environment(SubscriptionManager.self) private var subscriptionManager
+    
     @AppStorage("colorSchemePreference") private var colorSchemePreference: ColorSchemePreference = .automatic
     @AppStorage("notificationPreference") private var notificationPreference: Bool = true
     
@@ -29,7 +31,7 @@ struct SettingsSheet: View {
                     }
                     
                     LabeledContent {
-                        Text(sessionManager.subscriptionTier.displayName)
+                        Text(subscriptionManager.tier.displayName)
                     } label: {
                         Label("Subscription", systemImage: "plus.circle")
                     }
@@ -79,7 +81,9 @@ struct SettingsSheet: View {
             .confirmationDialog("Log Out", isPresented: $showLogoutConfirmation) {
                 Button("Log Out", role: .destructive) {
                     do {
-                        try sessionManager.signOut(context: context)
+                        try context.delete(model: Podcast.self)
+                        try context.save()
+                        try authManager.signOut()
                     } catch {
                         print("Logout failed: \(error)")
                     }

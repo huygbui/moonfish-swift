@@ -8,29 +8,34 @@ final class UsageManager {
     private(set) var usage: Usage = .zero
     private let client = NetworkClient()
     
-
-    func refreshLimits(tier: Tier) async {
+    func refresh() async {
         do {
-            let response = try await client.getSubscriptionTier(tier: tier.rawValue)
+            let response = try await client.getUsage()
             limits = Limits(
                 maxPodcasts: response.maxPodcasts,
                 maxDailyEpisodes: response.maxDailyEpisodes,
                 maxDailyExtendedEpisodes: response.maxDailyExtendedEpisodes
             )
+            
+            usage = Usage(
+                podcasts: response.podcasts,
+                dailyEpisodes: response.dailyEpisodes,
+                dailyExtendedEpisodes: response.dailyExtendedEpisodes
+            )
         } catch {
-            print("Failed to fetch limits:", error)
-            limits = tier == .premium ? .premium : .free
+            print("Failed to refresh usage:", error)
+            limits = .free
         }
     }
 
     func canCreate(_ type: ContentType, in context: ModelContext) -> Bool {
         switch type {
         case .podcast:
-            currentUsage(in: context).totalPodcasts < limits.maxPodcasts
+            usage.podcasts < limits.maxPodcasts
         case .episode:
-            currentUsage(in: context).dailyEpisodes < limits.maxDailyEpisodes
+            usage.dailyEpisodes < limits.maxDailyEpisodes
         case .extendedEpisode:
-            currentUsage(in: context).dailyExtendedEpisodes < limits.maxDailyExtendedEpisodes
+            usage.dailyExtendedEpisodes < limits.maxDailyExtendedEpisodes
         }
     }
 
@@ -40,52 +45,15 @@ final class UsageManager {
         : canCreate(.episode, in: context)
     }
 
-    func usageText(for type: ContentType, in context: ModelContext) -> String {
-        let u = currentUsage(in: context)
+    func usageText(for type: ContentType) -> String {
         switch type {
         case .podcast:
-            return "\(u.totalPodcasts)/\(limits.maxPodcasts)"
+            return "\(usage.podcasts)/\(limits.maxPodcasts)"
         case .episode:
-            return "\(u.dailyEpisodes)/\(limits.maxDailyEpisodes)"
+            return "\(usage.dailyEpisodes)/\(limits.maxDailyEpisodes)"
         case .extendedEpisode:
-            return "\(u.dailyExtendedEpisodes)/\(limits.maxDailyExtendedEpisodes)"
+            return "\(usage.dailyExtendedEpisodes)/\(limits.maxDailyExtendedEpisodes)"
         }
-    }
-
-    private func currentUsage(in context: ModelContext) -> (
-        totalPodcasts: Int,
-        dailyEpisodes: Int,
-        dailyExtendedEpisodes: Int
-    ) {
-        let interval = Calendar.current.dateInterval(of: .day, for: .now)!
-        let failed = EpisodeStatus.failed.rawValue
-
-        let totalPodcasts = (try? context.fetchCount(FetchDescriptor<Podcast>())) ?? 0
-
-        let dailyEpisodes = countEpisodes(
-            in: context,
-            predicate: #Predicate<Episode> {
-                $0.createdAt >= interval.start && $0.createdAt < interval.end &&
-                $0.length != "long" && $0.status != failed
-            }
-        )
-
-        let dailyExtendedEpisodes = countEpisodes(
-            in: context,
-            predicate: #Predicate<Episode> {
-                $0.createdAt >= interval.start && $0.createdAt < interval.end &&
-                $0.length == "long" && $0.status != failed
-            }
-        )
-
-        return (totalPodcasts, dailyEpisodes, dailyExtendedEpisodes)
-    }
-
-    private func countEpisodes(
-        in context: ModelContext,
-        predicate: Predicate<Episode>
-    ) -> Int {
-        (try? context.fetchCount(FetchDescriptor<Episode>(predicate: predicate))) ?? 0
     }
 }
 
