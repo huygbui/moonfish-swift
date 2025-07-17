@@ -12,6 +12,7 @@ struct SettingsSheet: View {
     @Environment(\.modelContext) private var context
     @Environment(AuthManager.self) private var authManager
     @Environment(UsageManager.self) private var usageManager
+    @Environment(AudioManager.self) private var audioManager
     @Environment(SubscriptionManager.self) private var subscriptionManager
     
     @AppStorage("colorSchemePreference") private var colorSchemePreference: ColorSchemePreference = .automatic
@@ -81,13 +82,16 @@ struct SettingsSheet: View {
             .sheet(isPresented: $showSubscriptionSheet) { SubscriptionView() }
             .confirmationDialog("Log Out", isPresented: $showLogoutConfirmation) {
                 Button("Log Out", role: .destructive) {
-                    do {
-                        try context.delete(model: Podcast.self)
-                        try context.save()
-                        
-                        try authManager.signOut()
-                    } catch {
-                        print("Logout failed: \(error)")
+                    Task {
+                        do {
+                            try await LogoutService.logout(
+                                auth: authManager,
+                                audio: audioManager,
+                                context: context
+                            )
+                        } catch {
+                            print("Logout failed: \(error)")
+                        }
                     }
                 }
                 Button("Cancel", role: .cancel) { }

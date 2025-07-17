@@ -149,7 +149,7 @@ final class AudioManager {
         self.timeObserver = nil
     }
     
-    private func resetPlayer() {
+    func resetPlayer() {
         stopObserving()
         player.pause()
         player.replaceCurrentItem(with: nil)
