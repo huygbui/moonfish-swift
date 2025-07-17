@@ -13,6 +13,7 @@ final class NetworkClient: Sendable {
     private let session: URLSession
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
+    private let token: String?
     
     init(config: NetworkConfig = .default, session: URLSession = .shared) {
         self.config = config
@@ -32,9 +33,10 @@ final class NetworkClient: Sendable {
         }
         
         self.encoder = JSONEncoder()
+        self.token = try? Keychain.retrieveToken()
     }
     
-    func buildRequest(for endpoint: String, method: HTTPMethod = .GET, authToken: String? = nil) throws -> URLRequest {
+    func buildRequest(for endpoint: String, method: HTTPMethod = .GET, authenticated: Bool = true) throws -> URLRequest {
         let url = config.baseURL.appending(components: endpoint)
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
@@ -43,7 +45,8 @@ final class NetworkClient: Sendable {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
         
-        if let token = authToken {
+        if authenticated {
+            guard let token else { throw NetworkError.unauthenticated }
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         
@@ -52,7 +55,7 @@ final class NetworkClient: Sendable {
    
     // MARK: - Auth
     func getAuthToken(for signInRequest: AppleSignInRequest) async throws -> AuthResponse {
-        var request = try buildRequest(for: "auth/apple", method: .POST)
+        var request = try buildRequest(for: "auth/apple", method: .POST, authenticated: false)
         request.httpBody = try encoder.encode(signInRequest)
         let (data, response) = try await session.data(for: request)
         
@@ -60,17 +63,27 @@ final class NetworkClient: Sendable {
         return try decoder.decode(AuthResponse.self, from: data)
     }
     
-    func getSubscriptionTier(tier: String, authToken: String) async throws -> SubscriptionTierResponse {
-        let request = try buildRequest(for: "subscriptions/\(tier)", authToken: authToken)
+    
+    func getSubscriptionTier(tier: String) async throws -> SubscriptionTierResponse {
+        let request = try buildRequest(for: "subscriptions/\(tier)", authenticated: false)
         let (data, response) = try await session.data(for: request)
         
         try validateResponse(response)
         return try decoder.decode(SubscriptionTierResponse.self, from: data)
     }
     
+    
+    func updateSubscription(tier: Tier) async throws {
+        let request = try buildRequest(for: "users/\(tier)", method: .PUT, authenticated: true)
+        let (_, response) = try await session.data(for: request)
+        
+        try validateResponse(response)
+    }
+    
+    
     // MARK: - Podcasts
-    func createPodcast(from podcastCreateRequest: PodcastCreateRequest, authToken: String) async throws -> PodcastResponse {
-        var request = try buildRequest(for: "podcasts", method: .POST, authToken: authToken)
+    func createPodcast(from podcastCreateRequest: PodcastCreateRequest) async throws -> PodcastResponse {
+        var request = try buildRequest(for: "podcasts", method: .POST, authenticated: true)
         request.httpBody = try encoder.encode(podcastCreateRequest)
         let (data, response) = try await session.data(for: request)
         
@@ -79,24 +92,24 @@ final class NetworkClient: Sendable {
     }
     
     
-    func getPodcast(id: Int, authToken: String) async throws -> PodcastResponse {
-        let request = try buildRequest(for: "podcasts/\(id)", method: .GET, authToken: authToken)
+    func getPodcast(id: Int) async throws -> PodcastResponse {
+        let request = try buildRequest(for: "podcasts/\(id)", method: .GET, authenticated: true)
         let (data, response) = try await session.data(for: request)
         
         try validateResponse(response)
         return try decoder.decode(PodcastResponse.self, from: data)
     }
     
-    func getAllPodcasts(authToken: String) async throws -> [PodcastResponse] {
-        let request = try buildRequest(for: "podcasts", method: .GET, authToken: authToken)
+    func getAllPodcasts() async throws -> [PodcastResponse] {
+        let request = try buildRequest(for: "podcasts", method: .GET, authenticated: true)
         let (data, response) = try await session.data(for: request)
         
         try validateResponse(response)
         return try decoder.decode([PodcastResponse].self, from: data)
     }
     
-    func deletePodcast(with id: Int, authToken: String) async throws {
-        let request = try buildRequest(for: "podcasts/\(id)", method: .DELETE, authToken: authToken)
+    func deletePodcast(with id: Int) async throws {
+        let request = try buildRequest(for: "podcasts/\(id)", method: .DELETE, authenticated: true)
         let (_, response) = try await session.data(for: request)
         
         try validateResponse(response)
@@ -105,9 +118,8 @@ final class NetworkClient: Sendable {
     func updatePodcast(
         with id: Int,
         from updateRequest: PodcastUpdateRequest,
-        authToken: String
     ) async throws -> PodcastResponse {
-        var request = try buildRequest(for: "podcasts/\(id)", method: .PATCH, authToken: authToken)
+        var request = try buildRequest(for: "podcasts/\(id)", method: .PATCH, authenticated: true)
         request.httpBody = try encoder.encode(updateRequest)
         let (data, response) = try await session.data(for: request)
         
@@ -117,9 +129,8 @@ final class NetworkClient: Sendable {
     
     func completeImageUpload(
         with id: Int,
-        authToken: String
     ) async throws -> PodcastResponse {
-        let request = try buildRequest(for: "podcasts/\(id)/upload_success", method: .POST, authToken: authToken)
+        let request = try buildRequest(for: "podcasts/\(id)/upload_success", method: .POST, authenticated: true)
         let (data, response) = try await session.data(for: request)
         
         try validateResponse(response)
@@ -127,16 +138,16 @@ final class NetworkClient: Sendable {
     }
    
     // MARK: - Episodes
-    func getAllEpisodes(for podcastId: Int, authToken: String) async throws -> [EpisodeResponse] {
-        let request = try buildRequest(for: "podcasts/\(podcastId)/episodes", authToken: authToken)
+    func getAllEpisodes(for podcastId: Int) async throws -> [EpisodeResponse] {
+        let request = try buildRequest(for: "podcasts/\(podcastId)/episodes", authenticated: true)
         let (data, response) = try await session.data(for: request)
         
         try validateResponse(response)
         return try decoder.decode([EpisodeResponse].self, from: data)
     }
     
-    func createEpisode(from episodeRequest: EpisodeCreateRequest, podcastId: Int, authToken: String) async throws -> EpisodeResponse {
-        var request = try buildRequest(for: "podcasts/\(podcastId)/episodes", method: .POST, authToken: authToken)
+    func createEpisode(from episodeRequest: EpisodeCreateRequest, podcastId: Int) async throws -> EpisodeResponse {
+        var request = try buildRequest(for: "podcasts/\(podcastId)/episodes", method: .POST, authenticated: true)
         request.httpBody = try encoder.encode(episodeRequest)
         let (data, response) = try await session.data(for: request)
         
@@ -144,24 +155,24 @@ final class NetworkClient: Sendable {
         return try decoder.decode(EpisodeResponse.self, from: data)
     }
     
-    func getAllEpisodes(authToken: String) async throws -> [EpisodeResponse] {
-        let request = try buildRequest(for: "/episodes", authToken: authToken)
+    func getAllEpisodes() async throws -> [EpisodeResponse] {
+        let request = try buildRequest(for: "/episodes", authenticated: true)
         let (data, response) = try await session.data(for: request)
         
         try validateResponse(response)
         return try decoder.decode([EpisodeResponse].self, from: data)
     }
     
-    func getEpisode(id: Int, authToken: String) async throws -> EpisodeResponse {
-        let request = try buildRequest(for: "episodes/\(id)", authToken: authToken)
+    func getEpisode(id: Int) async throws -> EpisodeResponse {
+        let request = try buildRequest(for: "episodes/\(id)", authenticated: true)
         let (data, response) = try await session.data(for: request)
         
         try validateResponse(response)
         return try decoder.decode(EpisodeResponse.self, from: data)
     }
     
-    func getEpisodeContent(id: Int, authToken: String) async throws -> EpisodeContentResponse {
-        let request = try buildRequest(for: "episodes/\(id)/content", authToken: authToken)
+    func getEpisodeContent(id: Int) async throws -> EpisodeContentResponse {
+        let request = try buildRequest(for: "episodes/\(id)/content", authenticated: true)
         let (data, response) = try await session.data(for: request)
         
         try validateResponse(response)
@@ -169,15 +180,15 @@ final class NetworkClient: Sendable {
     }
     
     
-    func deleteEpisode(id: Int, authToken: String) async throws {
-        let request = try buildRequest(for: "episodes/\(id)", method: .DELETE, authToken: authToken)
+    func deleteEpisode(id: Int) async throws {
+        let request = try buildRequest(for: "episodes/\(id)", method: .DELETE, authenticated: true)
         let (_, response) = try await session.data(for: request)
         
         try validateResponse(response)
     }
     
-    func cancelOngoingEpisode(id: Int, authToken: String) async throws {
-        let request = try buildRequest(for: "episodes/\(id)/cancel", method: .POST, authToken: authToken)
+    func cancelOngoingEpisode(id: Int) async throws {
+        let request = try buildRequest(for: "episodes/\(id)/cancel", method: .POST, authenticated: true)
         let (_, response) = try await session.data(for: request)
         
         try validateResponse(response)

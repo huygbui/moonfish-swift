@@ -9,17 +9,9 @@ final class UsageManager {
     private let client = NetworkClient()
     
 
-    func refreshLimits(tier: Tier, token: String?) async {
-        guard let token else {
-            limits = tier == .premium ? .premium : .free
-            return
-        }
-
+    func refreshLimits(tier: Tier) async {
         do {
-            let response = try await client.getSubscriptionTier(
-                tier: tier.rawValue,
-                authToken: token
-            )
+            let response = try await client.getSubscriptionTier(tier: tier.rawValue)
             limits = Limits(
                 maxPodcasts: response.maxPodcasts,
                 maxDailyEpisodes: response.maxDailyEpisodes,

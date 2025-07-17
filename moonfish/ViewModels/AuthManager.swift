@@ -13,11 +13,8 @@ final class AuthManager {
     private(set) var isAuthenticated = false
     private let client = NetworkClient()
     
-    private let tokenKey = "auth-token"
-    var currentToken: String? { try? Keychain.retrieve(key: tokenKey) }
-    
     init() {
-        isAuthenticated = (try? Keychain.retrieve(key: tokenKey)) != nil
+        isAuthenticated = (try? Keychain.retrieveToken()) != nil
     }
     
     func signIn(appleId: String, email: String?, fullName: String?) async throws {
@@ -29,12 +26,12 @@ final class AuthManager {
         
         let response = try await client.getAuthToken(for: request)
         
-        try Keychain.store(key: tokenKey, value: response.token.accessToken)
+        try Keychain.storeToken(value: response.token.accessToken)
         isAuthenticated = true
     }
     
     func signOut() throws {
-        try Keychain.delete(key: tokenKey)
+        try Keychain.deleteToken()
         isAuthenticated = false
     }
 }

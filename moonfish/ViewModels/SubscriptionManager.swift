@@ -6,6 +6,7 @@ import StoreKit
 final class SubscriptionManager {
     private(set) var tier: Tier = .free
     private var listener: Task<Void, Never>?
+    private let client = NetworkClient()
     
     var onTierChange: ((Tier) async -> Void)?
     var isSubscribed: Bool { tier == .premium }
@@ -20,6 +21,12 @@ final class SubscriptionManager {
         
         if newTier != tier {
             tier = newTier
+            do {
+              try await client.updateSubscription(tier: tier)
+            } catch {
+               fatalError("Unable to update subscription")
+            }
+            
             await onTierChange?(newTier)
         }
     }

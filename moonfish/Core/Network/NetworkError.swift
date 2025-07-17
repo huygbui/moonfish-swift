@@ -11,6 +11,7 @@ enum NetworkError: Error, LocalizedError {
     case noConnection
     case timeout
     case invalidRequest
+    case unauthenticated
     case unauthorized
     case notFound
     case serverError
@@ -24,6 +25,8 @@ enum NetworkError: Error, LocalizedError {
             return "Request timed out"
         case .invalidRequest:
             return "Invalid request"
+        case .unauthenticated:
+            return "Not authenticated"
         case .unauthorized:
             return "Not authorized"
         case .notFound:

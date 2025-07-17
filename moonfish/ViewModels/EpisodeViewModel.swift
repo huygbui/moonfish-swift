@@ -18,10 +18,8 @@ class EpisodeViewModel {
     private var downloads: [Int:Download] = [:]
     
     func cancel(_ episode: Episode, sessionManager: SessionManager, context: ModelContext) async {
-        guard let token = sessionManager.currentToken else { return }
-       
         do {
-            try await client.cancelOngoingEpisode(id: episode.serverId, authToken: token)
+            try await client.cancelOngoingEpisode(id: episode.serverId)
             episode.status = EpisodeStatus.cancelled.rawValue
             try context.save()
         } catch {
@@ -30,10 +28,8 @@ class EpisodeViewModel {
     }
     
     func delete(_ episode: Episode, context: ModelContext, sessionManager: SessionManager) async {
-        guard let token = sessionManager.currentToken else { return }
-        
         do {
-            try await client.deleteEpisode(id: episode.serverId, authToken: token)
+            try await client.deleteEpisode(id: episode.serverId)
             try? FileManager.default.removeItem(at: episode.fileURL)
             context.delete(episode)
             try context.save()

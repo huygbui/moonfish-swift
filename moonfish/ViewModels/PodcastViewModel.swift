@@ -19,12 +19,8 @@ class PodcastViewModel {
         sessionManager: SessionManager,
         context: ModelContext
     ) async {
-        guard let token = sessionManager.currentToken else { return }
-        
         do {
-            let response = try await client.createPodcast(
-                from: createRequest,
-                authToken: token)
+            let response = try await client.createPodcast(from: createRequest)
             
             let podcast = Podcast(from: response)
             
@@ -55,13 +51,8 @@ class PodcastViewModel {
         sessionManager: SessionManager,
         context: ModelContext
     ) async {
-        guard let token = sessionManager.currentToken else { return }
-        
         do {
-            let response = try await client.createEpisode(
-                from: request,
-                podcastId: podcast.serverId,
-                authToken: token)
+            let response = try await client.createEpisode(from: request, podcastId: podcast.serverId)
             
             let episode = Episode(from: response, for: podcast)
             context.insert(episode)
@@ -72,10 +63,8 @@ class PodcastViewModel {
     }
     
     func delete(_ podcast: Podcast, sessionManager: SessionManager, context: ModelContext) async {
-        guard let token = sessionManager.currentToken else { return }
-        
         do {
-            try await client.deletePodcast(with: podcast.serverId, authToken: token)
+            try await client.deletePodcast(with: podcast.serverId)
             context.delete(podcast)
             try context.save()
         } catch {
@@ -90,10 +79,8 @@ class PodcastViewModel {
         sessionManager: SessionManager,
         context: ModelContext
     ) async {
-        guard let token = sessionManager.currentToken else { return }
-        
         do {
-            var response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest, authToken: token)
+            var response = try await client.updatePodcast(with: podcast.serverId, from: updateRequest)
             
             if let imageData,
                let uploadURL = response.imageUploadURL {
@@ -107,7 +94,7 @@ class PodcastViewModel {
                     
                     if let httpResponse = uploadResponse as? HTTPURLResponse,
                        (200...299).contains(httpResponse.statusCode) {
-                        response = try await client.completeImageUpload(with: podcast.serverId, authToken: token)
+                        response = try await client.completeImageUpload(with: podcast.serverId)
                     }
                 } catch {
                     print("Failed to upload new image: \(error)")
@@ -123,10 +110,8 @@ class PodcastViewModel {
     }
 
     func refreshPodcasts(sessionManager: SessionManager, context: ModelContext) async {
-        guard let token = sessionManager.currentToken else { return }
-        
         do {
-            let response = try await client.getAllPodcasts(authToken: token)
+            let response = try await client.getAllPodcasts()
             let serverIDs = Set(response.map { $0.id })
             
             for podcastResponse in response {
@@ -150,14 +135,12 @@ class PodcastViewModel {
     }
     
     func refreshEpisodes(sessionManager: SessionManager, context: ModelContext) async {
-        guard let token = sessionManager.currentToken else { return }
-        
         do {
             let descriptor = FetchDescriptor<Podcast>()
             let podcasts = try context.fetch(descriptor)
             
             for podcast in podcasts {
-                let response = try await client.getAllEpisodes(for: podcast.serverId, authToken: token)
+                let response = try await client.getAllEpisodes(for: podcast.serverId)
                 let serverIDs = Set(response.map { $0.id })
                
                 for episodeResponse in response {
@@ -183,10 +166,8 @@ class PodcastViewModel {
     
     
     func refreshEpisodes(for podcast: Podcast, sessionManager: SessionManager, context: ModelContext) async {
-        guard let token = sessionManager.currentToken else { return }
-        
         do {
-            let response = try await client.getAllEpisodes(for: podcast.serverId, authToken: token)
+            let response = try await client.getAllEpisodes(for: podcast.serverId)
             let serverIDs = Set(response.map { $0.id })
             
             for episodeResponse in response {

@@ -67,3 +67,17 @@ struct Keychain {
         guard status == errSecSuccess else { throw KeychainError.delete(status: status) }
     }
 }
+
+extension Keychain {
+    static func retrieveToken() throws -> String {
+        return try retrieve(key: "auth-token")
+    }
+    
+    static func storeToken(value: String) throws {
+        try store(key: "auth-token", value: value)
+    }
+    
+    static func deleteToken() throws {
+        try delete(key: "auth-token")
+    }
+}

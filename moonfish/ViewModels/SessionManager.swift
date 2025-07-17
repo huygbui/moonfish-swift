@@ -14,15 +14,11 @@ final class SessionManager {
     var subscriptionTier: Tier { subscription.tier }
     var limits: Limits { usage.limits }
     var isSubscribed: Bool { subscription.isSubscribed }
-    var currentToken: String? { auth.currentToken }
     
     init() {
         subscription.onTierChange = { [weak self] newTier in
             guard let self else { return }
-            await self.usage.refreshLimits(
-                tier: newTier,
-                token: self.auth.currentToken
-            )
+            await self.usage.refreshLimits(tier: newTier)
         }
         
         if auth.isAuthenticated {
@@ -46,7 +42,7 @@ final class SessionManager {
     func refreshSubscriptionStatus() async {
         guard isAuthenticated else { return }
         await subscription.refresh()
-        await usage.refreshLimits(tier: subscription.tier, token: currentToken)
+        await usage.refreshLimits(tier: subscription.tier)
     }
     
     func canCreate(_ type: ContentType, in context: ModelContext) -> Bool {
