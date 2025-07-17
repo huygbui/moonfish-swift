@@ -80,4 +80,16 @@ extension Keychain {
     static func deleteToken() throws {
         try delete(key: "auth-token")
     }
+    
+    static func retrieveEmail() throws -> String {
+        return try retrieve(key: "email")
+    }
+    
+    static func storeEmail(value: String) throws {
+        try store(key: "email", value: value)
+    }
+    
+    static func deleteEmail() throws {
+        try delete(key: "email")
+    }
 }

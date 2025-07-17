@@ -25,7 +25,7 @@ struct SettingsSheet: View {
             List {
                 Section("Account") {
                     LabeledContent {
-                        Text("user@example.com")
+                        Text(authManager.email ?? "")
                             .foregroundStyle(.secondary)
                     } label: {
                         Label("Email", systemImage: "envelope")
