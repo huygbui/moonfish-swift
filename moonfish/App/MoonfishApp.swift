@@ -40,6 +40,7 @@ struct AppRootView: View {
                 }
         } else {
             SignInView()
+                .environment(auth)
         }
     }
 }

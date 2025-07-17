@@ -6,6 +6,7 @@ import StoreKit
 final class SubscriptionManager {
     private(set) var tier: Tier = .free
     private let client = NetworkClient()
+    private var listener: Task<Void, Never>?
     
     init() {
         startListening()
@@ -27,7 +28,7 @@ final class SubscriptionManager {
     }
     
     private func startListening() {
-        Task {
+        listener = Task {
             for await result in Transaction.updates {
                 if case .verified(let transaction) = result {
                     await transaction.finish()

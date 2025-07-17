@@ -83,6 +83,7 @@ struct SettingsSheet: View {
                     do {
                         try context.delete(model: Podcast.self)
                         try context.save()
+                        
                         try authManager.signOut()
                     } catch {
                         print("Logout failed: \(error)")
