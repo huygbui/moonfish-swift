@@ -11,9 +11,8 @@ import SwiftData
 struct SearchView: View {
     @Environment(EpisodeViewModel.self) private var viewModel
     @Environment(AudioManager.self) private var audioPlayer
-    @Environment(\.modelContext) private var modelContext: ModelContext
+    @Environment(\.modelContext) private var context: ModelContext
     
-    @State private var apiPodcasts: [EpisodeResponse] = []
     @State private var searchText: String = ""
     @State private var searchStatus: SearchStatusEnum = .completed
     
@@ -34,6 +33,7 @@ struct SearchView: View {
                     .navigationBarTitleDisplayMode(.inline)
                     .navigationDestination(for: Episode.self, destination: EpisodeDetailView.init)
                     .searchable(text: $searchText)
+                    .refreshable { await viewModel.refreshEpisodes(context: context) }
             }
         }
     }

@@ -131,35 +131,7 @@ class PodcastViewModel {
         }
     }
     
-    func refreshEpisodes(context: ModelContext) async {
-        do {
-            let descriptor = FetchDescriptor<Podcast>()
-            let podcasts = try context.fetch(descriptor)
-            
-            for podcast in podcasts {
-                let response = try await client.getAllEpisodes(for: podcast.serverId)
-                let serverIDs = Set(response.map { $0.id })
-               
-                for episodeResponse in response {
-                    let episode = Episode(from: episodeResponse, for: podcast)
-                    context.insert(episode)
-                }
-                
-                let podcastID = podcast.id
-                let descriptor = FetchDescriptor<Episode>(predicate: #Predicate<Episode> { $0.podcast.persistentModelID == podcastID })
-                let localEpisodes = try context.fetch(descriptor)
-                
-                for localEpisode in localEpisodes {
-                    if !serverIDs.contains(localEpisode.serverId) {
-                        context.delete(localEpisode)
-                    }
-                }
-            }
-            try context.save()
-        } catch {
-            print("Failed to refresh episodes: \(error)")
-        }
-    }
+    
     
     
     func refreshEpisodes(for podcast: Podcast, context: ModelContext) async {
