@@ -35,7 +35,7 @@ struct AppRootView: View {
                 .environment(usage)
                 .environment(audio)
                 .task {
-                    await subscription.refresh()
+                    subscription.start()
                     await usage.refresh()
                 }
         } else {

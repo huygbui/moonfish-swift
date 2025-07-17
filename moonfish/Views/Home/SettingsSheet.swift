@@ -11,6 +11,7 @@ struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @Environment(AuthManager.self) private var authManager
+    @Environment(UsageManager.self) private var usageManager
     @Environment(SubscriptionManager.self) private var subscriptionManager
     
     @AppStorage("colorSchemePreference") private var colorSchemePreference: ColorSchemePreference = .automatic
@@ -43,10 +44,12 @@ struct SettingsSheet: View {
                     
                     NavigationLink {
                         List {
-//                            LabeledContent("Podcasts") { Text(sessionManager.limits.maxPodcasts.description) }
-//                            LabeledContent("Daily Episodes", value: sessionManager.usageText(for: .episode, in: context))
-//                            LabeledContent("Daily Extended Episodes", value: sessionManager.usageText(for: .extendedEpisode, in: context))
+                            LabeledContent("Podcasts", value: usageManager.usage(for: .podcast))
+                            LabeledContent("Daily Episodes", value: usageManager.usage(for: .episode))
+                            LabeledContent("Daily Extended Episodes", value: usageManager.usage(for: .extendedEpisode))
                         }
+                        .refreshable { await usageManager.refresh() }
+                        .task { await usageManager.refresh() }
                         .navigationTitle("Usage")
                         .navigationBarTitleDisplayMode(.inline)
                         
