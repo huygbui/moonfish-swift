@@ -40,8 +40,6 @@ struct SettingsSheet: View {
                         showSubscriptionSheet = true
                     }
                     
-                    Label("Restore Purchases", systemImage: "arrow.clockwise")
-                    
                     NavigationLink {
                         List {
                             LabeledContent("Podcasts", value: usageManager.usage(for: .podcast))
