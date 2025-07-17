@@ -16,7 +16,6 @@ class PodcastViewModel {
     func submit(
         _ createRequest: PodcastCreateRequest,
         imageData: Data?,
-        sessionManager: SessionManager,
         context: ModelContext
     ) async {
         do {
@@ -48,7 +47,6 @@ class PodcastViewModel {
     func submit(
         _ request: EpisodeCreateRequest,
         podcast: Podcast,
-        sessionManager: SessionManager,
         context: ModelContext
     ) async {
         do {
@@ -62,7 +60,7 @@ class PodcastViewModel {
         }
     }
     
-    func delete(_ podcast: Podcast, sessionManager: SessionManager, context: ModelContext) async {
+    func delete(_ podcast: Podcast, context: ModelContext) async {
         do {
             try await client.deletePodcast(with: podcast.serverId)
             context.delete(podcast)
@@ -76,7 +74,6 @@ class PodcastViewModel {
         _ podcast: Podcast,
         updateRequest: PodcastUpdateRequest,
         imageData: Data?,
-        sessionManager: SessionManager,
         context: ModelContext
     ) async {
         do {
@@ -109,7 +106,7 @@ class PodcastViewModel {
         }
     }
 
-    func refreshPodcasts(sessionManager: SessionManager, context: ModelContext) async {
+    func refreshPodcasts(context: ModelContext) async {
         do {
             let response = try await client.getAllPodcasts()
             let serverIDs = Set(response.map { $0.id })
@@ -134,7 +131,7 @@ class PodcastViewModel {
         }
     }
     
-    func refreshEpisodes(sessionManager: SessionManager, context: ModelContext) async {
+    func refreshEpisodes(context: ModelContext) async {
         do {
             let descriptor = FetchDescriptor<Podcast>()
             let podcasts = try context.fetch(descriptor)
@@ -165,7 +162,7 @@ class PodcastViewModel {
     }
     
     
-    func refreshEpisodes(for podcast: Podcast, sessionManager: SessionManager, context: ModelContext) async {
+    func refreshEpisodes(for podcast: Podcast, context: ModelContext) async {
         do {
             let response = try await client.getAllEpisodes(for: podcast.serverId)
             let serverIDs = Set(response.map { $0.id })

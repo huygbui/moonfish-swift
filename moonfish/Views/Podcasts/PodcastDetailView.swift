@@ -11,7 +11,6 @@ import SwiftData
 struct PodcastDetailView: View {
     let podcast: Podcast
     @Environment(AudioManager.self) private var audioManager
-    @Environment(SessionManager.self) private var sessionManager
     @Environment(PodcastViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
@@ -106,7 +105,7 @@ struct PodcastDetailView: View {
                 onEdit: { showingPodcastUpdate = true },
                 onDelete: {
                     Task {
-                        await rootModel.delete(podcast, sessionManager: sessionManager, context: context)
+                        await rootModel.delete(podcast, context: context)
                         dismiss()
                     }
                 }
@@ -115,7 +114,7 @@ struct PodcastDetailView: View {
     }
     
     private func refresh() async {
-        await rootModel.refreshEpisodes(for: podcast, sessionManager: sessionManager, context: context)
+        await rootModel.refreshEpisodes(for: podcast, context: context)
     }
 }
 

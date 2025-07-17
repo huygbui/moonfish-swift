@@ -12,7 +12,6 @@ struct EpisodeMenu: View {
     let episode: Episode
     
     @Environment(AudioManager.self) private var audioManager
-    @Environment(SessionManager.self) private var sessionManager
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     
@@ -113,14 +112,14 @@ struct EpisodeMenu: View {
     
     private func deleteEpisode() {
         Task {
-            await rootModel.delete(episode, context: context, sessionManager: sessionManager)
+            await rootModel.delete(episode, context: context)
             audioManager.handleDeletion(of: episode)
         }
     }
     
     private func cancelEpisode() {
         Task {
-            await rootModel.cancel(episode, sessionManager: sessionManager, context: context)
+            await rootModel.cancel(episode, context: context)
         }
     }
 }

@@ -11,7 +11,6 @@ import SwiftData
 struct PodcastView: View {
     @Query(sort: \Podcast.createdAt, order: .reverse) private var podcasts: [Podcast]
     @Environment(PodcastViewModel.self) private var rootModel
-    @Environment(SessionManager.self) private var sessionManager
     @Environment(\.modelContext) private var context
 
     @State private var showingSettingSheet = false
@@ -71,7 +70,7 @@ struct PodcastView: View {
     }
     
     private func refresh() async {
-        await rootModel.refreshPodcasts(sessionManager: sessionManager, context: context)
+        await rootModel.refreshPodcasts(context: context)
     }
 }
 

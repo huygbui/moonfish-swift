@@ -9,7 +9,6 @@ import SwiftUI
 
 struct EpisodeCreateSheet: View {
     var podcast: Podcast
-    @Environment(SessionManager.self) var sessionManager
     @Environment(PodcastViewModel.self) var rootModel
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var context
@@ -79,7 +78,6 @@ struct EpisodeCreateSheet: View {
     
     func submit() {
         guard canSubmit else { return }
-        guard sessionManager.canCreateEpisode(length: .long, in: context) else { return }
         
         isSubmitting = true
 
@@ -93,7 +91,6 @@ struct EpisodeCreateSheet: View {
                     instruction: instruction
                 ),
                 podcast: podcast,
-                sessionManager: sessionManager,
                 context: context
             )
             dismiss()

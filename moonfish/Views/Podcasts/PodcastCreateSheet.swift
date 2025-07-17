@@ -10,7 +10,6 @@ import SwiftData
 import PhotosUI
 
 struct PodcastCreateSheet: View {
-    @Environment(SessionManager.self) var sessionManager
     @Environment(PodcastViewModel.self) var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) var dismiss
@@ -175,7 +174,6 @@ struct PodcastCreateSheet: View {
                     description: description
                 ),
                 imageData: imageData,
-                sessionManager: sessionManager,
                 context: context
             )
             dismiss()

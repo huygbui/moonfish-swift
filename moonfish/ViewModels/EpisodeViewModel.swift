@@ -17,7 +17,7 @@ class EpisodeViewModel {
     private let client = NetworkClient()
     private var downloads: [Int:Download] = [:]
     
-    func cancel(_ episode: Episode, sessionManager: SessionManager, context: ModelContext) async {
+    func cancel(_ episode: Episode, context: ModelContext) async {
         do {
             try await client.cancelOngoingEpisode(id: episode.serverId)
             episode.status = EpisodeStatus.cancelled.rawValue
@@ -27,7 +27,7 @@ class EpisodeViewModel {
         }
     }
     
-    func delete(_ episode: Episode, context: ModelContext, sessionManager: SessionManager) async {
+    func delete(_ episode: Episode, context: ModelContext) async {
         do {
             try await client.deleteEpisode(id: episode.serverId)
             try? FileManager.default.removeItem(at: episode.fileURL)

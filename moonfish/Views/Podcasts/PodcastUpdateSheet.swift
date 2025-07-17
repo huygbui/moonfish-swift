@@ -11,7 +11,6 @@ import PhotosUI
 
 struct PodcastUpdateSheet: View {
     var podcast: Podcast
-    @Environment(SessionManager.self) var sessionManager
     @Environment(PodcastViewModel.self) var rootModel
     @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.dismiss) var dismiss
@@ -203,7 +202,6 @@ struct PodcastUpdateSheet: View {
                 podcast,
                 updateRequest: updateRequest,
                 imageData: imageData,
-                sessionManager: sessionManager,
                 context: context
             )
             

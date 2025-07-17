@@ -12,7 +12,6 @@ struct HomeView: View {
     @Environment(EpisodeViewModel.self) private var rootModel
     @Environment(PodcastViewModel.self) private var podcastViewModel
     @Environment(AudioManager.self) private var audioPlayer
-    @Environment(SessionManager.self) private var sessionManager
     @Environment(\.modelContext) private var context: ModelContext
     
     @Query(Episode.recentDescriptor) private var recentEpisodes: [Episode]
@@ -36,7 +35,7 @@ struct HomeView: View {
                 .sheet(isPresented: $showingSettingsSheet) { SettingsSheet() }
                 .sheet(isPresented: $showingCreateSheet) { PodcastCreateSheet() }
                 .refreshable {
-                    await podcastViewModel.refreshPodcasts(sessionManager: sessionManager, context: context)
+                    await podcastViewModel.refreshPodcasts(context: context)
                 }
         }
     }

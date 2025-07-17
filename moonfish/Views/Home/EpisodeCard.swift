@@ -12,9 +12,9 @@ struct EpisodeCard: View {
     let episode: Episode
     
     @Environment(AudioManager.self) private var audioManager
-    @Environment(\.modelContext) private var context: ModelContext
     @Environment(EpisodeViewModel.self) private var rootModel
-    
+    @Environment(\.modelContext) private var context: ModelContext
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             episodeImage
